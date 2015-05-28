@@ -2,7 +2,7 @@ path = require 'path-extra'
 {relative, join} = require 'path-extra'
 {$, _, $$, Reat, ReactBootstrap, ROOT, layout} = window
 {_ships, $ships, $shipTypes} = window
-{Alert, Grid, Col, Input, DropdownButton, MenuItem, Button} = ReactBootstrap
+{Alert, Grid, Col, Input, DropdownButton, Table, MenuItem, Button} = ReactBootstrap
 
 row = if layout == 'horizonal' then 6 else 3
 shipRow = if layout == 'horizonal' then 12 else 5
@@ -75,7 +75,7 @@ getGoalLevel = (idx) ->
   return goalLevel
 
 module.exports =
-  name: 'ExpCalView'
+  name: 'ExpCalcView'
   priority: 2
   displayName: '经验值计算'
   description: '计算经验值概览界面'
@@ -186,31 +186,25 @@ module.exports =
             <Input type="text" label="总经验" value={@state.totalExp} readOnly />
           </Col>
         </Grid>
-        <Alert bsStyle={'success'}>
-          <Grid>
-            <Col xs={4}>
-              　
-            </Col>
-            <Col xs={4}>
-              场均
-            </Col>
-            <Col xs={4}>
-              场数
-            </Col>
+        <Table>
+          <tbody>
+            <tr key=0>
+              <td width="10%">　</td>
+              <td width="30%">　</td>
+              <td width="30%">场均</td>
+              <td width="30%">场数</td>
+            </tr>
             {
               for x, i in expType
                 [
-                  <Col xs={4}>
-                    {expType[i]}
-                  </Col>
-                  <Col xs={4}>
-                    {@state.perExp[i]}
-                  </Col>
-                  <Col xs={4}>
-                    {@state.expSecond[i]}
-                  </Col>
+                  <tr key={i + 1}>
+                    <td width="10%">　</td>
+                    <td width="30%">{expType[i]}</td>
+                    <td width="30%">{@state.perExp[i]}</td>
+                    <td width="30%">{@state.expSecond[i]}</td>
+                  </tr>
                 ]
             }
-          </Grid>
-        </Alert>
+          </tbody>
+        </Table>
       </div>
