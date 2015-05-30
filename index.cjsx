@@ -191,7 +191,7 @@ module.exports =
             <tr key=0>
               <td width="10%">　</td>
               <td width="30%">　</td>
-              <td width="30%">场均</td>
+              <td width="30%">每场经验</td>
               <td width="30%">场数</td>
             </tr>
             {
