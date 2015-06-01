@@ -14,8 +14,9 @@
 }
 #ExpCalcView table tr td {
   padding-left: 5px;
-  font-size: 120%;
+  font-size: 110%;
 }
 #ExpCalcView table {
-  font-size: 120%;
+  font-size: 110%;
+  text-align: center;
 }
