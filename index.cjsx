@@ -9,6 +9,13 @@ shipRow = if layout == 'horizonal' then 12 else 5
 mapRow = if layout == 'horizonal' then 9 else 5
 rankRow = if layout == 'horizonal' then 3 else 2
 
+window.addEventListener 'layout.change', (e) ->
+  {layout} = e.detail
+  row = if layout == 'horizonal' then 6 else 3
+  shipRow = if layout == 'horizonal' then 12 else 5
+  mapRow = if layout == 'horizonal' then 9 else 5
+  rankRow = if layout == 'horizonal' then 3 else 2
+
 exp = [
   0, 0, 100, 300, 600, 1000, 1500, 2100, 2800, 3600,
   4500, 5500, 6600, 7800, 9100, 10500, 12000, 13600, 15300, 17100,
@@ -54,32 +61,27 @@ expType = [
   "普通", "旗舰", "MVP", "旗舰＋MVP"
 ]
 
-getCurrentLevel = (idx) ->
-  {_ships} = window
-  console.log _ships[idx].api_lv
-  return _ships[idx].api_lv
-
-getNextExp = (idx) ->
-  {_ships} = window
-  console.log _ships[idx].api_exp[1]
-  return _ships[idx].api_exp[1]
-
-getGoalLevel = (idx) ->
-  {_ships, $ships} = window
+getExpInfo = (shipId) ->
+  {$ships, _ships} = window
+  idx = _.sortedIndex _ships, {api_id: shipId}, 'api_id'
+  # console.log idx
+  # console.log _ships[idx].api_lv
+  # console.log _ships[idx].api_exp[1]
   goalLevel = 99
   if _ships[idx].api_lv > 99
     goalLevel = 150
-  if $ships[_ships[idx].api_ship_id].api_afterlv != 0
+  if $ships[_ships[idx].api_ship_id].api_afterlv != 0 && $ships[_ships[idx].api_ship_id].api_afterlv > _ships[idx].api_lv
     goalLevel = Math.min(goalLevel, $ships[_ships[idx].api_ship_id].api_afterlv)
-  console.log goalLevel
-  return goalLevel
+  return [_ships[idx].api_lv, _ships[idx].api_exp[1], goalLevel]
 
 module.exports =
   name: 'ExpCalcView'
   priority: 2
-  displayName: '经验值计算'
-  description: '计算经验值概览界面'
+  displayName: '经验计算'
+  description: '经验值计算界面'
+  version: '1.1.0'
   reactClass: React.createClass
+    lastShipId: 0
     getInitialState: ->
       _ships: null
       currentLevel: 1
@@ -116,11 +118,15 @@ module.exports =
         expSecond: [_noneType, _secType, _mvpType, _bothType]
         perExp: [_mapValue * _mapPercent, _mapValue * _mapPercent * 1.5, _mapValue * _mapPercent * 2.0, _mapValue * _mapPercent * 3.0]
     handleShipChange: (e) ->
-      {$ships, _ships} = window
-      _currentLevel = getCurrentLevel e.target.value
-      _nextExp = getNextExp e.target.value
-      _goalLevel = getGoalLevel e.target.value
-      @handleExpChange _currentLevel, _nextExp, _goalLevel, @state.mapValue, @state.mapPercent
+      {$ships} = window
+      {_ships} = @state
+      if e
+        @lastShipId = e.target.value
+        [_currentLevel, _nextExp, _goalLevel] = getExpInfo e.target.value
+        @handleExpChange _currentLevel, _nextExp, _goalLevel, @state.mapValue, @state.mapPercent
+      else
+        [_currentLevel, _nextExp, _goalLevel] = getExpInfo @lastShipId
+        @handleExpChange _currentLevel, _nextExp, _goalLevel, @state.mapValue, @state.mapPercent
     handleCurrentLevelChange: (e) ->
       @handleExpChange e.target.value, @state.nextExp, @state.goalLevel, @state.mapValue, @state.mapPercent
     handleNextExpChange: (e) ->
@@ -136,7 +142,9 @@ module.exports =
       switch path
         when '/kcsapi/api_port/port'
           @setState
-            _ships: window._ships
+            _ships: _.sortBy window._ships, (e) ->
+              -e.api_lv
+          @handleShipChange()
     componentDidMount: ->
       window.addEventListener 'game.response', @handleResponse
     render: ->
@@ -145,16 +153,15 @@ module.exports =
         <Grid>
           <Col xs={shipRow}>
             <Input type="select" label="舰娘" onChange={@handleShipChange}>
-            {
-              {$ships, $shipTypes} = window
-              if @state._ships
-                for ship, i in @state._ships
-                  continue unless ship?
-                  shipInfo = $ships[ship.api_ship_id]
-                  <option key={i} value={i}>{shipInfo.api_name}({ship.api_lv})</option>
-              else
-                <option key={0}>空</option>
-            }
+              <option key={0}>空</option>
+              {
+                {$ships} = window
+                if @state._ships
+                  for ship, i in @state._ships
+                    continue unless ship?
+                    shipInfo = $ships[ship.api_ship_id]
+                    <option key={i} value={ship.api_id}>Lv. {ship.api_lv} - {shipInfo.api_name}</option>
+              }
             </Input>
           </Col>
           <Col xs={mapRow}>
@@ -188,11 +195,11 @@ module.exports =
         </Grid>
         <Table>
           <tbody>
-            <tr key=0>
+            <tr key={0}>
               <td width="10%">　</td>
               <td width="30%">　</td>
               <td width="30%">每场经验</td>
-              <td width="30%">场数</td>
+              <td width="30%">剩余场数</td>
             </tr>
             {
               for x, i in expType
