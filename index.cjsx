@@ -2,7 +2,7 @@ path = require 'path-extra'
 {relative, join} = require 'path-extra'
 {$, _, $$, Reat, ReactBootstrap, ROOT, layout} = window
 {_ships, $ships, $shipTypes} = window
-{Alert, Grid, Col, Input, DropdownButton, Table, MenuItem, Button} = ReactBootstrap
+{Alert, Grid, Col, Input, DropdownButton, Table, MenuItem, Button, Glyphicon} = ReactBootstrap
 
 row = if layout == 'horizonal' then 6 else 3
 shipRow = if layout == 'horizonal' then 12 else 5
@@ -77,7 +77,7 @@ getExpInfo = (shipId) ->
 module.exports =
   name: 'ExpCalcView'
   priority: 2
-  displayName: '经验计算'
+  displayName: [<Glyphicon key={0} glyph='equalizer' />, ' 经验计算']
   description: '经验值计算界面'
   version: '1.1.0'
   reactClass: React.createClass
