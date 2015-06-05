@@ -79,7 +79,7 @@ module.exports =
   priority: 2
   displayName: [<FontAwesome key={0} name='calculator' />, ' 经验计算']
   description: '经验值计算界面'
-  author: [<a key={0} href="https://github.com/myzwillmake">Yunze</a>]
+  author: [<a key={0} href="https://github.com/Chibaheit">Chiba</a>]
   version: '1.1.0'
   reactClass: React.createClass
     lastShipId: 0
