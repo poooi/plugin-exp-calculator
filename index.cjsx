@@ -1,6 +1,6 @@
 path = require 'path-extra'
 {relative, join} = require 'path-extra'
-{$, _, $$, Reat, ReactBootstrap, FontAwesome, ROOT, layout} = window
+{$, _, $$, React, ReactBootstrap, FontAwesome, ROOT, layout} = window
 {_ships, $ships, $shipTypes} = window
 {Alert, Grid, Col, Input, DropdownButton, Table, MenuItem, Button} = ReactBootstrap
 
