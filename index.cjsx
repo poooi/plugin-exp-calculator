@@ -143,8 +143,10 @@ module.exports =
       {method, path, body, postBody} = e.detail
       switch path
         when '/kcsapi/api_port/port'
+          ships = Object.keys(window._ships).map (key) ->
+            window._ships[key]
           @setState
-            _ships: _.sortBy window._ships, (e) ->
+            _ships: _.sortBy ships, (e) ->
               -e.api_lv
           @handleShipChange()
     componentDidMount: ->
