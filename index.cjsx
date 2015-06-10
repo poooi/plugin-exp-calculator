@@ -62,11 +62,9 @@ expType = [
 ]
 
 getExpInfo = (shipId) ->
+  return [1, 100, 99] unless shipId > 0
   {$ships, _ships} = window
-  idx = _.sortedIndex _ships, {api_id: shipId}, 'api_id'
-  # console.log idx
-  # console.log _ships[idx].api_lv
-  # console.log _ships[idx].api_exp[1]
+  idx = shipId
   goalLevel = 99
   if _ships[idx].api_lv > 99
     goalLevel = 150
@@ -151,6 +149,8 @@ module.exports =
           @handleShipChange()
     componentDidMount: ->
       window.addEventListener 'game.response', @handleResponse
+    componentWillUnmount: ->
+      window.removeEventListener 'game.response', @handleResponse
     render: ->
       <div>
         <link rel="stylesheet" href={join(relative(ROOT, __dirname), 'assets', 'exp-calc.css')} />
