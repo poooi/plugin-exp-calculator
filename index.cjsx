@@ -81,8 +81,8 @@ module.exports =
   link: 'https://github.com/Chibaheit'
   version: '1.1.0'
   reactClass: React.createClass
-    lastShipId: 0
     getInitialState: ->
+      lastShipId: 0
       _ships: null
       currentLevel: 1
       nextExp: 100
@@ -120,13 +120,11 @@ module.exports =
     handleShipChange: (e) ->
       {$ships} = window
       {_ships} = @state
-      if e
-        @lastShipId = e.target.value
-        [_currentLevel, _nextExp, _goalLevel] = getExpInfo e.target.value
-        @handleExpChange _currentLevel, _nextExp, _goalLevel, @state.mapValue, @state.mapPercent
-      else
-        [_currentLevel, _nextExp, _goalLevel] = getExpInfo @lastShipId
-        @handleExpChange _currentLevel, _nextExp, _goalLevel, @state.mapValue, @state.mapPercent
+      if e && e.target.value != @state.lastShipId
+        @setState
+          lastShipId: e.target.value
+      [_currentLevel, _nextExp, _goalLevel] = getExpInfo @state.lastShipId
+      @handleExpChange _currentLevel, _nextExp, _goalLevel, @state.mapValue, @state.mapPercent
     handleCurrentLevelChange: (e) ->
       @handleExpChange e.target.value, @state.nextExp, @state.goalLevel, @state.mapValue, @state.mapPercent
     handleNextExpChange: (e) ->
@@ -156,7 +154,7 @@ module.exports =
         <link rel="stylesheet" href={join(relative(ROOT, __dirname), 'assets', 'exp-calc.css')} />
         <Grid>
           <Col xs={shipRow}>
-            <Input type="select" label="舰娘" onChange={@handleShipChange}>
+            <Input type="select" label="舰娘" value={@state.lastShipId} onChange={@handleShipChange}>
               <option key={0}>空</option>
               {
                 {$ships} = window
