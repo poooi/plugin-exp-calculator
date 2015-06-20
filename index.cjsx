@@ -103,6 +103,11 @@ module.exports =
         30 * 1.2 * 3.0
       ]
     handleExpChange: (_currentLevel, _nextExp, _goalLevel, _mapValue, _mapPercent) ->
+      _currentLevel = parseInt(_currentLevel)
+      _nextExp = parseInt(_nextExp)
+      _goalLevel = parseInt(_goalLevel)
+      _mapValue = parseInt(_mapValue)
+      _totalExp = 0
       _totalExp = exp[_goalLevel] - exp[_currentLevel + 1] + _nextExp
       _noneType = Math.ceil(_totalExp / _mapValue / _mapPercent)
       _secType = Math.ceil(_totalExp / _mapValue / _mapPercent / 1.5)
@@ -130,6 +135,7 @@ module.exports =
     handleNextExpChange: (e) ->
       @handleExpChange @state.currentLevel, e.target.value, @state.goalLevel, @state.mapValue, @state.mapPercent
     handleGoalLevelChange: (e) ->
+      console.log e.target.value
       @handleExpChange @state.currentLevel, @state.nextExp, e.target.value, @state.mapValue, @state.mapPercent
     handleExpMapChange: (e) ->
       @handleExpChange @state.currentLevel, @state.nextExp, @state.goalLevel, e.target.value, @state.mapPercent
@@ -183,16 +189,16 @@ module.exports =
             </Input>
           </Col>
           <Col xs={row}>
-            <Input type="text" label="目前等级" value={@state.currentLevel} onChange={@handleCurrentLevelChange} />
+            <Input type="number" label="目前等级" value={@state.currentLevel} onChange={@handleCurrentLevelChange} />
           </Col>
           <Col xs={row}>
-            <Input type="text" label="距离下一级" value={@state.nextExp} onChange={@handleNextExpChange} />
+            <Input type="number" label="距离下一级" value={@state.nextExp} onChange={@handleNextExpChange} />
           </Col>
           <Col xs={row}>
-            <Input type="text" label="目标等级" value={@state.goalLevel} onChange={@handleGoalLevelChange} />
+            <Input type="number" label="目标等级" value={@state.goalLevel} onChange={@handleGoalLevelChange} />
           </Col>
           <Col xs={row}>
-            <Input type="text" label="总经验" value={@state.totalExp} readOnly />
+            <Input type="number" label="总经验" value={@state.totalExp} readOnly />
           </Col>
         </Grid>
         <Table>
