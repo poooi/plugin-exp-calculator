@@ -126,8 +126,7 @@ module.exports =
       {$ships} = window
       {_ships} = @state
       if e && e.target.value != @state.lastShipId
-        @setState
-          lastShipId: e.target.value
+        @state.lastShipId = e.target.value
       [_currentLevel, _nextExp, _goalLevel] = getExpInfo @state.lastShipId
       @handleExpChange _currentLevel, _nextExp, _goalLevel, @state.mapValue, @state.mapPercent
     handleCurrentLevelChange: (e) ->
@@ -168,7 +167,7 @@ module.exports =
                   for ship, i in @state._ships
                     continue unless ship?
                     shipInfo = $ships[ship.api_ship_id]
-                    <option key={i} value={ship.api_id}>Lv. {ship.api_lv} - {shipInfo.api_name}</option>
+                    <option key={i + 1} value={ship.api_id}>Lv. {ship.api_lv} - {shipInfo.api_name}</option>
               }
             </Input>
           </Col>
