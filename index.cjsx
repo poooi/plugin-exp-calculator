@@ -75,7 +75,7 @@ getExpInfo = (shipId) ->
 module.exports =
   name: 'ExpCalcView'
   priority: 2
-  displayName: [<FontAwesome key={0} name='calculator' />, ' 经验计算']
+  displayName: <span><FontAwesome key={0} name='calculator' /> 经验计算</span>
   description: '经验值计算界面'
   author: 'Chiba'
   link: 'https://github.com/Chibaheit'
