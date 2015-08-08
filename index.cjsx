@@ -90,7 +90,7 @@ getExpInfo = (shipId) ->
 module.exports =
   name: 'ExpCalcView'
   priority: 2
-  displayName: <span><FontAwesome key={0} name='calculator' />{' ' + __("Exp-calc")}</span>
+  displayName: <span><FontAwesome key={0} name='calculator' />{' ' + __("Exp calc")}</span>
   description: __("Exp calculator")
   author: 'Chiba'
   link: 'https://github.com/Chibaheit'
