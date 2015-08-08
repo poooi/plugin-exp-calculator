@@ -4,6 +4,18 @@ path = require 'path-extra'
 {_ships, $ships, $shipTypes} = window
 {Alert, Grid, Col, Input, DropdownButton, Table, MenuItem, Button} = ReactBootstrap
 
+i18n = require './node_modules/i18n'
+{__} = i18n
+
+i18n.configure
+  locales: ['en_US', 'ja_JP', 'zh_CN']
+  defaultLocale: 'en_US'
+  directory: path.join(__dirname, 'assets', 'i18n')
+  updateFiles: false
+  indent: '\t'
+  extension: '.json'
+i18n.setLocale(window.language)
+
 row = if layout == 'horizonal' then 6 else 3
 shipRow = if layout == 'horizonal' then 12 else 5
 mapRow = if layout == 'horizonal' then 9 else 5
@@ -58,7 +70,10 @@ expMap = [
 ]
 
 expType = [
-  "普通", "旗舰", "MVP", "旗舰＋MVP"
+  __("Basic"),
+  __("Flagship"),
+  __("MVP"),
+  __("MVP and flagship")
 ]
 
 getExpInfo = (shipId) ->
@@ -75,8 +90,8 @@ getExpInfo = (shipId) ->
 module.exports =
   name: 'ExpCalcView'
   priority: 2
-  displayName: <span><FontAwesome key={0} name='calculator' /> 经验计算</span>
-  description: '经验值计算界面'
+  displayName: <span><FontAwesome key={0} name='calculator' />{' ' + __("Exp-calc")}</span>
+  description: __("Exp calculator")
   author: 'Chiba'
   link: 'https://github.com/Chibaheit'
   version: '1.1.0'
@@ -159,8 +174,8 @@ module.exports =
         <link rel="stylesheet" href={join(relative(ROOT, __dirname), 'assets', 'exp-calc.css')} />
         <Grid>
           <Col xs={shipRow}>
-            <Input type="select" label="舰娘" value={@state.lastShipId} onChange={@handleShipChange}>
-              <option key={0}>空</option>
+            <Input type="select" label={__("Ship")} value={@state.lastShipId} onChange={@handleShipChange}>
+              <option key={0}>{__("NULL")}</option>
               {
                 {$ships} = window
                 if @state._ships
@@ -172,7 +187,7 @@ module.exports =
             </Input>
           </Col>
           <Col xs={mapRow}>
-            <Input type="select" label="海域" onChange={@handleExpMapChange}>
+            <Input type="select" label={__("Map")} onChange={@handleExpMapChange}>
             {
               for x, i in expMap
                 <option key={i} value={expValue[i]}>{x}</option>
@@ -180,7 +195,7 @@ module.exports =
             </Input>
           </Col>
           <Col xs={rankRow}>
-            <Input type="select" label="评价" onChange={@handleExpLevelChange}>
+            <Input type="select" label={__("Result")} onChange={@handleExpLevelChange}>
             {
               for x, i in expLevel
                 <option key={i} value={expPercent[i]}>{x}</option>
@@ -188,16 +203,16 @@ module.exports =
             </Input>
           </Col>
           <Col xs={row}>
-            <Input type="number" label="目前等级" value={@state.currentLevel} onChange={@handleCurrentLevelChange} />
+            <Input type="number" label={__("Actual level")} value={@state.currentLevel} onChange={@handleCurrentLevelChange} />
           </Col>
           <Col xs={row}>
-            <Input type="number" label="距离下一级" value={@state.nextExp} onChange={@handleNextExpChange} />
+            <Input type="number" label={__("To next")} value={@state.nextExp} onChange={@handleNextExpChange} />
           </Col>
           <Col xs={row}>
-            <Input type="number" label="目标等级" value={@state.goalLevel} onChange={@handleGoalLevelChange} />
+            <Input type="number" label={__("Goal")} value={@state.goalLevel} onChange={@handleGoalLevelChange} />
           </Col>
           <Col xs={row}>
-            <Input type="number" label="总经验" value={@state.totalExp} readOnly />
+            <Input type="number" label={__("Total exp")} value={@state.totalExp} readOnly />
           </Col>
         </Grid>
         <Table>
@@ -205,8 +220,8 @@ module.exports =
             <tr key={0}>
               <td width="10%">　</td>
               <td width="30%">　</td>
-              <td width="30%">每场经验</td>
-              <td width="30%">剩余场数</td>
+              <td width="30%">{__("Per attack")}</td>
+              <td width="30%">{__("Remainder")}</td>
             </tr>
             {
               for x, i in expType
