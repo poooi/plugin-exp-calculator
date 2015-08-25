@@ -1,5 +1,23 @@
 {
+  "name": "exp-calc",
+  "description": "Calculate experience value.",
+  "version": "1.1.0",
+  "main": "index.cjsx",
   "dependencies": {
-   "i18n": "^0.5.0"
-  }
+    "i18n": "^0.5.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/poooi/plugin-exp-calculator.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/poooi/plugin-exp-calculator/issues"
+  },
+  "homepage": "https://github.com/poooi/plugin-exp-calculator#readme"
 }

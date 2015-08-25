@@ -4,8 +4,7 @@ path = require 'path-extra'
 {_ships, $ships, $shipTypes} = window
 {Alert, Grid, Col, Input, DropdownButton, Table, MenuItem, Button} = ReactBootstrap
 
-i18n = require './node_modules/i18n'
-{__} = i18n
+{__} = require 'i18n'
 
 i18n.configure
   locales: ['en-US', 'ja-JP', 'zh-CN']
