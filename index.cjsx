@@ -16,17 +16,17 @@ i18n.configure
   extension: '.json'
 i18n.setLocale(window.language)
 
-row = if layout == 'horizonal' then 6 else 3
-shipRow = if layout == 'horizonal' then 12 else 5
-mapRow = if layout == 'horizonal' then 9 else 5
-rankRow = if layout == 'horizonal' then 3 else 2
+row = if layout == 'horizontal' then 6 else 3
+shipRow = if layout == 'horizontal' then 12 else 5
+mapRow = if layout == 'horizontal' then 9 else 5
+rankRow = if layout == 'horizontal' then 3 else 2
 
 window.addEventListener 'layout.change', (e) ->
   {layout} = e.detail
-  row = if layout == 'horizonal' then 6 else 3
-  shipRow = if layout == 'horizonal' then 12 else 5
-  mapRow = if layout == 'horizonal' then 9 else 5
-  rankRow = if layout == 'horizonal' then 3 else 2
+  row = if layout == 'horizontal' then 6 else 3
+  shipRow = if layout == 'horizontal' then 12 else 5
+  mapRow = if layout == 'horizontal' then 9 else 5
+  rankRow = if layout == 'horizontal' then 3 else 2
 
 exp = [
   0, 0, 100, 300, 600, 1000, 1500, 2100, 2800, 3600,
