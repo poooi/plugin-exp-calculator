@@ -94,7 +94,7 @@ module.exports =
   description: __("Exp calculator")
   author: 'Chiba'
   link: 'https://github.com/Chibaheit'
-  version: '1.1.0'
+  version: '1.2.0'
   reactClass: React.createClass
     getInitialState: ->
       lastShipId: 0
