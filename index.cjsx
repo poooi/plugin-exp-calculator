@@ -76,6 +76,15 @@ expType = [
   __("MVP and flagship")
 ]
 
+# get the remodel lvs for a ship, [0] for it can't
+getRemodelLvsById = (shipId) ->
+  remodelLvs = [$ships[shipId].api_afterlv]
+  nextShipId = parseInt $ships[shipId].api_aftershipid
+  while(nextShipId != 0 && remodelLvs[remodelLvs.length - 1] < $ships[nextShipId].api_afterlv)
+    remodelLvs.push $ships[nextShipId].api_afterlv
+    nextShipId = parseInt $ships[nextShipId].api_aftershipid
+  return remodelLvs
+
 getExpInfo = (shipId) ->
   return [1, 100, 99] unless shipId > 0
   {$ships, _ships} = window
@@ -83,8 +92,12 @@ getExpInfo = (shipId) ->
   goalLevel = 99
   if _ships[idx].api_lv > 99
     goalLevel = 150
-  if $ships[_ships[idx].api_ship_id].api_afterlv != 0 && $ships[_ships[idx].api_ship_id].api_afterlv > _ships[idx].api_lv
-    goalLevel = Math.min(goalLevel, $ships[_ships[idx].api_ship_id].api_afterlv)
+  else if $ships[_ships[idx].api_ship_id].api_afterlv != 0 # it has remodel
+    remodelLvs = getRemodelLvsById _ships[idx].api_ship_id
+    for lv in remodelLvs
+      if lv > _ships[idx].api_lv
+        goalLevel = lv
+        break
   return [_ships[idx].api_lv, _ships[idx].api_exp[1], goalLevel]
 
 module.exports =
