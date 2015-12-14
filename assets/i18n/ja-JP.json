@@ -14,5 +14,7 @@
   "Goal": "目標のレベル",
   "Total exp": "必要経験値",
   "Per attack": "1回あたり",
-  "Remainder": "戦闘回数"
+  "Remainder": "戦闘回数",
+  "Exp": "経験値",
+  "+ %s for each fleet": "諸艦隊の練巡ボーナス: %s"
 }

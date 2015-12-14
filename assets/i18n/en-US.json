@@ -14,5 +14,7 @@
   "Goal": "Goal",
   "Total exp": "Total exp",
   "Per attack": "Per attack",
-  "Remainder": "Remainder"
+  "Remainder": "Remainder",
+  "Exp": "Exp",
+  "+ %s for each fleet": "+ %s for each fleet"
 }

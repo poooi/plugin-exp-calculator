@@ -14,5 +14,7 @@
   "Goal": "目標等級",
   "Total exp": "合計經驗值",
   "Per attack": "每場經驗值",
-  "Remainder": "剩餘場數"
+  "Remainder": "剩餘場數",
+  "Exp": "演習經驗",
+  "+ %s for each fleet": "諸艦隊練巡加成: %s"
 }

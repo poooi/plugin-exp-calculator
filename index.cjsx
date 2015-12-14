@@ -100,6 +100,28 @@ getExpInfo = (shipId) ->
         break
   return [_ships[idx].api_lv, _ships[idx].api_exp[1], goalLevel]
 
+bonusExpScaleFlagship = [
+  [5, 8, 11, 15, 20],
+  [10, 13, 16, 20, 25]
+]
+
+bonusExpScaleNonFlagship = [
+  [3, 5, 7, 10, 15],
+  [4, 6, 8, 12, 17.5]
+]
+
+getBonusType = (lv) ->
+  if lv < 10
+    0
+  else if 10 <= lv < 30
+    1
+  else if 30 <= lv < 60
+    2
+  else if 60 <= lv < 100
+    3
+  else
+    4
+
 module.exports =
   name: 'ExpCalcView'
   priority: 2
@@ -178,6 +200,43 @@ module.exports =
             _ships: _.sortBy ships, (e) ->
               -e.api_lv
           @handleShipChange()
+        when '/kcsapi/api_req_member/get_practice_enemyinfo'
+          enemyShips = body.api_deck.api_ships
+          baseExp = exp[enemyShips[0].api_level] / 100 + exp[enemyShips[1].api_level ? 0] / 300
+          baseExp = if baseExp <= 500 then baseExp else 500 + Math.floor Math.sqrt baseExp - 500
+          bonusScale = ["0%", "0%", "0%", "0%"]
+          bonusFlag = false
+          for index in [0..3]
+            fleetShips = window._decks[index].api_ship
+            flagshipFlag = false
+            trainingCount = 0
+            trainingLv = 0
+            for id, i in fleetShips
+              if id is -1
+                break
+              ship = window._ships[id]
+              if ship.api_stype is 21
+                trainingCount++
+                if not flagshipFlag
+                  if ship.api_lv > trainingLv
+                    trainingLv = ship.api_lv
+                if i is 0
+                  flagshipFlag = true
+            if trainingCount > 2
+              trainingCount = 2
+            if trainingCount isnt 0
+              bonusFlag = true
+              bonusType = getBonusType trainingLv
+              if flagshipFlag
+                bonusScale[index] = bonusExpScaleFlagship[trainingCount - 1][bonusType]
+              else
+                bonusScale[index] = bonusExpScaleNonFlagship[trainingCount - 1][bonusType]
+              bonusScale[index] = "#{bonusScale[index]}%"
+            message = "#{__('Exp')}: [A/B] #{Math.floor baseExp}, [S] #{Math.floor baseExp * 1.2}"
+            if bonusFlag
+              message = "#{message}, #{__("+ %s for each fleet", bonusScale.join " / ")}"
+          window.success message,
+            stickyFor: 1000
     componentDidMount: ->
       window.addEventListener 'game.response', @handleResponse
     componentWillUnmount: ->
