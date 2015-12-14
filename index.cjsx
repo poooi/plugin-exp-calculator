@@ -178,6 +178,12 @@ module.exports =
             _ships: _.sortBy ships, (e) ->
               -e.api_lv
           @handleShipChange()
+        when '/kcsapi/api_req_member/get_practice_enemyinfo'
+          enemyShips = body.api_deck.api_ships
+          baseExp = exp[enemyShips[0].api_level] / 100 + exp[enemyShips[1].api_level ? 0] / 300
+          baseExp = if baseExp <= 500 then baseExp else Math.floor 500 + Math.sqrt baseExp - 500
+          window.success "#{__("Expect base experience")}: #{basicExp}",
+            stickyFor: 1000
     componentDidMount: ->
       window.addEventListener 'game.response', @handleResponse
     componentWillUnmount: ->
