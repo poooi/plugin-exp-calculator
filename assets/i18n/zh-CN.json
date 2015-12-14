@@ -15,7 +15,6 @@
   "Total exp": "合计经验",
   "Per attack": "每场经验",
   "Remainder": "剩余场数",
-  "Expected Exp": "演习经验",
-  "Base": "基础",
-  "w/ training cruisers' bonus": "练巡加成"
+  "Exp": "演习经验",
+  "+ %s for each fleet": "诸舰队练巡加成: %s"
 }

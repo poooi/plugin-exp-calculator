@@ -15,7 +15,6 @@
   "Total exp": "合計經驗值",
   "Per attack": "每場經驗值",
   "Remainder": "剩餘場數",
-  "Expected Exp": "演習經驗",
-  "Base": "基礎",
-  "w/ training cruisers' bonus": "練巡加成"
+  "Exp": "演習經驗",
+  "+ %s for each fleet": "諸艦隊練巡加成: %s"
 }

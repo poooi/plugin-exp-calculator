@@ -15,7 +15,6 @@
   "Total exp": "必要経験値",
   "Per attack": "1回あたり",
   "Remainder": "戦闘回数",
-  "Expected Exp": "経験値",
-  "Base": "基本",
-  "w/ training cruisers' bonus": "練巡の補正"
+  "Exp": "経験値",
+  "+ %s for each fleet": "諸艦隊の練巡ボーナス: %s"
 }

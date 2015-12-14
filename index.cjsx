@@ -204,35 +204,37 @@ module.exports =
           enemyShips = body.api_deck.api_ships
           baseExp = exp[enemyShips[0].api_level] / 100 + exp[enemyShips[1].api_level ? 0] / 300
           baseExp = if baseExp <= 500 then baseExp else 500 + Math.floor Math.sqrt baseExp - 500
-          fleetShips = window._decks[0].api_ship
-          flagshipFlag = false
-          trainingCount = 0
-          trainingLv = 0
-          for id, i in fleetShips
-            if id is -1
-              break
-            ship = window._ships[id]
-            if ship.api_stype is 21
-              trainingCount++
-              if not flagshipFlag
-                if ship.api_lv > trainingLv
-                  trainingLv = ship.api_lv
-              if i is 0
-                flagshipFlag = true
-          if trainingCount > 2
-            trainingCount = 2
-          if trainingCount is 0
-            bonusScale = 1
-          else
-            bonusType = getBonusType trainingLv
-            if flagshipFlag
-              bonusScale = bonusExpScaleFlagship[trainingCount - 1][bonusType]
-            else
-              bonusScale = bonusExpScaleNonFlagship[trainingCount - 1][bonusType]
-            bonusScale = 1 + bonusScale / 100
-          message = "#{__('Expected Exp')}: #{Math.floor baseExp} (#{__('Base')}), #{Math.floor baseExp * 1.2} (S)"
-          if bonusScale isnt 1
-            message = message + ", #{Math.floor baseExp * 1.2 * bonusScale} (S & #{__("w/ training cruisers' bonus")})"
+          bonusScale = ["0%", "0%", "0%", "0%"]
+          bonusFlag = false
+          for index in [0..3]
+            fleetShips = window._decks[index].api_ship
+            flagshipFlag = false
+            trainingCount = 0
+            trainingLv = 0
+            for id, i in fleetShips
+              if id is -1
+                break
+              ship = window._ships[id]
+              if ship.api_stype is 21
+                trainingCount++
+                if not flagshipFlag
+                  if ship.api_lv > trainingLv
+                    trainingLv = ship.api_lv
+                if i is 0
+                  flagshipFlag = true
+            if trainingCount > 2
+              trainingCount = 2
+            if trainingCount isnt 0
+              bonusFlag = true
+              bonusType = getBonusType trainingLv
+              if flagshipFlag
+                bonusScale[index] = bonusExpScaleFlagship[trainingCount - 1][bonusType]
+              else
+                bonusScale[index] = bonusExpScaleNonFlagship[trainingCount - 1][bonusType]
+              bonusScale[index] = "#{bonusScale[index]}%"
+            message = "#{__('Exp')}: [A/B] #{Math.floor baseExp}, [S] #{Math.floor baseExp * 1.2}"
+            if bonusFlag
+              message = "#{message}, #{__("+ %s for each fleet", bonusScale.join " / ")}"
           window.success message,
             stickyFor: 1000
     componentDidMount: ->
