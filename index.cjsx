@@ -100,6 +100,28 @@ getExpInfo = (shipId) ->
         break
   return [_ships[idx].api_lv, _ships[idx].api_exp[1], goalLevel]
 
+bonusExpScaleFlagship = [
+  [5, 8, 11, 15, 20],
+  [10, 13, 16, 20, 25]
+]
+
+bonusExpScaleNonFlagship = [
+  [3, 5, 7, 10, 15],
+  [4, 6, 8, 12, 17.5]
+]
+
+getBonusType = (lv) ->
+  if lv < 10
+    0
+  else if 10 <= lv < 30
+    1
+  else if 30 <= lv < 60
+    2
+  else if 60 <= lv < 100
+    3
+  else
+    4
+
 module.exports =
   name: 'ExpCalcView'
   priority: 2
@@ -181,8 +203,34 @@ module.exports =
         when '/kcsapi/api_req_member/get_practice_enemyinfo'
           enemyShips = body.api_deck.api_ships
           baseExp = exp[enemyShips[0].api_level] / 100 + exp[enemyShips[1].api_level ? 0] / 300
-          baseExp = if baseExp <= 500 then baseExp else Math.floor 500 + Math.sqrt baseExp - 500
-          window.success "#{__("Expected base experience")}: #{baseExp}",
+          baseExp = if baseExp <= 500 then baseExp else 500 + Math.sqrt baseExp - 500
+          fleetShips = window._decks[0].api_ship
+          flagshipFlag = false
+          trainingCount = 0
+          trainingLv = 0
+          for id, i in fleetShips
+            if id is -1
+              break
+            ship = window._ships[id]
+            if ship.api_stype = 21
+              trainingCount++
+              if not flagshipFlag
+                if ship.api_lv > trainingLv
+                  trainingLv = ship.api_lv
+              if i is 0
+                flagshipFlag = true
+          if trainingCount > 2
+            trainingCount = 2
+          if trainingCount is 0
+            bonusScale = 1
+          else
+            bonusType = getBonusType trainingLv
+            if flagshipFlag
+              bonusScale = bonusExpScaleFlagship[trainingCount - 1][bonusType]
+            else
+              bonusScale = bonusExpScaleNonFlagship[trainingCount - 1][bonusType]
+            bonusScale = 1 + bonusScale / 100
+          window.success "#{__('Expected Exp')}: #{Math.floor baseExp} (#{__('Base')}), #{Math.floor baseExp * 1.2} (S), #{Math.floor baseExp * 1.2 * bonusScale} (S & #{__("w/ training cruisers' bonus")})",
             stickyFor: 1000
     componentDidMount: ->
       window.addEventListener 'game.response', @handleResponse
