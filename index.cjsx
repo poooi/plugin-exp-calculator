@@ -182,7 +182,7 @@ module.exports =
           enemyShips = body.api_deck.api_ships
           baseExp = exp[enemyShips[0].api_level] / 100 + exp[enemyShips[1].api_level ? 0] / 300
           baseExp = if baseExp <= 500 then baseExp else Math.floor 500 + Math.sqrt baseExp - 500
-          window.success "#{__("Expect base experience")}: #{basicExp}",
+          window.success "#{__("Expected base experience")}: #{baseExp}",
             stickyFor: 1000
     componentDidMount: ->
       window.addEventListener 'game.response', @handleResponse
