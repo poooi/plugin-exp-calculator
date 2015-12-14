@@ -203,7 +203,7 @@ module.exports =
         when '/kcsapi/api_req_member/get_practice_enemyinfo'
           enemyShips = body.api_deck.api_ships
           baseExp = exp[enemyShips[0].api_level] / 100 + exp[enemyShips[1].api_level ? 0] / 300
-          baseExp = if baseExp <= 500 then baseExp else 500 + Math.sqrt baseExp - 500
+          baseExp = if baseExp <= 500 then baseExp else 500 + Math.floor Math.sqrt baseExp - 500
           fleetShips = window._decks[0].api_ship
           flagshipFlag = false
           trainingCount = 0
