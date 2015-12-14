@@ -184,7 +184,6 @@ module.exports =
     handleNextExpChange: (e) ->
       @handleExpChange @state.currentLevel, e.target.value, @state.goalLevel, @state.mapValue, @state.mapPercent
     handleGoalLevelChange: (e) ->
-      console.log e.target.value
       @handleExpChange @state.currentLevel, @state.nextExp, e.target.value, @state.mapValue, @state.mapPercent
     handleExpMapChange: (e) ->
       @handleExpChange @state.currentLevel, @state.nextExp, @state.goalLevel, e.target.value, @state.mapPercent
