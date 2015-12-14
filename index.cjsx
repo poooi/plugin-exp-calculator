@@ -212,7 +212,7 @@ module.exports =
             if id is -1
               break
             ship = window._ships[id]
-            if ship.api_stype = 21
+            if ship.api_stype is 21
               trainingCount++
               if not flagshipFlag
                 if ship.api_lv > trainingLv
@@ -230,7 +230,10 @@ module.exports =
             else
               bonusScale = bonusExpScaleNonFlagship[trainingCount - 1][bonusType]
             bonusScale = 1 + bonusScale / 100
-          window.success "#{__('Expected Exp')}: #{Math.floor baseExp} (#{__('Base')}), #{Math.floor baseExp * 1.2} (S), #{Math.floor baseExp * 1.2 * bonusScale} (S & #{__("w/ training cruisers' bonus")})",
+          message = "#{__('Expected Exp')}: #{Math.floor baseExp} (#{__('Base')}), #{Math.floor baseExp * 1.2} (S)"
+          if bonusScale isnt 1
+            message = message + ", #{Math.floor baseExp * 1.2 * bonusScale} (S & #{__("w/ training cruisers' bonus")})"
+          window.success message,
             stickyFor: 1000
     componentDidMount: ->
       window.addEventListener 'game.response', @handleResponse

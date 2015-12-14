@@ -14,5 +14,8 @@
   "Goal": "目標等級",
   "Total exp": "合計經驗值",
   "Per attack": "每場經驗值",
-  "Remainder": "剩餘場數"
+  "Remainder": "剩餘場數",
+  "Expected Exp": "演習經驗",
+  "Base": "Base",
+  "w/ training cruisers' bonus": "w/ training cruisers' bonus"
 }
