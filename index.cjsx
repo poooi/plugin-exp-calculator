@@ -289,19 +289,17 @@ module.exports =
         <Table>
           <tbody>
             <tr key={0}>
-              <td width="10%">　</td>
-              <td width="30%">　</td>
-              <td width="30%">{__("Per attack")}</td>
-              <td width="30%">{__("Remainder")}</td>
+              <td>　</td>
+              <td>{__("Per attack")}</td>
+              <td>{__("Remainder")}</td>
             </tr>
             {
               for x, i in expType
                 [
                   <tr key={i + 1}>
-                    <td width="10%">　</td>
-                    <td width="30%">{expType[i]}</td>
-                    <td width="30%">{@state.perExp[i]}</td>
-                    <td width="30%">{@state.expSecond[i]}</td>
+                    <td>{expType[i]}</td>
+                    <td>{@state.perExp[i]}</td>
+                    <td>{@state.expSecond[i]}</td>
                   </tr>
                 ]
             }
