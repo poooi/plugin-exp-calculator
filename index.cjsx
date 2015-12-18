@@ -44,7 +44,7 @@ exp = [
   1255000, 1290000, 1329000, 1372000, 1419000, 1470000, 1525000, 1584000, 1647000, 1714000,
   1785000, 1860000, 1940000, 2025000, 2115000, 2210000, 2310000, 2415000, 2525000, 2640000,
   2760000, 2887000, 3021000, 3162000, 3310000, 3465000, 3628000, 3799000, 3978000, 4165000,
-  4360000, 4360000
+  4360000, 4564000, 4777000, 4999000, 5230000, 5470000, 5470000
 ]
 expValue = [
   30, 50, 80, 100, 150, 50,
@@ -91,7 +91,7 @@ getExpInfo = (shipId) ->
   idx = shipId
   goalLevel = 99
   if _ships[idx].api_lv > 99
-    goalLevel = 150
+    goalLevel = 155
   else if $ships[_ships[idx].api_ship_id].api_afterlv != 0 # it has remodel
     remodelLvs = getRemodelLvsById _ships[idx].api_ship_id
     for lv in remodelLvs
