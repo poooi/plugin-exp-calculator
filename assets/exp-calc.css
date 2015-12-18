@@ -1,5 +1,6 @@
 #ExpCalcView label {
   font-size: 13px;
+  margin-bottom: 0;
 }
 #ExpCalcView .hidden {
   display: none;
@@ -19,6 +20,7 @@
 #ExpCalcView table {
   font-size: 100%;
   text-align: center;
+  margin-bottom: 0;
 }
 #ExpCalcView {
   padding-top: 15px;
