@@ -4,17 +4,15 @@ path = require 'path-extra'
 {_ships, $ships, $shipTypes} = window
 {Alert, Grid, Col, Input, DropdownButton, Table, MenuItem, Button} = ReactBootstrap
 
-i18n = require 'i18n'
-{__} = i18n
-
-i18n.configure
+window.i18n.expCalc = new(require 'i18n-2')
   locales: ['en-US', 'ja-JP', 'zh-CN']
   defaultLocale: 'zh-CN'
   directory: path.join(__dirname, 'assets', 'i18n')
   updateFiles: false
   indent: '\t'
   extension: '.json'
-i18n.setLocale(window.language)
+window.i18n.expCalc.setLocale(window.language)
+__ = window.i18n.expCalc.__.bind(window.i18n.expCalc)
 
 row = if layout == 'horizontal' then 6 else 3
 shipRow = if layout == 'horizontal' then 12 else 5
@@ -253,7 +251,7 @@ module.exports =
                   for ship, i in @state._ships
                     continue unless ship?
                     shipInfo = $ships[ship.api_ship_id]
-                    <option key={i + 1} value={ship.api_id}>Lv. {ship.api_lv} - {shipInfo.api_name}</option>
+                    <option key={i + 1} value={ship.api_id}>Lv. {ship.api_lv} - {window.i18n.resources.__ shipInfo.api_name}</option>
               }
             </Input>
           </Col>

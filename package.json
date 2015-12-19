@@ -4,7 +4,6 @@
   "version": "1.2.1",
   "main": "index.cjsx",
   "dependencies": {
-    "i18n": "^0.5.0"
   },
   "devDependencies": {},
   "scripts": {
