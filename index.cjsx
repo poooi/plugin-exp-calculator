@@ -181,6 +181,8 @@ module.exports =
       @handleExpChange _currentLevel, _nextExp, _goalLevel, @state.mapValue, @state.mapPercent
     handleCurrentLevelChange: (e) ->
       @handleExpChange e.target.value, @state.nextExp, @state.goalLevel, @state.mapValue, @state.mapPercent
+    handleNextExpChange: (e) ->
+      @handleExpChange @state.currentLevel, e.target.value, @state.goalLevel, @state.mapValue, @state.mapPercent
     handleGoalLevelChange: (e) ->
       @handleExpChange @state.currentLevel, @state.nextExp, e.target.value, @state.mapValue, @state.mapPercent
     handleExpMapChange: (e) ->
@@ -275,7 +277,7 @@ module.exports =
             <Input type="number" label={__("Actual level")} value={@state.currentLevel} onChange={@handleCurrentLevelChange} />
           </Col>
           <Col xs={row}>
-            <Input type="number" label={__("To next")} value={@state.nextExp} readOnly />
+            <Input type="number" label={__("To next")} value={@state.nextExp} onChange={@handleNextExpChange} />
           </Col>
           <Col xs={row}>
             <Input type="number" label={__("Goal")} value={@state.goalLevel} onChange={@handleGoalLevelChange} />
