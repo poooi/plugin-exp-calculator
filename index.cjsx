@@ -5,7 +5,7 @@ path = require 'path-extra'
 {Alert, Grid, Col, Input, DropdownButton, Table, MenuItem, Button} = ReactBootstrap
 
 window.i18n.expCalc = new(require 'i18n-2')
-  locales: ['en-US', 'ja-JP', 'zh-CN']
+  locales: ['en-US', 'ja-JP', 'zh-CN', 'zh-TW']
   defaultLocale: 'zh-CN'
   directory: path.join(__dirname, 'assets', 'i18n')
   updateFiles: false
