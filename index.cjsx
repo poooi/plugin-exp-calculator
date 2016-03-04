@@ -230,7 +230,7 @@ module.exports =
     componentWillUnmount: ->
       window.removeEventListener 'game.response', @handleResponse
     render: ->
-      <div>
+      <div id="ExpCalcView" classname="ExpCalcView">
         <link rel="stylesheet" href={join(relative(ROOT, __dirname), 'assets', 'exp-calc.css')} />
         <Grid>
           <Col xs={shipRow}>
