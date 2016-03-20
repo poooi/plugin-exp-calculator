@@ -224,6 +224,7 @@ module.exports =
             if bonusFlag
               message = "#{message}, #{__("+ %s for each fleet", bonusScale.join " / ")}"
           window.success message,
+            priority: 2
             stickyFor: 1000
     componentDidMount: ->
       window.addEventListener 'game.response', @handleResponse
