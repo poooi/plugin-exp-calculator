@@ -13,10 +13,19 @@
     "type": "git",
     "url": "git+https://github.com/poooi/plugin-exp-calculator.git"
   },
-  "author": "",
+  "author": {
+    "name": "Chiba",
+    "link": "https://github.com/Chibaheit"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/poooi/plugin-exp-calculator/issues"
   },
-  "homepage": "https://github.com/poooi/plugin-exp-calculator#readme"
+  "homepage": "https://github.com/poooi/plugin-exp-calculator#readme",
+  "poiPlugin": {
+    "title": "Exp calc",
+    "description": "Exp calculator",
+    "icon": "fa/calculator",
+    "priority": 2
+  }
 }

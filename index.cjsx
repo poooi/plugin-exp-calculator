@@ -4,22 +4,14 @@ path = require 'path-extra'
 {_ships, $ships, $shipTypes} = window
 {Alert, Grid, Col, Input, DropdownButton, Table, MenuItem, Button} = ReactBootstrap
 
-window.i18n.expCalc = new(require 'i18n-2')
-  locales: ['en-US', 'ja-JP', 'zh-CN', 'zh-TW']
-  defaultLocale: 'zh-CN'
-  directory: path.join(__dirname, 'assets', 'i18n')
-  updateFiles: false
-  indent: '\t'
-  extension: '.json'
-window.i18n.expCalc.setLocale(window.language)
-__ = window.i18n.expCalc.__.bind(window.i18n.expCalc)
+__ = window.i18n["poi-plugin-exp-calc"].__.bind(window.i18n["poi-plugin-exp-calc"])
 
 row = if layout == 'horizontal' then 6 else 3
 shipRow = if layout == 'horizontal' then 12 else 5
 mapRow = if layout == 'horizontal' then 9 else 5
 rankRow = if layout == 'horizontal' then 3 else 2
 
-window.addEventListener 'layout.change', (e) ->
+handleLayoutChange = (e) ->
   {layout} = e.detail
   row = if layout == 'horizontal' then 6 else 3
   shipRow = if layout == 'horizontal' then 12 else 5
@@ -123,13 +115,10 @@ getBonusType = (lv) ->
     4
 
 module.exports =
-  name: 'ExpCalcView'
-  priority: 2
-  displayName: <span><FontAwesome key={0} name='calculator' />{' ' + __("Exp calc")}</span>
-  description: __("Exp calculator")
-  author: 'Chiba'
-  link: 'https://github.com/Chibaheit'
-  version: '1.2.3'
+  pluginDidLoad: (e) ->
+    window.addEventListener 'layout.change', handleLayoutChange
+  pluginWillUnload: (e) ->
+    window.removeEventListener 'layout.change', handleLayoutChange
   reactClass: React.createClass
     getInitialState: ->
       lastShipId: 0
@@ -241,7 +230,7 @@ module.exports =
     componentWillUnmount: ->
       window.removeEventListener 'game.response', @handleResponse
     render: ->
-      <div>
+      <div id="ExpCalcView" className="ExpCalcView">
         <link rel="stylesheet" href={join(relative(ROOT, __dirname), 'assets', 'exp-calc.css')} />
         <Grid>
           <Col xs={shipRow}>
