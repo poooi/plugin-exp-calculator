@@ -1,7 +1,7 @@
 {
   "name": "poi-plugin-exp-calc",
   "description": "Calculate experience value.",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "main": "index.cjsx",
   "dependencies": {
   },
@@ -26,6 +26,9 @@
     "title": "Exp calc",
     "description": "Exp calculator",
     "icon": "fa/calculator",
-    "priority": 2
+    "priority": 2,
+    "apiVer": {
+      "6.99.99": "3.0.0"
+    }
   }
 }
