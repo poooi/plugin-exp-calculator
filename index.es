@@ -188,12 +188,14 @@ export const reactClass = connect(
         baseExp = baseExp <= 500 ? baseExp : 500 + Math.floor(Math.sqrt(baseExp - 500))
         let bonusScale = ["0%", "0%", "0%", "0%"]
         let bonusFlag = false
+        let message
         for (const index of [0, 1, 2]) {
           let fleetShips = window._decks[index].api_ship
           let flagshipFlag = false
           let trainingLv = 0
           let trainingCount = 0
           for (const i in fleetShips) {
+            if (fleetShips[i] == -1) { break }
             let ship = ships[fleetShips[i]]
             if (ship.api_stype == 21) {
               trainingCount += 1
@@ -220,16 +222,15 @@ export const reactClass = connect(
             }
             bonusScale[index] = `${bonusScale[index]}%`
           }
-          let message = `${__('Exp')}: [A/B] ${Math.floor(baseExp)}, [S] ${Math.floor(baseExp * 1.2)}`
+          message = `${__('Exp')}: [A/B] ${Math.floor(baseExp)}, [S] ${Math.floor(baseExp * 1.2)}`
           if (bonusFlag) {
             message = `${message}, ${__("+ %s for each fleet", bonusScale.join("/"))}`
           }
         }
-        window.success(message, {
+        return (window.success(message, {
           priority: 2,
           stickyFor: 1000
-        })
-        break
+        }))
     }
   }
   handleCurrentLevelChange = e => {
