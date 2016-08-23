@@ -106,7 +106,8 @@ export const reactClass = connect(
         30 * 1.2 * 1.5,
         30 * 1.2 * 2.0,
         30 * 1.2 * 3.0
-      ]
+      ],
+      message: null
     }
   }
 
@@ -144,7 +145,7 @@ export const reactClass = connect(
   handleShipChange = e => {
     if (e && e.target && e.target.value != NULL) {
       if (e.target.value != this.state.lastShipId) {
-        this.setState({ lastShipId: e.target.value })
+        this.setState({ lastShipId: e.target.value, message: null })
       }
       let [currentLevel, nextExp, goalLevel] = this.getExpInfo(e.target.value)
       this.handleExpChange(currentLevel, nextExp, goalLevel, this.state.mapValue, this.state.mapPercent)
@@ -175,7 +176,8 @@ export const reactClass = connect(
         noneRank * 1.5,
         noneRank * 2.0,
         noneRank * 3.0
-      ]
+      ],
+      message: null
     })
   }
   handleResponse = e => {
@@ -188,7 +190,7 @@ export const reactClass = connect(
         baseExp = baseExp <= 500 ? baseExp : 500 + Math.floor(Math.sqrt(baseExp - 500))
         let bonusScale = ["0%", "0%", "0%", "0%"]
         let bonusFlag = false
-        let message
+        let message = null
         for (const index of [0, 1, 2]) {
           let fleetShips = window._decks[index].api_ship
           let flagshipFlag = false
@@ -227,10 +229,9 @@ export const reactClass = connect(
             message = `${message}, ${__("+ %s for each fleet", bonusScale.join("/"))}`
           }
         }
-        return (window.success(message, {
-          priority: 2,
-          stickyFor: 1000
-        }))
+        if (message != null) {
+          this.setState({ message: message })
+        }
     }
   }
   handleCurrentLevelChange = e => {
@@ -263,12 +264,20 @@ export const reactClass = connect(
   componentWillUnmount = () => {
     window.removeEventListener('game.response', this.handleResponse)
   }
+  componentDidUpdate = () => {
+    if (this.state.message != null) {
+      window.success(this.state.message, {
+        priority: 2,
+        stickyFor: 1000
+      })
+    }
+  }
   render() {
     let row = this.props.horizontal == 'horizontal' ? 6 : 3
     let shipRow = this.props.horizontal == 'horizontal' ? 12 : 5
     let mapRow = this.props.horizontal == 'horizontal' ? 9 : 5
     let rankRow = this.props.horizontal == 'horizontal' ? 3 : 2
-    let options = [__("NULL")]
+    let nullShip = { api_id: 0, text: __("NULL") }
     const { $ships } = this.props
     let ships = Object.keys(this.props.ships).map(key => this.props.ships[key])
     ships = sortBy(ships, e => -e.api_lv)
@@ -284,7 +293,7 @@ export const reactClass = connect(
                 value={this.state.lastShipId}
                 onChange={this.handleShipChange}
               >
-                <option key={0}>{__("NULL")}</option>
+                <option value={nullShip.api_id}>{nullShip.text}</option>
                 { ships &&
                   ships.map(ship => React.cloneElement(
                     <option value={ship.api_id}>
