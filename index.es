@@ -309,8 +309,8 @@ export const reactClass = connect(
                 componentClass="select"
                 onChange={this.handleExpMapChange}
               >
-                { expMap.map(exp => React.cloneElement(
-                  <option value={exp}>{exp}</option>
+                { Array.from({length: expMap.length}, (v, k) => k).map(idx => React.cloneElement(
+                  <option value={expValue[idx]}>{expMap[idx]}</option>
                 ))}
               </FormControl>
             </FormGroup>
@@ -322,8 +322,8 @@ export const reactClass = connect(
                 componentClass="select"
                 onChange={this.handleExpLevelChange}
               >
-                { expLevel.map(level => React.cloneElement(
-                  <option value={level}>{level}</option>
+                { Array.from({length: expLevel.length}, (v, k) => k).map(idx => React.cloneElement(
+                  <option value={expPercent[idx]}>{expLevel[idx]}</option>
                 ))}
               </FormControl>
             </FormGroup>
