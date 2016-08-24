@@ -8,6 +8,8 @@ import { FormControl, FormGroup, ControlLabel, Grid, Col, Input, Table } from 'r
 const { i18n, ROOT } = window
 const __ = i18n["poi-plugin-exp-calc"].__.bind(i18n["poi-plugin-exp-calc"])
 
+let successFlag = false
+
 let exp = [
   0,       100,     300,     600,     1000,    1500,    2100,    2800,    3600,    4500,
   5500,    6600,    7800,    9100,    10500,   12000,   13600,   15300,   17100,   19000,
@@ -230,6 +232,7 @@ export const reactClass = connect(
           }
         }
         if (message != null) {
+          successFlag = true
           this.setState({ message: message })
         }
     }
@@ -265,7 +268,8 @@ export const reactClass = connect(
     window.removeEventListener('game.response', this.handleResponse)
   }
   componentDidUpdate = () => {
-    if (this.state.message != null) {
+    if (successFlag) {
+      successFlag = false
       window.success(this.state.message, {
         priority: 2,
         stickyFor: 1000
