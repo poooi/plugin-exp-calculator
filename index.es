@@ -300,7 +300,7 @@ export const reactClass = connect(
                 <option value={nullShip.api_id}>{nullShip.text}</option>
                 { ships &&
                   ships.map(ship => React.cloneElement(
-                    <option value={ship.api_id}>
+                    <option value={ship.api_id} key={ship.api_id}>
                       Lv. {ship.api_lv} - {__($ships[ship.api_ship_id].api_name)}
                     </option>))}
               </FormControl>
@@ -314,7 +314,7 @@ export const reactClass = connect(
                 onChange={this.handleExpMapChange}
               >
                 { Array.from({length: expMap.length}, (v, k) => k).map(idx => React.cloneElement(
-                  <option value={expValue[idx]}>{expMap[idx]}</option>
+                  <option value={expValue[idx]} key={idx}>{expMap[idx]}</option>
                 ))}
               </FormControl>
             </FormGroup>
@@ -327,7 +327,7 @@ export const reactClass = connect(
                 onChange={this.handleExpLevelChange}
               >
                 { Array.from({length: expLevel.length}, (v, k) => k).map(idx => React.cloneElement(
-                  <option value={expPercent[idx]}>{expLevel[idx]}</option>
+                  <option value={expPercent[idx]} key={idx}>{expLevel[idx]}</option>
                 ))}
               </FormControl>
             </FormGroup>
@@ -381,7 +381,7 @@ export const reactClass = connect(
               <td>{__("Remainder")}</td>
             </tr>
             { Array.from({length: expType.length}, (v, k) => k).map(idx => React.cloneElement(
-              <tr>
+              <tr key={idx}>
                 <td>{expType[idx]}</td>
                 <td>{this.state.perExp[idx]}</td>
                 <td>{this.state.expSecond[idx]}</td>
