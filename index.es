@@ -131,7 +131,7 @@ export const reactClass = connect(
     if (ships[shipId].api_lv > 99) {
       goalLevel = 155
     } else if ($ships[ships[shipId].api_ship_id].api_afterlv != 0) {
-      remodelLvs = this.getRemodelLvsById(ships[shipId].api_ship_id)
+      let remodelLvs = this.getRemodelLvsById(ships[shipId].api_ship_id)
       for (const lv of remodelLvs) {
         if (lv > ships[shipId].api_lv) {
           goalLevel = lv
