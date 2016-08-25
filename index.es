@@ -76,7 +76,7 @@ const bonusExpScaleNonFlagship = [
 ]
 
 function getBonusType(lv) {
-  return lv < 10 ? 0 : 10 <= lv < 30 ? 1 : 30 <= lv < 60 ? 2 : 60 <= lv < 100 ? 3 : 4
+  return lv < 10 ? 0 : 10 <= lv && lv < 30 ? 1 : 30 <= lv && lv < 60 ? 2 : 60 <= lv && lv < 100 ? 3 : 4
 }
 
 export const reactClass = connect(
