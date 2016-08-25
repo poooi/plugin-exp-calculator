@@ -5,7 +5,7 @@ import { sortBy } from 'lodash'
 
 import { FormControl, FormGroup, ControlLabel, Grid, Col, Input, Table } from 'react-bootstrap'
 
-const { i18n, ROOT } = window
+const { i18n, ROOT, getStore } = window
 const __ = i18n["poi-plugin-exp-calc"].__.bind(i18n["poi-plugin-exp-calc"])
 
 let successFlag = false
@@ -186,55 +186,60 @@ export const reactClass = connect(
     const { path, body } = e.detail
     const { ships } = this.props
     switch (path) {
-      case '/kcsapi/api_req_member/get_practice_enemyinfo':
-        let enemyShips = body.api_deck.api_ships
-        let baseExp = exp[enemyShips[0].api_level] / 100 + exp[enemyShips[1].api_level != null ? enemyShips[1].api_level : 0] / 300
-        baseExp = baseExp <= 500 ? baseExp : 500 + Math.floor(Math.sqrt(baseExp - 500))
-        let bonusScale = ["0%", "0%", "0%", "0%"]
-        let bonusFlag = false
-        let message = null
-        for (const index of [0, 1, 2]) {
-          let fleetShips = window._decks[index].api_ship
-          let flagshipFlag = false
-          let trainingLv = 0
-          let trainingCount = 0
-          for (const i in fleetShips) {
-            if (fleetShips[i] == -1) { break }
-            let ship = ships[fleetShips[i]]
-            if (ship.api_stype == 21) {
-              trainingCount += 1
-              if (!flagshipFlag) {
-                if (ship.api_lv > trainingLv) {
-                  trainingLv = ship.api_lv
-                }
-              }
-              if (i == 0) {
-                flagshipFlag = true
+    case '/kcsapi/api_req_member/get_practice_enemyinfo':
+      let enemyShips = body.api_deck.api_ships
+      let baseExp = exp[enemyShips[0].api_level] / 100 + exp[enemyShips[1].api_level != null ? enemyShips[1].api_level : 0] / 300
+      baseExp = baseExp <= 500 ? baseExp : 500 + Math.floor(Math.sqrt(baseExp - 500))
+      let bonusScale = ["0%", "0%", "0%", "0%"]
+      let bonusFlag = false
+      let message = null
+      let fleets = getStore('info.fleets')
+      let $ships = getStore('const.$ships')
+      for (const index in fleets) {
+        let fleetShips = fleets[index]
+        let flagshipFlag = false
+        let trainingLv = 0
+        let trainingCount = 0
+        for (const idx in fleetShips.api_ship) {
+          let shipId = fleetShips.api_ship[idx]
+          if (shipId == -1) {
+            break
+          }
+          let ship = ships[shipId]
+          if ($ships[ship.api_ship_id].api_stype == 21) {
+            trainingCount += 1
+            if (!flagshipFlag) {
+              if (ship.api_lv > trainingLv) {
+                trainingLv = ship.api_lv
               }
             }
-          }
-          if (trainingCount >= 2) {
-            trainingCount = 2
-          }
-          if (trainingCount != 0) {
-            bonusFlag = true
-            bonusType = getBonusType(trainingLv)
-            if (flagshipFlag) {
-              bonusScale[index] = bonusExpScaleFlagship[trainingCount - 1][bonusType]
-            } else {
-              bonusScale[index] = bonusExpScaleNonFlagship[trainingCount - 1][bonusType]
+            if (idx == 0) {
+              flagshipFlag = true
             }
-            bonusScale[index] = `${bonusScale[index]}%`
-          }
-          message = `${__('Exp')}: [A/B] ${Math.floor(baseExp)}, [S] ${Math.floor(baseExp * 1.2)}`
-          if (bonusFlag) {
-            message = `${message}, ${__("+ %s for each fleet", bonusScale.join("/"))}`
           }
         }
-        if (message != null) {
-          successFlag = true
-          this.setState({ message: message })
+        if (trainingCount >= 2) {
+          trainingCount = 2
         }
+        if (trainingCount != 0) {
+          bonusFlag = true
+          let bonusType = getBonusType(trainingLv)
+          if (flagshipFlag) {
+            bonusScale[index] = bonusExpScaleFlagship[trainingCount - 1][bonusType]
+          } else {
+            bonusScale[index] = bonusExpScaleNonFlagship[trainingCount - 1][bonusType]
+          }
+          bonusScale[index] = `${ bonusScale[index] }%`
+        }
+        message = `${ __('Exp') }: [A/B] ${ Math.floor(baseExp) }, [S] ${ Math.floor(baseExp * 1.2) }`
+        if (bonusFlag) {
+          message = `${ message }, ${ __("+ %s for each fleet", bonusScale.join("/")) }`
+        }
+      }
+      if (message != null) {
+        successFlag = true
+        this.setState({ message: message })
+      }
     }
   }
   handleCurrentLevelChange = e => {
