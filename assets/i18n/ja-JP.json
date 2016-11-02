@@ -16,5 +16,6 @@
   "Per attack": "1回あたり",
   "Remainder": "戦闘回数",
   "Exp": "経験値",
-  "+ %s for each fleet": "諸艦隊の練巡ボーナス: %s"
+  "+ %s for each fleet": "諸艦隊の練巡ボーナス: %s",
+  "First fleet": "第一艦隊"
 }

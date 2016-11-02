@@ -1,12 +1,12 @@
 import　React, { Component } from 'react'
 import { join } from 'path-extra'
 import { connect } from 'react-redux'
-import { sortBy, isEqual } from 'lodash'
+import { sortBy, isEqual, get as __get, map as __map, find as __find } from 'lodash'
 import FontAwesome from 'react-fontawesome'
 
-import { FormControl, FormGroup, ControlLabel, Grid, Col, Input, Table, InputGroup, Button } from 'react-bootstrap'
+import { FormControl, FormGroup, ControlLabel, Grid, Col, Input, Table, InputGroup, Button, DropdownButton, MenuItem } from 'react-bootstrap'
 
-const { i18n, ROOT, getStore } = window
+const { i18n, ROOT } = window
 const __ = i18n["poi-plugin-exp-calc"].__.bind(i18n["poi-plugin-exp-calc"])
 
 let successFlag = false
@@ -84,7 +84,8 @@ export const reactClass = connect(
   state => ({
     horizontal: state.config.poi.layout || 'horizontal',
     $ships: state.const.$ships,
-    ships: state.info.ships
+    ships: state.info.ships,
+    fleets: state.info.fleets,
   }),
   null, null, { pure: false }
 )(class PoiPluginExpCalc extends Component {
@@ -156,6 +157,11 @@ export const reactClass = connect(
     return [ships[shipId].api_lv, ships[shipId].api_exp[1], goalLevel]
   }
 
+  updateShip = (shipId = this.state.lastShipId) => {
+    let [_currentLevel, _nextExp, _goalLevel] = this.getExpInfo(shipId)
+    this.handleExpChange(_currentLevel, _nextExp, _goalLevel, this.state.mapValue, this.state.mapPercent)
+  }
+
   handleShipChange = e => {
     if (e && e.target && e.target.value != NULL) {
       if (e.target.value != this.state.lastShipId) {
@@ -205,8 +211,8 @@ export const reactClass = connect(
       let bonusScale = ["0%", "0%", "0%", "0%"]
       let bonusFlag = false
       let message = null
-      let fleets = getStore('info.fleets')
-      let $ships = getStore('const.$ships')
+      let fleets = this.props.fleets
+      let $ships = this.props.$ships
       for (const index in fleets) {
         let fleetShips = fleets[index]
         let flagshipFlag = false
@@ -272,20 +278,25 @@ export const reactClass = connect(
 
   handleShipChange = e => {
     if (e && e.target.value != this.state.lastShipId) {
-      this.state.lastShipId = e.target.value
+      this.setState({lastShipId : e.target.value})
+      this.updateShip(e.target.value)
     }
-    let [_currentLevel, _nextExp, _goalLevel] = this.getExpInfo(this.state.lastShipId)
-    this.handleExpChange(_currentLevel, _nextExp, _goalLevel, this.state.mapValue, this.state.mapPercent)
   }
 
   handleLock = e => {
     if(this.state.lockInput) { // need to unlock and update state
       this.setState({lockInput: !this.state.lockInput})
-      let [_currentLevel, _nextExp, _goalLevel] = this.getExpInfo(this.state.lastShipId)
-      this.handleExpChange(_currentLevel, _nextExp, _goalLevel, this.state.mapValue, this.state.mapPercent)
+      this.updateShip()
     }
     else {
       this.setState({lockInput: !this.state.lockInput})
+    }
+  }
+
+  handleSetFirstFleet = (eventKey, e) =>{
+    if (eventKey && eventKey != this.state.lastShipId) {
+      this.setState({lastShipId : eventKey})
+      this.updateShip(eventKey)
     }
   }
 
@@ -312,6 +323,7 @@ export const reactClass = connect(
     let nullShip = { api_id: 0, text: __("NULL") }
     const { $ships } = this.props
     let ships = Object.keys(this.props.ships).map(key => this.props.ships[key])
+    let firstFleet = __map(this.props.fleets[0].api_ship, (shipId) => __find(this.props.ships, ship => ship.api_id == shipId))
     ships = sortBy(ships, e => -e.api_lv)
     return (
       <div id="ExpCalcView" className="ExpCalcView">
@@ -320,6 +332,7 @@ export const reactClass = connect(
           <Col xs={shipRow}>
             <FormGroup>
               <ControlLabel>{__("Ship")}</ControlLabel>
+              <InputGroup>
               <FormControl
                 componentClass="select"
                 value={this.state.lastShipId}
@@ -328,10 +341,21 @@ export const reactClass = connect(
                 <option value={nullShip.api_id}>{nullShip.text}</option>
                 { ships &&
                   ships.map(ship => React.cloneElement(
-                    <option value={ship.api_id}>
+                    <option value={ship.api_id} key={ship.api_id}>
                       Lv. {ship.api_lv} - {__($ships[ship.api_ship_id].api_name)}
                     </option>))}
               </FormControl>
+              <DropdownButton
+                componentClass={InputGroup.Button}
+                bsStyle="link"
+                title={__("First fleet")}
+                id = "first-fleet-select"
+                onSelect = {this.handleSetFirstFleet}
+              >
+              { firstFleet &&
+              __map(firstFleet, (ship)=> ship ? <MenuItem eventKey={ship.api_id}>{__($ships[ship.api_ship_id].api_name)}</MenuItem> : '' )}
+              </DropdownButton>
+              </InputGroup>
             </FormGroup>
           </Col>
           <Col xs={mapRow}>
@@ -342,7 +366,7 @@ export const reactClass = connect(
                 onChange={this.handleExpMapChange}
               >
                 { Array.from({length: expMap.length}, (v, k) => k).map(idx => React.cloneElement(
-                  <option value={expValue[idx]}>{expMap[idx]}</option>
+                  <option value={expValue[idx]} key={idx}>{expMap[idx]}</option>
                 ))}
               </FormControl>
             </FormGroup>
