@@ -1,9 +1,10 @@
 import　React, { Component } from 'react'
 import { join } from 'path-extra'
 import { connect } from 'react-redux'
-import { sortBy } from 'lodash'
+import { sortBy, isEqual } from 'lodash'
+import FontAwesome from 'react-fontawesome'
 
-import { FormControl, FormGroup, ControlLabel, Grid, Col, Input, Table } from 'react-bootstrap'
+import { FormControl, FormGroup, ControlLabel, Grid, Col, Input, Table, InputGroup, Button } from 'react-bootstrap'
 
 const { i18n, ROOT, getStore } = window
 const __ = i18n["poi-plugin-exp-calc"].__.bind(i18n["poi-plugin-exp-calc"])
@@ -81,7 +82,7 @@ function getBonusType(lv) {
 
 export const reactClass = connect(
   state => ({
-    horizontal: state.config.poi.layout,
+    horizontal: state.config.poi.layout || 'horizontal',
     $ships: state.const.$ships,
     ships: state.info.ships
   }),
@@ -97,6 +98,7 @@ export const reactClass = connect(
       mapValue: 30,
       mapPercent: 1.2,
       totalExp: 1000000,
+      lockInput: false,
       expSecond: [
         Math.ceil(1000000 / 30 / 1.2),
         Math.ceil(1000000 / 30 / 1.2 / 1.5),
@@ -109,7 +111,18 @@ export const reactClass = connect(
         30 * 1.2 * 2.0,
         30 * 1.2 * 3.0
       ],
-      message: null
+      message: null,
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (!this.state.lockInput && this.state.lastShipId){
+      const {$ships, ships} = nextProps
+      let [currentLevel, nextExp, goalLevel] = this.getExpInfo(this.state.lastShipId, $ships, ships)
+      const {_currentLevel, _nextExp, _goalLevel} = this.state
+      if (!isEqual([currentLevel, nextExp, goalLevel], [_currentLevel, _nextExp, _goalLevel])){
+        this.handleExpChange(currentLevel, nextExp, goalLevel, this.state.mapValue, this.state.mapPercent)
+      }
     }
   }
 
@@ -124,8 +137,7 @@ export const reactClass = connect(
     return remodelLvs
   }
 
-  getExpInfo(shipId) {
-    const { $ships, ships } = this.props
+  getExpInfo(shipId, $ships=this.props.$ships, ships = this.props.ships) {
     if (shipId <= 0) {
       return [1, 100, 99]
     }
@@ -266,6 +278,17 @@ export const reactClass = connect(
     this.handleExpChange(_currentLevel, _nextExp, _goalLevel, this.state.mapValue, this.state.mapPercent)
   }
 
+  handleLock = e => {
+    if(this.state.lockInput) { // need to unlock and update state
+      this.setState({lockInput: !this.state.lockInput})
+      let [_currentLevel, _nextExp, _goalLevel] = this.getExpInfo(this.state.lastShipId)
+      this.handleExpChange(_currentLevel, _nextExp, _goalLevel, this.state.mapValue, this.state.mapPercent)
+    }
+    else {
+      this.setState({lockInput: !this.state.lockInput})
+    }
+  }
+
   componentDidMount = () => {
     window.addEventListener('game.response', this.handleResponse)
   }
@@ -370,11 +393,18 @@ export const reactClass = connect(
           <Col xs={row}>
             <FormGroup>
               <ControlLabel>{__("Total exp")}</ControlLabel>
-              <FormControl
-                type="number"
-                value={this.state.totalExp}
-                readOnly
-              />
+              <InputGroup>
+                <FormControl
+                  type="number"
+                  value={this.state.totalExp}
+                  readOnly
+                />
+                <InputGroup.Button>
+                  <Button bsStyle={this.state.lockInput ? "warning" : "link"} onClick={this.handleLock}>
+                    <FontAwesome name={this.state.lockInput ? "lock" : "unlock"} />
+                  </Button>
+                </InputGroup.Button>
+              </InputGroup>
             </FormGroup>
           </Col>
         </Grid>
