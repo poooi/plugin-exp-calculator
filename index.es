@@ -1,11 +1,12 @@
 import　React, { Component } from 'react'
 import { join } from 'path-extra'
 import { connect } from 'react-redux'
-import { sortBy } from 'lodash'
+import { sortBy, isEqual, get as __get, map as __map, find as __find } from 'lodash'
+import FontAwesome from 'react-fontawesome'
 
-import { FormControl, FormGroup, ControlLabel, Grid, Col, Input, Table } from 'react-bootstrap'
+import { FormControl, FormGroup, ControlLabel, Grid, Col, Input, Table, InputGroup, Button, DropdownButton, MenuItem } from 'react-bootstrap'
 
-const { i18n, ROOT, getStore } = window
+const { i18n, ROOT } = window
 const __ = i18n["poi-plugin-exp-calc"].__.bind(i18n["poi-plugin-exp-calc"])
 
 let successFlag = false
@@ -81,9 +82,10 @@ function getBonusType(lv) {
 
 export const reactClass = connect(
   state => ({
-    horizontal: state.config.poi.layout,
+    horizontal: state.config.poi.layout || 'horizontal',
     $ships: state.const.$ships,
-    ships: state.info.ships
+    ships: state.info.ships,
+    fleets: state.info.fleets,
   }),
   null, null, { pure: false }
 )(class PoiPluginExpCalc extends Component {
@@ -97,6 +99,7 @@ export const reactClass = connect(
       mapValue: 30,
       mapPercent: 1.2,
       totalExp: 1000000,
+      lockGoal: false,
       expSecond: [
         Math.ceil(1000000 / 30 / 1.2),
         Math.ceil(1000000 / 30 / 1.2 / 1.5),
@@ -109,7 +112,22 @@ export const reactClass = connect(
         30 * 1.2 * 2.0,
         30 * 1.2 * 3.0
       ],
-      message: null
+      message: null,
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    // if the goalLevel not lock, update the component
+    if (this.state.lastShipId){
+      const {$ships, ships} = nextProps
+      const {currentLevel, nextExp, goalLevel} = this.state
+
+      let [_currentLevel, _nextExp, _goalLevel] = this.getExpInfo(this.state.lastShipId, $ships, ships)
+      _goalLevel = this.state.lockGoal ?  goalLevel : _goalLevel
+
+      if (!isEqual([_currentLevel, _nextExp, _goalLevel], [currentLevel, nextExp, goalLevel])) { // prevent changes from other props
+        this.handleExpChange(_currentLevel, _nextExp, _goalLevel, this.state.mapValue, this.state.mapPercent)
+      }
     }
   }
 
@@ -124,8 +142,7 @@ export const reactClass = connect(
     return remodelLvs
   }
 
-  getExpInfo(shipId) {
-    const { $ships, ships } = this.props
+  getExpInfo(shipId, $ships=this.props.$ships, ships = this.props.ships) {
     if (shipId <= 0) {
       return [1, 100, 99]
     }
@@ -142,6 +159,11 @@ export const reactClass = connect(
       }
     }
     return [ships[shipId].api_lv, ships[shipId].api_exp[1], goalLevel]
+  }
+
+  updateShip = (shipId = this.state.lastShipId) => {
+    let [_currentLevel, _nextExp, _goalLevel] = this.getExpInfo(shipId)
+    this.handleExpChange(_currentLevel, _nextExp, _goalLevel, this.state.mapValue, this.state.mapPercent)
   }
 
   handleShipChange = e => {
@@ -193,8 +215,8 @@ export const reactClass = connect(
       let bonusScale = ["0%", "0%", "0%", "0%"]
       let bonusFlag = false
       let message = null
-      let fleets = getStore('info.fleets')
-      let $ships = getStore('const.$ships')
+      let fleets = this.props.fleets
+      let $ships = this.props.$ships
       for (const index in fleets) {
         let fleetShips = fleets[index]
         let flagshipFlag = false
@@ -260,10 +282,26 @@ export const reactClass = connect(
 
   handleShipChange = e => {
     if (e && e.target.value != this.state.lastShipId) {
-      this.state.lastShipId = e.target.value
+      this.setState({lastShipId : e.target.value})
+      this.updateShip(e.target.value)
     }
-    let [_currentLevel, _nextExp, _goalLevel] = this.getExpInfo(this.state.lastShipId)
-    this.handleExpChange(_currentLevel, _nextExp, _goalLevel, this.state.mapValue, this.state.mapPercent)
+  }
+
+  handleLock = e => {
+    if(this.state.lockGoal) { // need to unlock and update state
+      this.setState({lockGoal: !this.state.lockGoal})
+      this.updateShip()
+    }
+    else {
+      this.setState({lockGoal: !this.state.lockGoal})
+    }
+  }
+
+  handleSetFirstFleet = (eventKey, e) =>{
+    if (eventKey && eventKey != this.state.lastShipId) {
+      this.setState({lastShipId : eventKey})
+      this.updateShip(eventKey)
+    }
   }
 
   componentDidMount = () => {
@@ -289,6 +327,8 @@ export const reactClass = connect(
     let nullShip = { api_id: 0, text: __("NULL") }
     const { $ships } = this.props
     let ships = Object.keys(this.props.ships).map(key => this.props.ships[key])
+    let firstFleet
+    firstFleet = this.props.fleets ? __map(__get(this.props.fleets, '0.api_ship'), (shipId) => __find(this.props.ships, ship => ship.api_id == shipId)) : []
     ships = sortBy(ships, e => -e.api_lv)
     return (
       <div id="ExpCalcView" className="ExpCalcView">
@@ -297,6 +337,7 @@ export const reactClass = connect(
           <Col xs={shipRow}>
             <FormGroup>
               <ControlLabel>{__("Ship")}</ControlLabel>
+              <InputGroup>
               <FormControl
                 componentClass="select"
                 value={this.state.lastShipId}
@@ -305,10 +346,23 @@ export const reactClass = connect(
                 <option value={nullShip.api_id}>{nullShip.text}</option>
                 { ships &&
                   ships.map(ship => React.cloneElement(
-                    <option value={ship.api_id}>
-                      Lv. {ship.api_lv} - {__($ships[ship.api_ship_id].api_name)}
+                    <option value={ship.api_id} key={ship.api_id}>
+                      Lv. {ship.api_lv} - {window.i18n.resources.__($ships[ship.api_ship_id].api_name)}
                     </option>))}
               </FormControl>
+              <DropdownButton
+                componentClass={InputGroup.Button}
+                bsStyle="link"
+                title={__("First fleet")}
+                id = "first-fleet-select"
+                onSelect = {this.handleSetFirstFleet}
+              >
+              { firstFleet &&
+              __map(firstFleet, (ship)=> ship ?
+              <MenuItem eventKey={ship.api_id}>{window.i18n.resources.__($ships[ship.api_ship_id].api_name)}</MenuItem> :
+              '' )}
+              </DropdownButton>
+              </InputGroup>
             </FormGroup>
           </Col>
           <Col xs={mapRow}>
@@ -319,7 +373,7 @@ export const reactClass = connect(
                 onChange={this.handleExpMapChange}
               >
                 { Array.from({length: expMap.length}, (v, k) => k).map(idx => React.cloneElement(
-                  <option value={expValue[idx]}>{expMap[idx]}</option>
+                  <option value={expValue[idx]} key={idx}>{expMap[idx]}</option>
                 ))}
               </FormControl>
             </FormGroup>
@@ -360,21 +414,29 @@ export const reactClass = connect(
           <Col xs={row}>
             <FormGroup>
               <ControlLabel>{__("Goal")}</ControlLabel>
-              <FormControl
-                type="number"
-                value={this.state.goalLevel}
-                onChange={this.handleGoalLevelChange}
-              />
+              <InputGroup>
+                <FormControl
+                  type="number"
+                  value={this.state.goalLevel}
+                  onChange={this.handleGoalLevelChange}
+                />
+                <InputGroup.Button>
+                  <Button bsStyle={this.state.lockGoal ? "warning" : "link"} onClick={this.handleLock}>
+                    <FontAwesome name={this.state.lockGoal ? "lock" : "unlock"} />
+                  </Button>
+                </InputGroup.Button>
+              </InputGroup>
             </FormGroup>
           </Col>
           <Col xs={row}>
             <FormGroup>
               <ControlLabel>{__("Total exp")}</ControlLabel>
-              <FormControl
-                type="number"
-                value={this.state.totalExp}
-                readOnly
-              />
+                <FormControl
+                  type="number"
+                  value={this.state.totalExp}
+                  readOnly
+                />
+
             </FormGroup>
           </Col>
         </Grid>
