@@ -175,6 +175,7 @@ export const reactClass = connect(
       this.handleExpChange(currentLevel, nextExp, goalLevel, this.state.mapValue, this.state.mapPercent)
     }
   }
+
   handleExpChange = (currentLevel, nextExp, goalLevel, mapValue, mapPercent) => {
     currentLevel = parseInt(currentLevel)
     nextExp = parseInt(nextExp)
@@ -421,7 +422,11 @@ export const reactClass = connect(
                   onChange={this.handleGoalLevelChange}
                 />
                 <InputGroup.Button>
-                  <Button bsStyle={this.state.lockGoal ? "warning" : "link"} onClick={this.handleLock}>
+                  <Button
+                  bsStyle={this.state.lockGoal ? "warning" : "link"}
+                  onClick={this.handleLock}
+                  title = {this.state.lockGoal ? __("Unlock") : __("Lock the goal level")}
+                  >
                     <FontAwesome name={this.state.lockGoal ? "lock" : "unlock"} />
                   </Button>
                 </InputGroup.Button>

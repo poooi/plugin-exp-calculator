@@ -17,5 +17,7 @@
   "Remainder": "戦闘回数",
   "Exp": "経験値",
   "+ %s for each fleet": "諸艦隊の練巡ボーナス: %s",
-  "First fleet": "第一艦隊"
+  "First fleet": "第一艦隊",
+  "Lock the goal level": "目標レベルをロックする",
+  "Unlock": "ロック解除"
 }
