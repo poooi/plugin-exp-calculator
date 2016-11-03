@@ -99,7 +99,7 @@ export const reactClass = connect(
       mapValue: 30,
       mapPercent: 1.2,
       totalExp: 1000000,
-      lockInput: false,
+      lockGoal: false,
       expSecond: [
         Math.ceil(1000000 / 30 / 1.2),
         Math.ceil(1000000 / 30 / 1.2 / 1.5),
@@ -117,12 +117,18 @@ export const reactClass = connect(
   }
 
   componentWillReceiveProps(nextProps) {
-    if (!this.state.lockInput && this.state.lastShipId){
+    // if the goalLevel not lock, update the component
+    if (this.state.lastShipId){
       const {$ships, ships} = nextProps
-      let [currentLevel, nextExp, goalLevel] = this.getExpInfo(this.state.lastShipId, $ships, ships)
-      const {_currentLevel, _nextExp, _goalLevel} = this.state
-      if (!isEqual([currentLevel, nextExp, goalLevel], [_currentLevel, _nextExp, _goalLevel])){
-        this.handleExpChange(currentLevel, nextExp, goalLevel, this.state.mapValue, this.state.mapPercent)
+      const {currentLevel, nextExp, goalLevel} = this.state
+
+      let [_currentLevel, _nextExp, _goalLevel] = this.getExpInfo(this.state.lastShipId, $ships, ships)
+      _goalLevel = this.state.lockGoal ?  goalLevel : _goalLevel
+
+      console.log(_currentLevel, _nextExp, _goalLevel,currentLevel, nextExp, goalLevel)
+      if (!isEqual([_currentLevel, _nextExp, _goalLevel], [currentLevel, nextExp, goalLevel])) {
+        console.log("fire!")
+        this.handleExpChange(_currentLevel, _nextExp, _goalLevel, this.state.mapValue, this.state.mapPercent)
       }
     }
   }
@@ -284,12 +290,12 @@ export const reactClass = connect(
   }
 
   handleLock = e => {
-    if(this.state.lockInput) { // need to unlock and update state
-      this.setState({lockInput: !this.state.lockInput})
+    if(this.state.lockGoal) { // need to unlock and update state
+      this.setState({lockGoal: !this.state.lockGoal})
       this.updateShip()
     }
     else {
-      this.setState({lockInput: !this.state.lockInput})
+      this.setState({lockGoal: !this.state.lockGoal})
     }
   }
 
@@ -411,28 +417,29 @@ export const reactClass = connect(
           <Col xs={row}>
             <FormGroup>
               <ControlLabel>{__("Goal")}</ControlLabel>
-              <FormControl
-                type="number"
-                value={this.state.goalLevel}
-                onChange={this.handleGoalLevelChange}
-              />
+              <InputGroup>
+                <FormControl
+                  type="number"
+                  value={this.state.goalLevel}
+                  onChange={this.handleGoalLevelChange}
+                />
+                <InputGroup.Button>
+                  <Button bsStyle={this.state.lockGoal ? "warning" : "link"} onClick={this.handleLock}>
+                    <FontAwesome name={this.state.lockGoal ? "lock" : "unlock"} />
+                  </Button>
+                </InputGroup.Button>
+              </InputGroup>
             </FormGroup>
           </Col>
           <Col xs={row}>
             <FormGroup>
               <ControlLabel>{__("Total exp")}</ControlLabel>
-              <InputGroup>
                 <FormControl
                   type="number"
                   value={this.state.totalExp}
                   readOnly
                 />
-                <InputGroup.Button>
-                  <Button bsStyle={this.state.lockInput ? "warning" : "link"} onClick={this.handleLock}>
-                    <FontAwesome name={this.state.lockInput ? "lock" : "unlock"} />
-                  </Button>
-                </InputGroup.Button>
-              </InputGroup>
+
             </FormGroup>
           </Col>
         </Grid>
