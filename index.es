@@ -344,7 +344,7 @@ export const reactClass = connect(
                 { ships &&
                   ships.map(ship => React.cloneElement(
                     <option value={ship.api_id} key={ship.api_id}>
-                      Lv. {ship.api_lv} - {__($ships[ship.api_ship_id].api_name)}
+                      Lv. {ship.api_lv} - {window.i18n.resources.__($ships[ship.api_ship_id].api_name)}
                     </option>))}
               </FormControl>
               <DropdownButton
@@ -355,7 +355,9 @@ export const reactClass = connect(
                 onSelect = {this.handleSetFirstFleet}
               >
               { firstFleet &&
-              __map(firstFleet, (ship)=> ship ? <MenuItem eventKey={ship.api_id}>{__($ships[ship.api_ship_id].api_name)}</MenuItem> : '' )}
+              __map(firstFleet, (ship)=> ship ?
+              <MenuItem eventKey={ship.api_id}>{window.i18n.resources.__($ships[ship.api_ship_id].api_name)}</MenuItem> :
+              '' )}
               </DropdownButton>
               </InputGroup>
             </FormGroup>
