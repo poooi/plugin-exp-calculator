@@ -125,9 +125,7 @@ export const reactClass = connect(
       let [_currentLevel, _nextExp, _goalLevel] = this.getExpInfo(this.state.lastShipId, $ships, ships)
       _goalLevel = this.state.lockGoal ?  goalLevel : _goalLevel
 
-      console.log(_currentLevel, _nextExp, _goalLevel,currentLevel, nextExp, goalLevel)
-      if (!isEqual([_currentLevel, _nextExp, _goalLevel], [currentLevel, nextExp, goalLevel])) {
-        console.log("fire!")
+      if (!isEqual([_currentLevel, _nextExp, _goalLevel], [currentLevel, nextExp, goalLevel])) { // prevent changes from other props
         this.handleExpChange(_currentLevel, _nextExp, _goalLevel, this.state.mapValue, this.state.mapPercent)
       }
     }
@@ -331,7 +329,6 @@ export const reactClass = connect(
     let ships = Object.keys(this.props.ships).map(key => this.props.ships[key])
     let firstFleet
     firstFleet = this.props.fleets ? __map(__get(this.props.fleets, '0.api_ship'), (shipId) => __find(this.props.ships, ship => ship.api_id == shipId)) : []
-    console.log(firstFleet)
     ships = sortBy(ships, e => -e.api_lv)
     return (
       <div id="ExpCalcView" className="ExpCalcView">
