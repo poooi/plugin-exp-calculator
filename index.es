@@ -346,10 +346,10 @@ export const reactClass = connect(
               >
                 <option value={nullShip.api_id}>{nullShip.text}</option>
                 { ships &&
-                  ships.map(ship => React.cloneElement(
+                  ships.map( (ship) =>
                     <option value={ship.api_id} key={ship.api_id}>
                       Lv. {ship.api_lv} - {window.i18n.resources.__($ships[ship.api_ship_id].api_name)}
-                    </option>))}
+                    </option>)}
               </FormControl>
               <DropdownButton
                 componentClass={InputGroup.Button}
@@ -360,7 +360,7 @@ export const reactClass = connect(
               >
               { firstFleet &&
               __map(firstFleet, (ship)=> ship ?
-              <MenuItem eventKey={ship.api_id}>{window.i18n.resources.__($ships[ship.api_ship_id].api_name)}</MenuItem> :
+              <MenuItem eventKey={ship.api_id} key={`first-fleet-${ship.api_id}`}>{window.i18n.resources.__($ships[ship.api_ship_id].api_name)}</MenuItem> :
               '' )}
               </DropdownButton>
               </InputGroup>
@@ -373,9 +373,9 @@ export const reactClass = connect(
                 componentClass="select"
                 onChange={this.handleExpMapChange}
               >
-                { Array.from({length: expMap.length}, (v, k) => k).map(idx => React.cloneElement(
-                  <option value={expValue[idx]} key={idx}>{expMap[idx]}</option>
-                ))}
+                { Array.from({length: expMap.length}, (v, k) => k).map( (idx) =>
+                  <option value={expValue[idx]} key={`exp-map-${idx}`}>{expMap[idx]}</option>
+                )}
               </FormControl>
             </FormGroup>
           </Col>
@@ -386,9 +386,9 @@ export const reactClass = connect(
                 componentClass="select"
                 onChange={this.handleExpLevelChange}
               >
-                { Array.from({length: expLevel.length}, (v, k) => k).map(idx => React.cloneElement(
-                  <option value={expPercent[idx]}>{expLevel[idx]}</option>
-                ))}
+                { Array.from({length: expLevel.length}, (v, k) => k).map( (idx) =>
+                  <option value={expPercent[idx]} key={`exp-level-${idx}`}>{expLevel[idx]}</option>
+                )}
               </FormControl>
             </FormGroup>
           </Col>
@@ -452,13 +452,13 @@ export const reactClass = connect(
               <td>{__("Per attack")}</td>
               <td>{__("Remainder")}</td>
             </tr>
-            { Array.from({length: expType.length}, (v, k) => k).map(idx => React.cloneElement(
-              <tr>
+            { Array.from({length: expType.length}, (v, k) => k).map( (idx) =>
+              <tr key={`exp-type-${idx}`}>
                 <td>{expType[idx]}</td>
                 <td>{this.state.perExp[idx]}</td>
                 <td>{this.state.expSecond[idx]}</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </Table>
       </div>
