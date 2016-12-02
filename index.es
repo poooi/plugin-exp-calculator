@@ -407,7 +407,7 @@ shipId)) : []
 					onChange={this.handleExpMapChange}
 				  >
 					{ Array.from({length: expMap.length}, (v, k) => k).map(idx => React.cloneElement(
-					  <option value={(idx>0)?(expValue[idx]):(this.state.usrdefinedmapValue)} key={idx}>{expMap[idx]}</option>
+					  <option value={(expValue[idx]>0)?(expValue[idx]):(this.state.usrdefinedmapValue)} key={idx}>{expMap[idx]}</option>
 					))}
 				  </FormControl>
 				</FormGroup>
