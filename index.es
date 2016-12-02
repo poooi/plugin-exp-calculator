@@ -92,6 +92,7 @@ export const reactClass = connect(
       nextExp: 100,
       goalLevel: 99,
       mapValue: -100,
+	  usrdefinedmapValue: -100,
       mapPercent: 1.2,
       totalExp: 1000000,
       lockGoal: false,
@@ -215,6 +216,7 @@ export const reactClass = connect(
 		  nextExp: nextExp,
 		  goalLevel: goalLevel,
 		  mapValue: mapValue,
+		  usrdefinedmapValue: mapValue,
 		  totalExp: totalExp,
 		  expSecond: [
 			Math.ceil(noneType)
@@ -306,7 +308,7 @@ export const reactClass = connect(
     this.handleExpChange(this.state.currentLevel, this.state.nextExp, this.state.goalLevel, this.state.mapValue, e.target.value)
   }
   handleUserDefinedExpChange = e => {
-    this.handleExpChange(this.state.currentLevel, this.state.nextExp, this.state.goalLevel, -e.target.value, this.state.mapPercent)
+    this.handleExpChange(this.state.currentLevel, this.state.nextExp, this.state.goalLevel, -Math.max(1,e.target.value), this.state.mapPercent)
   }
 
   handleShipChange = e => {
@@ -348,6 +350,8 @@ export const reactClass = connect(
       })
     }
   }
+  
+  
   render() {
     let row = this.props.horizontal == 'horizontal' ? 6 : 3
     let shipRow = this.props.horizontal == 'horizontal' ? 12 : 5
@@ -357,11 +361,10 @@ export const reactClass = connect(
     const { $ships } = this.props
     let ships = Object.keys(this.props.ships).map(key => this.props.ships[key])
     let firstFleet
-    firstFleet = this.props.fleets ? __map(__get(this.props.fleets, '0.api_ship'), (shipId) => __find(this.props.ships, ship => ship.api_id == shipId)) : []
+    firstFleet = this.props.fleets ? __map(__get(this.props.fleets, '0.api_ship'), (shipId) => __find(this.props.ships, ship => ship.api_id == 
+shipId)) : []
     ships = sortBy(ships, e => -e.api_lv)
-	if(this.state.mapValue>0)
-	{
-		return (
+	return (
 		  <div id="ExpCalcView" className="ExpCalcView">
 			<link rel="stylesheet" href={join(__dirname, 'assets', 'exp-calc.css')} />
 			<Grid>
@@ -404,23 +407,41 @@ export const reactClass = connect(
 					onChange={this.handleExpMapChange}
 				  >
 					{ Array.from({length: expMap.length}, (v, k) => k).map(idx => React.cloneElement(
-					  <option value={expValue[idx]} key={idx}>{expMap[idx]}</option>
+					  <option value={(idx>0)?(expValue[idx]):(this.state.usrdefinedmapValue)} key={idx}>{expMap[idx]}</option>
 					))}
 				  </FormControl>
 				</FormGroup>
 			  </Col>
 			  <Col xs={rankRow}>
-				<FormGroup>
-				  <ControlLabel>{__("Result")}</ControlLabel>
-				  <FormControl
-					componentClass="select"
-					onChange={this.handleExpLevelChange}
-				  >
-					{ Array.from({length: expLevel.length}, (v, k) => k).map(idx => React.cloneElement(
-					  <option value={expPercent[idx]}>{expLevel[idx]}</option>
-					))}
-				  </FormControl>
-				</FormGroup>
+			  {
+				  (this.state.mapValue>=0)? (
+					 <FormGroup>
+						<ControlLabel>{__("Result")}</ControlLabel>
+						<FormControl
+							componentClass="select"
+							onChange={this.handleExpLevelChange}
+						  >
+							{ Array.from({length: expLevel.length}, (v, k) => k).map(idx => React.cloneElement(
+							  <option value={expPercent[idx]}>{expLevel[idx]}</option>
+							))}
+							
+						</FormControl>
+					 </FormGroup>
+				  ) : (//user-defined exp 
+					 <FormGroup>
+						<ControlLabel>{__("User-defined Exp")}</ControlLabel>
+						<FormControl
+							type="number"
+							value={-this.state.usrdefinedmapValue}
+							onChange={this.handleUserDefinedExpChange}
+						/>
+					</FormGroup>
+				  
+				  )
+				  
+				}
+
+				
 			  </Col>
 			  <Col xs={row}>
 				<FormGroup>
@@ -493,139 +514,6 @@ export const reactClass = connect(
 			</Table>
 		  </div>
 		)
-	}
-	else
-	{
-		return (
-		  <div id="ExpCalcView" className="ExpCalcView">
-			<link rel="stylesheet" href={join(__dirname, 'assets', 'exp-calc.css')} />
-			<Grid>
-			  <Col xs={shipRow}>
-				<FormGroup>
-				  <ControlLabel>{__("Ship")}</ControlLabel>
-				  <InputGroup>
-				  <FormControl
-					componentClass="select"
-					value={this.state.lastShipId}
-					onChange={this.handleShipChange}
-				  >
-					<option value={nullShip.api_id}>{nullShip.text}</option>
-					{ ships &&
-					  ships.map(ship => React.cloneElement(
-						<option value={ship.api_id} key={ship.api_id}>
-						  Lv. {ship.api_lv} - {window.i18n.resources.__($ships[ship.api_ship_id].api_name)}
-						</option>))}
-				  </FormControl>
-				  <DropdownButton
-					componentClass={InputGroup.Button}
-					bsStyle="link"
-					title={__("First fleet")}
-					id = "first-fleet-select"
-					onSelect = {this.handleSetFirstFleet}
-				  >
-				  { firstFleet &&
-				  __map(firstFleet, (ship)=> ship ?
-				  <MenuItem eventKey={ship.api_id}>{window.i18n.resources.__($ships[ship.api_ship_id].api_name)}</MenuItem> :
-				  '' )}
-				  </DropdownButton>
-				  </InputGroup>
-				</FormGroup>
-			  </Col>
-			  <Col xs={row}>
-				<FormGroup>
-				  <ControlLabel>{__("Map")}</ControlLabel>
-				  <FormControl
-					componentClass="select"
-					onChange={this.handleExpMapChange}
-				  >
-					{ Array.from({length: expMap.length}, (v, k) => k).map(idx => React.cloneElement(
-					  <option value={expValue[idx]} key={idx}>{expMap[idx]}</option>
-					))}
-				  </FormControl>
-				</FormGroup>
-			  </Col>
-			  <Col xs={row}>
-				<FormGroup>
-				  <ControlLabel>{__("User-defined Exp")}</ControlLabel>
-				  <FormControl
-					type="number"
-					value={-this.state.mapValue}
-					onChange={this.handleUserDefinedExpChange}
-				  />
-				</FormGroup>
-			  </Col>
-			  <Col xs={row}>
-				<FormGroup>
-				  <ControlLabel>{__("Actual level")}</ControlLabel>
-				  <FormControl
-					type="number"
-					value={this.state.currentLevel}
-					onChange={this.handleCurrentLevelChange}
-				  />
-				</FormGroup>
-			  </Col>
-			  <Col xs={row}>
-				<FormGroup>
-				  <ControlLabel>{__("To next")}</ControlLabel>
-				  <FormControl
-					type="number"
-					value={this.state.nextExp}
-					onChange={this.handleNextExpChange}
-				  />
-				</FormGroup>
-			  </Col>
-			  <Col xs={row}>
-				<FormGroup>
-				  <ControlLabel>{__("Goal")}</ControlLabel>
-				  <InputGroup>
-					<FormControl
-					  type="number"
-					  value={this.state.goalLevel}
-					  onChange={this.handleGoalLevelChange}
-					/>
-					<InputGroup.Button>
-					  <Button
-					  bsStyle={this.state.lockGoal ? "warning" : "link"}
-					  onClick={this.handleLock}
-					  title = {this.state.lockGoal ? __("Unlock") : __("Lock the goal level")}
-					  >
-						<FontAwesome name={this.state.lockGoal ? "lock" : "unlock"} />
-					  </Button>
-					</InputGroup.Button>
-				  </InputGroup>
-				</FormGroup>
-			  </Col>
-			  <Col xs={row}>
-				<FormGroup>
-				  <ControlLabel>{__("Total exp")}</ControlLabel>
-					<FormControl
-					  type="number"
-					  value={this.state.totalExp}
-					  readOnly
-					/>
-
-				</FormGroup>
-			  </Col>
-			</Grid>
-			<Table>
-			  <tbody>
-				<tr key={0}>
-				  <td>　</td>
-				  <td>{__("Per attack")}</td>
-				  <td>{__("Remainder")}</td>
-				</tr>
-				{ Array.from({length: this.state.expType.length}, (v, k) => k).map(idx => React.cloneElement(
-				  <tr>
-					<td>{this.state.expType[idx]}</td>
-					<td>{this.state.perExp[idx]}</td>
-					<td>{this.state.expSecond[idx]}</td>
-				  </tr>
-				))}
-			  </tbody>
-			</Table>
-		  </div>
-		)
-
-	}
+	
   }
 })
