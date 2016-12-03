@@ -1,10 +1,10 @@
-import　React, { Component } from 'react'
+import React, { Component } from 'react'
 import { join } from 'path-extra'
 import { connect } from 'react-redux'
 import { sortBy, isEqual, get as __get, map as __map, find as __find } from 'lodash'
 import FontAwesome from 'react-fontawesome'
 
-import { FormControl, FormGroup, ControlLabel, Grid, Col, Input, Table, InputGroup, Button, DropdownButton, MenuItem } from 'react-bootstrap'
+import { FormControl, FormGroup, ControlLabel, Grid, Col, Table, InputGroup, Button, DropdownButton, MenuItem } from 'react-bootstrap'
 
 const { i18n, ROOT } = window
 const __ = i18n["poi-plugin-exp-calc"].__.bind(i18n["poi-plugin-exp-calc"])
@@ -27,28 +27,28 @@ let exp = [
   1290000, 1329000, 1372000, 1419000, 1470000, 1525000, 1584000, 1647000, 1714000, 1785000,
   1860000, 1940000, 2025000, 2115000, 2210000, 2310000, 2415000, 2525000, 2640000, 2760000,
   2887000, 3021000, 3162000, 3310000, 3465000, 3628000, 3799000, 3978000, 4165000, 4360000,
-  4564000, 4777000, 4999000, 5230000, 5470000
+  4564000, 4777000, 4999000, 5230000, 5470000,
 ]
 
 exp.unshift(exp[0])
 exp.push(exp[exp.length - 1])
 
 const expValue = [
-	-100,
+  -100,
   30, 50, 80, 100, 150, 50,
   120, 150, 200, 300, 250,
   310, 320, 330, 350, 400,
   310, 320, 330, 340, 200,
   360, 380, 400, 420, 450,
-  380, 420, 100
+  380, 420, 100,
 ]
 
 const expPercent = [
-  1.2, 1.0, 1.0, 0.8, 0.7
+  1.2, 1.0, 1.0, 0.8, 0.7,
 ]
 
 const expLevel = [
-  "S", "A", "B", "C", "D"
+  "S", "A", "B", "C", "D",
 ]
 
 const expMap = [
@@ -58,17 +58,17 @@ const expMap = [
   "3-1 モーレイ海", "3-2 キス島沖", "3-3 アルフォンシーノ方面", "3-4 北方海域全域", "3-5 [Extra] 北方AL海域",
   "4-1 ジャム島攻略作戦", "4-2 カレー洋制圧戦", "4-3 リランカ島空襲", "4-4 カスガダマ沖海戦", "4-5 [Extra] カレー洋リランカ島沖",
   "5-1 南方海域前面", "5-2 珊瑚諸島沖", "5-3 サブ島沖海域", "5-4 サーモン海域", "5-5 [Extra] サーモン海域北方",
-  "6-1 中部海域哨戒線", "6-2 MS諸島沖", "6-3 グアノ環礁沖海域"
+  "6-1 中部海域哨戒線", "6-2 MS諸島沖", "6-3 グアノ環礁沖海域",
 ]
 
 const bonusExpScaleFlagship = [
   [5, 8, 11, 15, 20],
-  [10, 13, 16, 20, 25]
+  [10, 13, 16, 20, 25],
 ]
 
 const bonusExpScaleNonFlagship = [
   [3, 5, 7, 10, 15],
-  [4, 6, 8, 12, 17.5]
+  [4, 6, 8, 12, 17.5],
 ]
 
 function getBonusType(lv) {
@@ -92,19 +92,19 @@ export const reactClass = connect(
       nextExp: 100,
       goalLevel: 99,
       mapValue: -100,
-	  usrdefinedmapValue: -100,
+      usrdefinedmapValue: -100,
       mapPercent: 1.2,
       totalExp: 1000000,
       lockGoal: false,
       expSecond: [
-        Math.ceil(1000000 / 100)
+        Math.ceil(1000000 / 100),
       ],
       perExp: [
-		100
+        100,
       ],
-	  expType: [
-		__("User-defined")
-	  ],
+      expType: [
+        __("User-defined"),
+      ],
 
       message: null,
     }
@@ -161,7 +161,7 @@ export const reactClass = connect(
   }
 
   handleShipChange = e => {
-    if (e && e.target && e.target.value != NULL) {
+    if (e && e.target && e.target.value != null) {
       if (e.target.value != this.state.lastShipId) {
         this.setState({ lastShipId: e.target.value, message: null })
       }
@@ -175,61 +175,61 @@ export const reactClass = connect(
     nextExp = parseInt(nextExp)
     goalLevel = parseInt(goalLevel)
     mapValue = parseInt(mapValue)
-	let totalExp = exp[goalLevel] - exp[currentLevel + 1] + nextExp
-	if(mapValue > 0)//represented value
-	{
-		let noneType = totalExp / mapValue / mapPercent
-		let noneRank = mapValue * mapPercent
-		this.setState({
-		  currentLevel: currentLevel,
-		  nextExp: nextExp,
-		  goalLevel: goalLevel,
-		  mapValue: mapValue,
-		  totalExp: totalExp,
-		  expSecond: [
-			Math.ceil(noneType),
-			Math.ceil(noneType / 1.5),
-			Math.ceil(noneType / 2.0),
-			Math.ceil(noneType / 3.0)
-		  ],
-		  expType: [
-			  __("Basic"),
-			  __("Flagship"),
-			  __("MVP"),
-			  __("MVP and flagship")
-		  ],
-		  perExp: [
-			noneRank,
-			noneRank * 1.5,
-			noneRank * 2.0,
-			noneRank * 3.0
-		  ],
-		  message: null
-		})
-	}
-	else			//user-defined value
-	{
-		let noneType = -totalExp / mapValue
-		let noneRank = -mapValue
-		this.setState({
-		  currentLevel: currentLevel,
-		  nextExp: nextExp,
-		  goalLevel: goalLevel,
-		  mapValue: mapValue,
-		  usrdefinedmapValue: mapValue,
-		  totalExp: totalExp,
-		  expSecond: [
-			Math.ceil(noneType)
-		  ],
-		  perExp: [
-			noneRank
-		  ],
-		  expType: [
-			  __("User-defined")
-		  ],
-		  message: null
-		})
-	}
+    let totalExp = exp[goalLevel] - exp[currentLevel + 1] + nextExp
+    if(mapValue > 0)//represented value
+  {
+      let noneType = totalExp / mapValue / mapPercent
+      let noneRank = mapValue * mapPercent
+      this.setState({
+        currentLevel: currentLevel,
+        nextExp: nextExp,
+        goalLevel: goalLevel,
+        mapValue: mapValue,
+        totalExp: totalExp,
+        expSecond: [
+          Math.ceil(noneType),
+          Math.ceil(noneType / 1.5),
+          Math.ceil(noneType / 2.0),
+          Math.ceil(noneType / 3.0),
+        ],
+        expType: [
+          __("Basic"),
+          __("Flagship"),
+          __("MVP"),
+          __("MVP and flagship"),
+        ],
+        perExp: [
+          noneRank,
+          noneRank * 1.5,
+          noneRank * 2.0,
+          noneRank * 3.0,
+        ],
+        message: null,
+      })
+    }
+    else			//user-defined value
+  {
+      let noneType = -totalExp / mapValue
+      let noneRank = -mapValue
+      this.setState({
+        currentLevel: currentLevel,
+        nextExp: nextExp,
+        goalLevel: goalLevel,
+        mapValue: mapValue,
+        usrdefinedmapValue: mapValue,
+        totalExp: totalExp,
+        expSecond: [
+          Math.ceil(noneType),
+        ],
+        perExp: [
+          noneRank,
+        ],
+        expType: [
+          __("User-defined"),
+        ],
+        message: null,
+      })
+    }
     
   }
   handleResponse = e => {
@@ -346,7 +346,7 @@ export const reactClass = connect(
       successFlag = false
       window.success(this.state.message, {
         priority: 2,
-        stickyFor: 1000
+        stickyFor: 1000,
       })
     }
   }
@@ -364,156 +364,166 @@ export const reactClass = connect(
     firstFleet = this.props.fleets ? __map(__get(this.props.fleets, '0.api_ship'), (shipId) => __find(this.props.ships, ship => ship.api_id == 
 shipId)) : []
     ships = sortBy(ships, e => -e.api_lv)
-	return (
-		  <div id="ExpCalcView" className="ExpCalcView">
-			<link rel="stylesheet" href={join(__dirname, 'assets', 'exp-calc.css')} />
-			<Grid>
-			  <Col xs={shipRow}>
-				<FormGroup>
-				  <ControlLabel>{__("Ship")}</ControlLabel>
-				  <InputGroup>
-				  <FormControl
-					componentClass="select"
-					value={this.state.lastShipId}
-					onChange={this.handleShipChange}
-				  >
-					<option value={nullShip.api_id}>{nullShip.text}</option>
-					{ ships &&
-					  ships.map(ship => React.cloneElement(
-						<option value={ship.api_id} key={ship.api_id}>
-						  Lv. {ship.api_lv} - {window.i18n.resources.__($ships[ship.api_ship_id].api_name)}
-						</option>))}
-				  </FormControl>
-				  <DropdownButton
-					componentClass={InputGroup.Button}
-					bsStyle="link"
-					title={__("First fleet")}
-					id = "first-fleet-select"
-					onSelect = {this.handleSetFirstFleet}
-				  >
-				  { firstFleet &&
-				  __map(firstFleet, (ship)=> ship ?
-				  <MenuItem eventKey={ship.api_id}>{window.i18n.resources.__($ships[ship.api_ship_id].api_name)}</MenuItem> :
-				  '' )}
-				  </DropdownButton>
-				  </InputGroup>
-				</FormGroup>
-			  </Col>
-			  <Col xs={mapRow}>
-				<FormGroup>
-				  <ControlLabel>{__("Map")}</ControlLabel>
-				  <FormControl
-					componentClass="select"
-					onChange={this.handleExpMapChange}
-				  >
-					{ Array.from({length: expMap.length}, (v, k) => k).map(idx => React.cloneElement(
-					  <option value={(expValue[idx]>0)?(expValue[idx]):(this.state.usrdefinedmapValue)} key={idx}>{expMap[idx]}</option>
-					))}
-				  </FormControl>
-				</FormGroup>
-			  </Col>
-			  <Col xs={rankRow}>
-			  {
-				  (this.state.mapValue>=0)? (
-					 <FormGroup>
-						<ControlLabel>{__("Result")}</ControlLabel>
-						<FormControl
-							componentClass="select"
-							onChange={this.handleExpLevelChange}
-						  >
-							{ Array.from({length: expLevel.length}, (v, k) => k).map(idx => React.cloneElement(
-							  <option value={expPercent[idx]}>{expLevel[idx]}</option>
-							))}
-							
-						</FormControl>
-					 </FormGroup>
-				  ) : (//user-defined exp 
-					 <FormGroup>
-						<ControlLabel>{__("User-defined Exp")}</ControlLabel>
-						<FormControl
-							type="number"
-							value={-this.state.usrdefinedmapValue}
-							onChange={this.handleUserDefinedExpChange}
-						/>
-					</FormGroup>
-				  
-				  )
-				  
-				}
+    return (
+      <div id="ExpCalcView" className="ExpCalcView">
+        <link rel="stylesheet" href={join(__dirname, 'assets', 'exp-calc.css')} />
+        <Grid>
+          <Col xs={shipRow}>
+            <FormGroup>
+              <ControlLabel>{__("Ship")}</ControlLabel>
+              <InputGroup>
+                <FormControl
+                  componentClass="select"
+                  value={this.state.lastShipId}
+                  onChange={this.handleShipChange}
+                >
+                  <option value={nullShip.api_id}>{nullShip.text}</option>
+                  { ships &&
+                    ships.map(ship => 
+                      <option value={ship.api_id} key={ship.api_id}>
+                        Lv.{ship.api_lv} - {window.i18n.resources.__($ships[ship.api_ship_id].api_name)}
+                      </option>)
+                  }
+                </FormControl>
+                <DropdownButton
+                  componentClass={InputGroup.Button}
+                  bsStyle="link"
+                  title={__("First fleet")}
+                  id = "first-fleet-select"
+                  onSelect = {this.handleSetFirstFleet}
+                >
+                  { 
+                    firstFleet &&
+                    __map(firstFleet, (ship)=> ship ?
+                      <MenuItem eventKey={ship.api_id}>{window.i18n.resources.__($ships[ship.api_ship_id].api_name)}</MenuItem> :
+                    '' )
+                  }
+                </DropdownButton>
+              </InputGroup>
+            </FormGroup>
+          </Col>
+          <Col xs={mapRow}>
+            <FormGroup>
+              <ControlLabel>{__("Map")}</ControlLabel>
+              <FormControl
+                componentClass="select"
+                onChange={this.handleExpMapChange}
+              >
+                { 
+                  Array.from({length: expMap.length}, (v, k) => k).map(idx => 
+                    <option 
+                      value={ expValue[idx]>0 ? expValue[idx] : this.state.usrdefinedmapValue}
+                      key={idx}
+                    >
+                      {expMap[idx]}
+                    </option>
+                  )
+                }
+              </FormControl>
+            </FormGroup>
+          </Col>
+          <Col xs={rankRow}>
+            {
+              this.state.mapValue>=0 ? 
+                <FormGroup>
+                  <ControlLabel>{__("Result")}</ControlLabel>
+                  <FormControl
+                    componentClass="select"
+                    onChange={this.handleExpLevelChange}
+                  >
+                    { 
+                      Array.from({length: expLevel.length}, (v, k) => k).map(idx => 
+                        <option value={expPercent[idx]}>{expLevel[idx]}</option>
+                      )
+                    }
+              
+                  </FormControl>
+                </FormGroup>
+                : //user-defined exp 
+                <FormGroup>
+                  <ControlLabel>{__("User-defined Exp")}</ControlLabel>
+                  <FormControl
+                    type="number"
+                    value={-this.state.usrdefinedmapValue}
+                    onChange={this.handleUserDefinedExpChange}
+                  />
+                </FormGroup>    
+        }
 
-				
-			  </Col>
-			  <Col xs={row}>
-				<FormGroup>
-				  <ControlLabel>{__("Actual level")}</ControlLabel>
-				  <FormControl
-					type="number"
-					value={this.state.currentLevel}
-					onChange={this.handleCurrentLevelChange}
-				  />
-				</FormGroup>
-			  </Col>
-			  <Col xs={row}>
-				<FormGroup>
-				  <ControlLabel>{__("To next")}</ControlLabel>
-				  <FormControl
-					type="number"
-					value={this.state.nextExp}
-					onChange={this.handleNextExpChange}
-				  />
-				</FormGroup>
-			  </Col>
-			  <Col xs={row}>
-				<FormGroup>
-				  <ControlLabel>{__("Goal")}</ControlLabel>
-				  <InputGroup>
-					<FormControl
-					  type="number"
-					  value={this.state.goalLevel}
-					  onChange={this.handleGoalLevelChange}
-					/>
-					<InputGroup.Button>
-					  <Button
-					  bsStyle={this.state.lockGoal ? "warning" : "link"}
-					  onClick={this.handleLock}
-					  title = {this.state.lockGoal ? __("Unlock") : __("Lock the goal level")}
-					  >
-						<FontAwesome name={this.state.lockGoal ? "lock" : "unlock"} />
-					  </Button>
-					</InputGroup.Button>
-				  </InputGroup>
-				</FormGroup>
-			  </Col>
-			  <Col xs={row}>
-				<FormGroup>
-				  <ControlLabel>{__("Total exp")}</ControlLabel>
-					<FormControl
-					  type="number"
-					  value={this.state.totalExp}
-					  readOnly
-					/>
+          </Col>
+          <Col xs={row}>
+            <FormGroup>
+              <ControlLabel>{__("Actual level")}</ControlLabel>
+              <FormControl
+                type="number"
+                value={this.state.currentLevel}
+                onChange={this.handleCurrentLevelChange}
+              />
+            </FormGroup>
+          </Col>
+          <Col xs={row}>
+            <FormGroup>
+              <ControlLabel>{__("To next")}</ControlLabel>
+              <FormControl
+                type="number"
+                value={this.state.nextExp}
+                onChange={this.handleNextExpChange}
+              />
+            </FormGroup>
+          </Col>
+          <Col xs={row}>
+            <FormGroup>
+              <ControlLabel>{__("Goal")}</ControlLabel>
+              <InputGroup>
+                <FormControl
+                  type="number"
+                  value={this.state.goalLevel}
+                  onChange={this.handleGoalLevelChange}
+                />
+                <InputGroup.Button>
+                  <Button
+                    bsStyle={this.state.lockGoal ? "warning" : "link"}
+                    onClick={this.handleLock}
+                    title = {this.state.lockGoal ? __("Unlock") : __("Lock the goal level")}
+                  >
+                    <FontAwesome name={this.state.lockGoal ? "lock" : "unlock"} />
+                  </Button>
+                </InputGroup.Button>
+              </InputGroup>
+            </FormGroup>
+          </Col>
+          <Col xs={row}>
+            <FormGroup>
+              <ControlLabel>{__("Total exp")}</ControlLabel>
+              <FormControl
+                type="number"
+                value={this.state.totalExp}
+                readOnly
+              />
 
-				</FormGroup>
-			  </Col>
-			</Grid>
-			<Table>
-			  <tbody>
-				<tr key={0}>
-				  <td>　</td>
-				  <td>{__("Per attack")}</td>
-				  <td>{__("Remainder")}</td>
-				</tr>
-				{ Array.from({length: this.state.expType.length}, (v, k) => k).map(idx => React.cloneElement(
-				  <tr>
-					<td>{this.state.expType[idx]}</td>
-					<td>{this.state.perExp[idx]}</td>
-					<td>{this.state.expSecond[idx]}</td>
-				  </tr>
-				))}
-			  </tbody>
-			</Table>
-		  </div>
-		)
-	
+            </FormGroup>
+          </Col>
+        </Grid>
+        <Table>
+          <tbody>
+            <tr key={0}>
+              <td>　</td>
+              <td>{__("Per attack")}</td>
+              <td>{__("Remainder")}</td>
+            </tr>
+            { 
+              Array.from({length: this.state.expType.length}, (v, k) => k).map( idx => 
+                <tr>
+                  <td>{this.state.expType[idx]}</td>
+                  <td>{this.state.perExp[idx]}</td>
+                  <td>{this.state.expSecond[idx]}</td>
+                </tr>
+              )
+            }
+          </tbody>
+        </Table>
+      </div>
+    )
+  
   }
 })
