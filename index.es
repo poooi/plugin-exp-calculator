@@ -52,7 +52,7 @@ const expLevel = [
 ]
 
 const expMap = [
-  __("User-defined"),
+  __("Customized"),
   "1-1 鎮守府正面海域", "1-2 南西諸島沖", "1-3 製油所地帯沿岸", "1-4 南西諸島防衛線", "1-5 [Extra] 鎮守府近海", "1-6 [Extra Operation] 鎮守府近海航路",
   "2-1 カムラン半島", "2-2 バシー島沖", "2-3 東部オリョール海", "2-4 沖ノ島海域", "2-5 [Extra] 沖ノ島沖",
   "3-1 モーレイ海", "3-2 キス島沖", "3-3 アルフォンシーノ方面", "3-4 北方海域全域", "3-5 [Extra] 北方AL海域",
@@ -103,7 +103,7 @@ export const reactClass = connect(
         100,
       ],
       expType: [
-        __("User-defined"),
+        __("Customized"),
       ],
 
       message: null,
@@ -201,7 +201,7 @@ export const reactClass = connect(
         noneRank * 2.0,
         noneRank * 3.0,
       ]
-    } else { //user-defined value
+    } else { //Customized value
       noneType = -totalExp / mapValue
       noneRank = -mapValue
       expSecond = [
@@ -211,7 +211,7 @@ export const reactClass = connect(
         noneRank,
       ]
       expType = [
-        __("User-defined"),
+        __("Customized"),
       ]
     }
 
@@ -423,7 +423,7 @@ export const reactClass = connect(
           <Col xs={rankRow}>
             <FormGroup>
               <ControlLabel>
-                {this.state.mapValue>=0 ? __("Result") : __("User-defined Exp")}
+                {this.state.mapValue>=0 ? __("Result") : __("Customized Exp")}
               </ControlLabel>
               {
                 this.state.mapValue>=0 ? 
@@ -437,7 +437,7 @@ export const reactClass = connect(
                       )
                     }
                   </FormControl>
-                : // user-defined exp
+                : // Customized exp
                   <FormControl
                     type="number"
                     value={-this.state.userDefinedValue}

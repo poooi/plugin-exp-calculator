@@ -19,5 +19,7 @@
   "+ %s for each fleet": "諸艦隊の練巡ボーナス: %s",
   "First fleet": "第一艦隊",
   "Lock the goal level": "目標レベルをロックする",
-  "Unlock": "ロック解除"
+  "Unlock": "ロック解除",
+  "Customized Exp":"経験値設定",
+  "Customized":"固定経験値"
 }
