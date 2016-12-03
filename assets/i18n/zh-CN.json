@@ -19,5 +19,7 @@
   "+ %s for each fleet": "诸舰队练巡加成: %s",
   "First fleet": "第一舰队",
   "Lock the goal level": "锁定目标等级",
-  "Unlock": "解锁"
+  "Unlock": "解锁",
+  "User-defined Exp":"自定义经验",
+  "User-defined":"自定义经验"
 }

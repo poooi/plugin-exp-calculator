@@ -19,5 +19,7 @@
   "+ %s for each fleet": "諸艦隊練巡加成: %s",
   "First fleet": "第一艦隊",
   "Lock the goal level": "鎖定目標等級",
-  "Unlock": "解鎖"
+  "Unlock": "解鎖",
+  "User-defined Exp":"自定義經驗",
+  "User-defined":"自定義經驗"
 }
