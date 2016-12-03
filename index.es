@@ -177,8 +177,8 @@ export const reactClass = connect(
     mapValue = parseInt(mapValue)
     let totalExp = exp[goalLevel] - exp[currentLevel + 1] + nextExp
 
+    let userDefinedValue = this.state.userDefinedValue
     let noneType, noneRank, expSecond, expType, perExp
-    let userDefinedValue = mapValue
     let message = null
     if (mapValue > 0) {//represented value
       noneType = totalExp / mapValue / mapPercent
@@ -202,6 +202,7 @@ export const reactClass = connect(
         noneRank * 3.0,
       ]
     } else { //Customized value
+      userDefinedValue = mapValue
       noneType = -totalExp / mapValue
       noneRank = -mapValue
       expSecond = [
@@ -214,7 +215,6 @@ export const reactClass = connect(
         __("Customized"),
       ]
     }
-
     this.setState({
       currentLevel,
       nextExp,
