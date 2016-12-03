@@ -393,8 +393,14 @@ export const reactClass = connect(
                   { 
                     firstFleet &&
                     __map(firstFleet, (ship)=> ship ?
-                      <MenuItem eventKey={ship.api_id}>{window.i18n.resources.__($ships[ship.api_ship_id].api_name)}</MenuItem> :
-                    '' )
+                      <MenuItem 
+                        key={ship.api_id} 
+                        eventKey={ship.api_id}
+                      >
+                        {window.i18n.resources.__($ships[ship.api_ship_id].api_name)}
+                      </MenuItem> 
+                      :
+                      '' )
                   }
                 </DropdownButton>
               </InputGroup>
