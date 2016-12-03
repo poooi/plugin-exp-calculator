@@ -290,13 +290,13 @@ export const reactClass = connect(
     }
   }
   handleCurrentLevelChange = e => {
-    this.handleExpChange(Math.max(1,e.target.value), this.state.nextExp, this.state.goalLevel, this.state.mapValue, this.state.mapPercent)
+    this.handleExpChange(Math.max(1, e.target.value), this.state.nextExp, this.state.goalLevel, this.state.mapValue, this.state.mapPercent)
   }
   handleNextExpChange = e => {
     this.handleExpChange(this.state.currentLevel, e.target.value, this.state.goalLevel, this.state.mapValue, this.state.mapPercent)
   }
   handleGoalLevelChange = e => {
-    this.handleExpChange(this.state.currentLevel, this.state.nextExp, Math.max(1,e.target.value), this.state.mapValue, this.state.mapPercent)
+    this.handleExpChange(this.state.currentLevel, this.state.nextExp, Math.max(1, e.target.value), this.state.mapValue, this.state.mapPercent)
   }
   handleExpMapChange = e => {
     this.handleExpChange(this.state.currentLevel, this.state.nextExp, this.state.goalLevel, e.target.value, this.state.mapPercent)
@@ -305,7 +305,7 @@ export const reactClass = connect(
     this.handleExpChange(this.state.currentLevel, this.state.nextExp, this.state.goalLevel, this.state.mapValue, e.target.value)
   }
   handleUserDefinedExpChange = e => {
-    this.handleExpChange(this.state.currentLevel, this.state.nextExp, this.state.goalLevel, -Math.max(1,e.target.value), this.state.mapPercent)
+    this.handleExpChange(this.state.currentLevel, this.state.nextExp, this.state.goalLevel, -Math.max(1, e.target.value), this.state.mapPercent)
   }
 
   handleShipChange = e => {

@@ -38,7 +38,8 @@ module.exports = {
     'import/no-unresolved': [2, { ignore: ['views/.*'] }],
     "react/jsx-indent": [1, 2],
     "react/jsx-indent-props": [1, 2],
-    'react/jsx-closing-bracket-location': [1, 'tag-aligned']
+    "react/jsx-closing-bracket-location": [1, 'tag-aligned'],
+    "comma-spacing": ["error", { "before": false, "after": true }],
   },
   'settings': {
     'import/resolver': {
