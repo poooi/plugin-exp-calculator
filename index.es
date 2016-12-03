@@ -6,7 +6,7 @@ import FontAwesome from 'react-fontawesome'
 
 import { FormControl, FormGroup, ControlLabel, Grid, Col, Table, InputGroup, Button, DropdownButton, MenuItem } from 'react-bootstrap'
 
-const { i18n, ROOT } = window
+const { i18n } = window
 const __ = i18n["poi-plugin-exp-calc"].__.bind(i18n["poi-plugin-exp-calc"])
 
 let successFlag = false
@@ -52,7 +52,7 @@ const expLevel = [
 ]
 
 const expMap = [
-  "自定義 User-defined",
+  __("User-defined"),
   "1-1 鎮守府正面海域", "1-2 南西諸島沖", "1-3 製油所地帯沿岸", "1-4 南西諸島防衛線", "1-5 [Extra] 鎮守府近海", "1-6 [Extra Operation] 鎮守府近海航路",
   "2-1 カムラン半島", "2-2 バシー島沖", "2-3 東部オリョール海", "2-4 沖ノ島海域", "2-5 [Extra] 沖ノ島沖",
   "3-1 モーレイ海", "3-2 キス島沖", "3-3 アルフォンシーノ方面", "3-4 北方海域全域", "3-5 [Extra] 北方AL海域",
@@ -92,7 +92,7 @@ export const reactClass = connect(
       nextExp: 100,
       goalLevel: 99,
       mapValue: -100,
-      usrdefinedmapValue: -100,
+      userDefinedValue: -100,
       mapPercent: 1.2,
       totalExp: 1000000,
       lockGoal: false,
@@ -176,60 +176,57 @@ export const reactClass = connect(
     goalLevel = parseInt(goalLevel)
     mapValue = parseInt(mapValue)
     let totalExp = exp[goalLevel] - exp[currentLevel + 1] + nextExp
-    if(mapValue > 0)//represented value
-  {
-      let noneType = totalExp / mapValue / mapPercent
-      let noneRank = mapValue * mapPercent
-      this.setState({
-        currentLevel: currentLevel,
-        nextExp: nextExp,
-        goalLevel: goalLevel,
-        mapValue: mapValue,
-        totalExp: totalExp,
-        expSecond: [
-          Math.ceil(noneType),
-          Math.ceil(noneType / 1.5),
-          Math.ceil(noneType / 2.0),
-          Math.ceil(noneType / 3.0),
-        ],
-        expType: [
-          __("Basic"),
-          __("Flagship"),
-          __("MVP"),
-          __("MVP and flagship"),
-        ],
-        perExp: [
-          noneRank,
-          noneRank * 1.5,
-          noneRank * 2.0,
-          noneRank * 3.0,
-        ],
-        message: null,
-      })
+
+    let noneType, noneRank, expSecond, expType, perExp
+    let userDefinedValue = mapValue
+    let message = null
+    if (mapValue > 0) {//represented value
+      noneType = totalExp / mapValue / mapPercent
+      noneRank = mapValue * mapPercent
+      expSecond = [
+        Math.ceil(noneType),
+        Math.ceil(noneType / 1.5),
+        Math.ceil(noneType / 2.0),
+        Math.ceil(noneType / 3.0),
+      ]
+      expType = [
+        __("Basic"),
+        __("Flagship"),
+        __("MVP"),
+        __("MVP and flagship"),
+      ]
+      perExp = [
+        noneRank,
+        noneRank * 1.5,
+        noneRank * 2.0,
+        noneRank * 3.0,
+      ]
+    } else { //user-defined value
+      noneType = -totalExp / mapValue
+      noneRank = -mapValue
+      expSecond = [
+        Math.ceil(noneType),
+      ]
+      perExp = [
+        noneRank,
+      ]
+      expType = [
+        __("User-defined"),
+      ]
     }
-    else			//user-defined value
-  {
-      let noneType = -totalExp / mapValue
-      let noneRank = -mapValue
-      this.setState({
-        currentLevel: currentLevel,
-        nextExp: nextExp,
-        goalLevel: goalLevel,
-        mapValue: mapValue,
-        usrdefinedmapValue: mapValue,
-        totalExp: totalExp,
-        expSecond: [
-          Math.ceil(noneType),
-        ],
-        perExp: [
-          noneRank,
-        ],
-        expType: [
-          __("User-defined"),
-        ],
-        message: null,
-      })
-    }
+
+    this.setState({
+      currentLevel,
+      nextExp,
+      goalLevel,
+      mapValue,
+      totalExp,
+      expSecond,
+      expType,
+      perExp,
+      message,
+      userDefinedValue,
+    })
     
   }
   handleResponse = e => {
@@ -355,14 +352,15 @@ export const reactClass = connect(
   render() {
     let row = this.props.horizontal == 'horizontal' ? 6 : 3
     let shipRow = this.props.horizontal == 'horizontal' ? 12 : 5
-    let mapRow = this.props.horizontal == 'horizontal' ? 9 : 5
-    let rankRow = this.props.horizontal == 'horizontal' ? 3 : 2
+    let mapRow = this.props.horizontal == 'horizontal' ? 7 : 4
+    let rankRow = this.props.horizontal == 'horizontal' ? 5 : 3
     let nullShip = { api_id: 0, text: __("NULL") }
     const { $ships } = this.props
     let ships = Object.keys(this.props.ships).map(key => this.props.ships[key])
     let firstFleet
-    firstFleet = this.props.fleets ? __map(__get(this.props.fleets, '0.api_ship'), (shipId) => __find(this.props.ships, ship => ship.api_id == 
-shipId)) : []
+    firstFleet = this.props.fleets ? 
+      __map(__get(this.props.fleets, '0.api_ship'), (shipId) => __find(this.props.ships, ship => ship.api_id == shipId)) 
+      : []
     ships = sortBy(ships, e => -e.api_lv)
     return (
       <div id="ExpCalcView" className="ExpCalcView">
@@ -412,7 +410,7 @@ shipId)) : []
                 { 
                   Array.from({length: expMap.length}, (v, k) => k).map(idx => 
                     <option 
-                      value={ expValue[idx]>0 ? expValue[idx] : this.state.usrdefinedmapValue}
+                      value={ expValue[idx]>0 ? expValue[idx] : this.state.userDefinedValue}
                       key={idx}
                     >
                       {expMap[idx]}
@@ -423,10 +421,12 @@ shipId)) : []
             </FormGroup>
           </Col>
           <Col xs={rankRow}>
-            {
-              this.state.mapValue>=0 ? 
-                <FormGroup>
-                  <ControlLabel>{__("Result")}</ControlLabel>
+            <FormGroup>
+              <ControlLabel>
+                {this.state.mapValue>=0 ? __("Result") : __("User-defined Exp")}
+              </ControlLabel>
+              {
+                this.state.mapValue>=0 ? 
                   <FormControl
                     componentClass="select"
                     onChange={this.handleExpLevelChange}
@@ -436,19 +436,16 @@ shipId)) : []
                         <option value={expPercent[idx]}>{expLevel[idx]}</option>
                       )
                     }
-              
                   </FormControl>
-                </FormGroup>
-                : //user-defined exp 
-                <FormGroup>
-                  <ControlLabel>{__("User-defined Exp")}</ControlLabel>
+                : // user-defined exp
                   <FormControl
                     type="number"
-                    value={-this.state.usrdefinedmapValue}
+                    value={-this.state.userDefinedValue}
                     onChange={this.handleUserDefinedExpChange}
                   />
-                </FormGroup>    
-        }
+              }
+            </FormGroup>
+  
 
           </Col>
           <Col xs={row}>
