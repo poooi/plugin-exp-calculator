@@ -516,7 +516,7 @@ export const reactClass = connect(
             </tr>
             { 
               Array.from({length: this.state.expType.length}, (v, k) => k).map( idx => 
-                <tr>
+                <tr key={idx}>
                   <td>{this.state.expType[idx]}</td>
                   <td>{this.state.perExp[idx]}</td>
                   <td>{this.state.expSecond[idx]}</td>
