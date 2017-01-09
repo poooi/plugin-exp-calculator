@@ -82,7 +82,7 @@ function getBonusType(lv) {
 // selectors
 const remodelLvSelector = createSelector(
   [constSelector],
-  ({$ships}) => {
+  ({$ships={}}) => {
     const remodelLvs = {}
     Object.keys($ships).forEach(shipId => {
       if (typeof $ships[shipId].api_aftershipid == 'undefined') return
@@ -115,12 +115,11 @@ export const reactClass = connect(
   state => {
     const ships = get(state, 'info.ships', {})
 
-    // use fleet id count to 10 to support Kancoll in 2030
     return ({
       horizontal: configLayoutSelector(state),
       doubleTabbed: configDoubleTabbedSelector(state),
       ships: keyBy(Object.keys(ships).map( shipId => expInfoSelector(parseInt(shipId))(state)), 'api_id'),
-      fleets: [...Array(10).keys()].map(fleetId => fleetShipsIdSelectorFactory(fleetId)(state)),
+      fleets: [...Array(4).keys()].map(fleetId => fleetShipsIdSelectorFactory(fleetId)(state)),
       remodelLvs: remodelLvSelector(state),
     })
   }
@@ -468,7 +467,12 @@ export const reactClass = connect(
                   >
                     { 
                       Array.from({length: expLevel.length}, (v, k) => k).map(idx => 
-                        <option value={expPercent[idx]}>{expLevel[idx]}</option>
+                        <option 
+                          value={expPercent[idx]}
+                          key={idx}
+                        >
+                          {expLevel[idx]}
+                        </option>
                       )
                     }
                   </FormControl>
