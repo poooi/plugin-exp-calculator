@@ -183,7 +183,7 @@ export const reactClass = connect(
         }
       }
     }
-    return [api_lv, api_exp[1], goalLevel]
+    return [api_lv, (api_exp || [])[1], goalLevel]
   }
 
   updateShip = (shipId = this.state.lastShipId) => {
@@ -201,7 +201,7 @@ export const reactClass = connect(
     }
   }
 
-  handleExpChange = (currentLevel, nextExp, goalLevel, mapValue, mapPercent) => {
+  handleExpChange = (currentLevel=1, nextExp=100, goalLevel=99, mapValue, mapPercent) => {
     currentLevel = parseInt(currentLevel)
     nextExp = parseInt(nextExp)
     goalLevel = parseInt(goalLevel)
