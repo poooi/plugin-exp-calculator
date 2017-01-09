@@ -267,21 +267,19 @@ export const reactClass = connect(
       let enemyShips = body.api_deck.api_ships
       let baseExp = exp[enemyShips[0].api_level] / 100 + exp[enemyShips[1].api_level != null ? enemyShips[1].api_level : 0] / 300
       baseExp = baseExp <= 500 ? baseExp : 500 + Math.floor(Math.sqrt(baseExp - 500))
-      let bonusScale = ["0%", "0%", "0%", "0%"]
+      let bonusScale = {}
+      let bonusStr = []
       let bonusFlag = false
       let message = null
       const {fleets, ships} = this.props
       for (const index in fleets) {
         let fleetShips = fleets[index]
+        if (typeof fleetShips == 'undefined') continue
         let flagshipFlag = false
         let trainingLv = 0
         let trainingCount = 0
-        if (typeof fleetShips == 'undefined') continue
         for (const idx in fleetShips) {
           let shipId = fleetShips[idx]
-          if (shipId == -1) {
-            break
-          }
           let ship = ships[shipId]
           if (ship.api_stype == 21) {
             trainingCount += 1
@@ -306,12 +304,15 @@ export const reactClass = connect(
           } else {
             bonusScale[index] = bonusExpScaleNonFlagship[trainingCount - 1][bonusType]
           }
-          bonusScale[index] = `${ bonusScale[index] }%`
+          bonusStr.push(`${ bonusScale[index] }%`)
+        } else {
+          bonusScale[index] = 0
+          bonusStr.push(`0%`)
         }
-        message = `${ __('Exp') }: [A/B] ${ Math.floor(baseExp) }, [S] ${ Math.floor(baseExp * 1.2) }`
-        if (bonusFlag) {
-          message = `${ message }, ${ __("+ %s for each fleet", bonusScale.join("/")) }`
-        }
+      }
+      message = `${ __('Exp') }: [A/B] ${ Math.floor(baseExp) }, [S] ${ Math.floor(baseExp * 1.2) }`
+      if (bonusFlag) {
+        message = `${ message }, ${ __("+ %s for each fleet", bonusStr.join(' ')) }`
       }
       if (message != null) {
         successFlag = true
