@@ -6,6 +6,7 @@ import FontAwesome from 'react-fontawesome'
 
 import { FormControl, FormGroup, ControlLabel, Grid, Col, Table, InputGroup, Button, DropdownButton, MenuItem } from 'react-bootstrap'
 
+import { configLayoutSelector, configDoubleTabbedSelector } from 'views/utils/selectors'
 const { i18n } = window
 const __ = i18n["poi-plugin-exp-calc"].__.bind(i18n["poi-plugin-exp-calc"])
 
@@ -77,7 +78,8 @@ function getBonusType(lv) {
 
 export const reactClass = connect(
   state => ({
-    horizontal: state.config.poi.layout || 'horizontal',
+    horizontal: configLayoutSelector(state),
+    doubleTabbed: configDoubleTabbedSelector(state),
     $ships: state.const.$ships,
     ships: state.info.ships,
     fleets: state.info.fleets,
@@ -350,10 +352,11 @@ export const reactClass = connect(
   
   
   render() {
-    let row = this.props.horizontal == 'horizontal' ? 6 : 3
-    let shipRow = this.props.horizontal == 'horizontal' ? 12 : 5
-    let mapRow = this.props.horizontal == 'horizontal' ? 7 : 4
-    let rankRow = this.props.horizontal == 'horizontal' ? 5 : 3
+    const {horizontal, doubleTabbed} = this.props
+    let row = (horizontal == 'horizontal' || doubleTabbed) ? 6 : 3
+    let shipRow = (horizontal == 'horizontal' || doubleTabbed) ? 12 : 5
+    let mapRow = (horizontal == 'horizontal' || doubleTabbed) ? 7 : 4
+    let rankRow = (horizontal == 'horizontal' || doubleTabbed) ? 5 : 3
     let nullShip = { api_id: 0, text: __("NULL") }
     const { $ships } = this.props
     let ships = Object.keys(this.props.ships).map(key => this.props.ships[key])
