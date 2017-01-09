@@ -115,12 +115,12 @@ export const reactClass = connect(
   state => {
     const ships = get(state, 'info.ships', {})
 
+    // use fleet id count to 10 to support Kancoll in 2030
     return ({
       horizontal: configLayoutSelector(state),
       doubleTabbed: configDoubleTabbedSelector(state),
       ships: keyBy(Object.keys(ships).map( shipId => expInfoSelector(parseInt(shipId))(state)), 'api_id'),
-      firstFleetShipId: fleetShipsIdSelectorFactory(0)(state),
-      fleets: get(state, 'info.fleets', []),
+      fleets: [...Array(10).keys()].map(fleetId => fleetShipsIdSelectorFactory(fleetId)(state)),
       remodelLvs: remodelLvSelector(state),
     })
   }
@@ -276,8 +276,9 @@ export const reactClass = connect(
         let flagshipFlag = false
         let trainingLv = 0
         let trainingCount = 0
-        for (const idx in fleetShips.api_ship) {
-          let shipId = fleetShips.api_ship[idx]
+        if (typeof fleetShips == 'undefined') continue
+        for (const idx in fleetShips) {
+          let shipId = fleetShips[idx]
           if (shipId == -1) {
             break
           }
@@ -379,7 +380,7 @@ export const reactClass = connect(
   
   
   render() {
-    const {horizontal, doubleTabbed, firstFleetShipId} = this.props
+    const {horizontal, doubleTabbed, fleets} = this.props
     let row = (horizontal == 'horizontal' || doubleTabbed) ? 6 : 3
     let shipRow = (horizontal == 'horizontal' || doubleTabbed) ? 12 : 5
     let mapRow = (horizontal == 'horizontal' || doubleTabbed) ? 7 : 4
@@ -388,7 +389,7 @@ export const reactClass = connect(
     const _ships = this.props.ships
     let ships = values(_ships)
     ships = sortBy(ships, e => -e.api_lv)
-    const firstFleet = map(firstFleetShipId, shipId => _ships[shipId])
+    const firstFleet = map(fleets[0], shipId => _ships[shipId])
     return (
       <div id="ExpCalcView" className="ExpCalcView">
         <link rel="stylesheet" href={join(__dirname, 'assets', 'exp-calc.css')} />
