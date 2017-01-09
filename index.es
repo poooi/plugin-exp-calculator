@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
 import { join } from 'path-extra'
 import { connect } from 'react-redux'
-import { sortBy, isEqual, get as __get, map as __map, find as __find } from 'lodash'
+import { sortBy, isEqual, get as __get, map as __map, find as __find, values } from 'lodash'
 import FontAwesome from 'react-fontawesome'
 
 import { FormControl, FormGroup, ControlLabel, Grid, Col, Table, InputGroup, Button, DropdownButton, MenuItem } from 'react-bootstrap'
 
-import { configLayoutSelector, configDoubleTabbedSelector } from 'views/utils/selectors'
+import { configLayoutSelector, configDoubleTabbedSelector, fleetShipsIdSelectorFactory } from 'views/utils/selectors'
 const { i18n } = window
 const __ = i18n["poi-plugin-exp-calc"].__.bind(i18n["poi-plugin-exp-calc"])
 
@@ -82,7 +82,7 @@ export const reactClass = connect(
     doubleTabbed: configDoubleTabbedSelector(state),
     $ships: state.const.$ships,
     ships: state.info.ships,
-    fleets: state.info.fleets,
+    firstFleetShipId: fleetShipsIdSelectorFactory(0)(state),
   }),
   null, null, { pure: false }
 )(class PoiPluginExpCalc extends Component {
@@ -352,19 +352,17 @@ export const reactClass = connect(
   
   
   render() {
-    const {horizontal, doubleTabbed} = this.props
+    const {horizontal, doubleTabbed, firstFleetShipId} = this.props
     let row = (horizontal == 'horizontal' || doubleTabbed) ? 6 : 3
     let shipRow = (horizontal == 'horizontal' || doubleTabbed) ? 12 : 5
     let mapRow = (horizontal == 'horizontal' || doubleTabbed) ? 7 : 4
     let rankRow = (horizontal == 'horizontal' || doubleTabbed) ? 5 : 3
     let nullShip = { api_id: 0, text: __("NULL") }
     const { $ships } = this.props
-    let ships = Object.keys(this.props.ships).map(key => this.props.ships[key])
-    let firstFleet
-    firstFleet = this.props.fleets ? 
-      __map(__get(this.props.fleets, '0.api_ship'), (shipId) => __find(this.props.ships, ship => ship.api_id == shipId)) 
-      : []
+    const _ships = this.props.ships
+    let ships = values(_ships)
     ships = sortBy(ships, e => -e.api_lv)
+    const firstFleet = __map(firstFleetShipId, shipId => _ships[shipId])
     return (
       <div id="ExpCalcView" className="ExpCalcView">
         <link rel="stylesheet" href={join(__dirname, 'assets', 'exp-calc.css')} />
@@ -395,12 +393,12 @@ export const reactClass = connect(
                 >
                   { 
                     firstFleet &&
-                    __map(firstFleet, (ship)=> ship ?
+                    __map(firstFleet, (ship)=> typeof ship != undefined ?
                       <MenuItem 
                         key={ship.api_id} 
                         eventKey={ship.api_id}
                       >
-                        {window.i18n.resources.__($ships[ship.api_ship_id].api_name)}
+                        {window.i18n.resources.__(($ships[(ship.api_ship_id || -1)] || {}).api_name)}
                       </MenuItem> 
                       :
                       '' )
