@@ -1,12 +1,15 @@
 import React, { Component } from 'react'
 import { join } from 'path-extra'
 import { connect } from 'react-redux'
-import { sortBy, isEqual, get as __get, map as __map, find as __find, values } from 'lodash'
+import { sortBy, isEqual, map, values, keyBy, get } from 'lodash'
 import FontAwesome from 'react-fontawesome'
+import { createSelector } from 'reselect'
+import memoize from 'fast-memoize'
 
 import { FormControl, FormGroup, ControlLabel, Grid, Col, Table, InputGroup, Button, DropdownButton, MenuItem } from 'react-bootstrap'
 
-import { configLayoutSelector, configDoubleTabbedSelector, fleetShipsIdSelectorFactory } from 'views/utils/selectors'
+import { configLayoutSelector, configDoubleTabbedSelector, fleetShipsIdSelectorFactory, shipDataSelectorFactory,
+  constSelector } from 'views/utils/selectors'
 const { i18n } = window
 const __ = i18n["poi-plugin-exp-calc"].__.bind(i18n["poi-plugin-exp-calc"])
 
@@ -76,15 +79,51 @@ function getBonusType(lv) {
   return lv < 10 ? 0 : 10 <= lv && lv < 30 ? 1 : 30 <= lv && lv < 60 ? 2 : 60 <= lv && lv < 100 ? 3 : 4
 }
 
+// selectors
+const remodelLvSelector = createSelector(
+  [constSelector],
+  ({$ships}) => {
+    const remodelLvs = {}
+    Object.keys($ships).forEach(shipId => {
+      if (typeof $ships[shipId].api_aftershipid == 'undefined') return
+      let remodelLv = [($ships[shipId].api_afterlv)]
+      let nextShipId = parseInt($ships[shipId].api_aftershipid)
+      while (nextShipId != 0 && remodelLv[remodelLv.length - 1] < $ships[nextShipId].api_afterlv) {
+        remodelLv.push($ships[nextShipId].api_afterlv)
+        nextShipId = parseInt($ships[nextShipId].api_aftershipid)
+      }
+      remodelLvs[shipId] = remodelLv
+    })
+    return remodelLvs
+  }
+)
+
+const expInfoSelector = memoize((shipId) => 
+  createSelector(
+    [shipDataSelectorFactory(shipId)],
+    ([ship, $ship] = []) => 
+      typeof ship != 'undefined' && typeof $ship != 'undefined' ?
+      {
+        ...$ship,
+        ...ship,
+      }
+      : undefined
+  )
+)
+
 export const reactClass = connect(
-  state => ({
-    horizontal: configLayoutSelector(state),
-    doubleTabbed: configDoubleTabbedSelector(state),
-    $ships: state.const.$ships,
-    ships: state.info.ships,
-    firstFleetShipId: fleetShipsIdSelectorFactory(0)(state),
-  }),
-  null, null, { pure: false }
+  state => {
+    const ships = get(state, 'info.ships', {})
+
+    return ({
+      horizontal: configLayoutSelector(state),
+      doubleTabbed: configDoubleTabbedSelector(state),
+      ships: keyBy(Object.keys(ships).map( shipId => expInfoSelector(parseInt(shipId))(state)), 'api_id'),
+      firstFleetShipId: fleetShipsIdSelectorFactory(0)(state),
+      fleets: get(state, 'info.fleets', []),
+      remodelLvs: remodelLvSelector(state),
+    })
+  }
 )(class PoiPluginExpCalc extends Component {
   constructor(props) {
     super(props)
@@ -115,10 +154,10 @@ export const reactClass = connect(
   componentWillReceiveProps(nextProps) {
     // if the goalLevel not lock, update the component
     if (this.state.lastShipId){
-      const {$ships, ships} = nextProps
+      const {ships} = nextProps
       const {currentLevel, nextExp, goalLevel} = this.state
 
-      let [_currentLevel, _nextExp, _goalLevel] = this.getExpInfo(this.state.lastShipId, $ships, ships)
+      let [_currentLevel, _nextExp, _goalLevel] = this.getExpInfo(this.state.lastShipId, ships)
       _goalLevel = this.state.lockGoal ?  goalLevel : _goalLevel
 
       if (!isEqual([_currentLevel, _nextExp, _goalLevel], [currentLevel, nextExp, goalLevel])) { // prevent changes from other props
@@ -127,34 +166,25 @@ export const reactClass = connect(
     }
   }
 
-  getRemodelLvsById(shipId) {
-    const { $ships } = this.props
-    let remodelLvs = [$ships[shipId].api_afterlv]
-    let nextShipId = parseInt($ships[shipId].api_aftershipid)
-    while (nextShipId != 0 && remodelLvs[remodelLvs.length - 1] < $ships[nextShipId].api_afterlv) {
-      remodelLvs.push($ships[nextShipId].api_afterlv)
-      nextShipId = parseInt($ships[nextShipId].api_aftershipid)
-    }
-    return remodelLvs
-  }
-
-  getExpInfo(shipId, $ships=this.props.$ships, ships = this.props.ships) {
+  getExpInfo(shipId, ships=this.props.ships) {
+    const {api_lv, api_afterlv, api_ship_id, api_exp} = (ships[shipId] || {})
     if (shipId <= 0) {
       return [1, 100, 99]
     }
     let goalLevel = 99
-    if (ships[shipId].api_lv > 99) {
+    if (api_lv > 99) {
       goalLevel = 155
-    } else if ($ships[ships[shipId].api_ship_id].api_afterlv != 0) {
-      let remodelLvs = this.getRemodelLvsById(ships[shipId].api_ship_id)
-      for (const lv of remodelLvs) {
-        if (lv > ships[shipId].api_lv) {
+    } else if (api_afterlv != 0) {
+      const {remodelLvs} = this.props
+      let remodelLv = remodelLvs[api_ship_id] || []
+      for (const lv of remodelLv) {
+        if (lv > api_lv) {
           goalLevel = lv
           break
         }
       }
     }
-    return [ships[shipId].api_lv, ships[shipId].api_exp[1], goalLevel]
+    return [api_lv, api_exp[1], goalLevel]
   }
 
   updateShip = (shipId = this.state.lastShipId) => {
@@ -233,17 +263,14 @@ export const reactClass = connect(
   }
   handleResponse = e => {
     const { path, body } = e.detail
-    const { ships } = this.props
-    switch (path) {
-    case '/kcsapi/api_req_member/get_practice_enemyinfo':
+    if (path == '/kcsapi/api_req_member/get_practice_enemyinfo') {
       let enemyShips = body.api_deck.api_ships
       let baseExp = exp[enemyShips[0].api_level] / 100 + exp[enemyShips[1].api_level != null ? enemyShips[1].api_level : 0] / 300
       baseExp = baseExp <= 500 ? baseExp : 500 + Math.floor(Math.sqrt(baseExp - 500))
       let bonusScale = ["0%", "0%", "0%", "0%"]
       let bonusFlag = false
       let message = null
-      let fleets = this.props.fleets
-      let $ships = this.props.$ships
+      const {fleets, ships} = this.props
       for (const index in fleets) {
         let fleetShips = fleets[index]
         let flagshipFlag = false
@@ -255,7 +282,7 @@ export const reactClass = connect(
             break
           }
           let ship = ships[shipId]
-          if ($ships[ship.api_ship_id].api_stype == 21) {
+          if (ship.api_stype == 21) {
             trainingCount += 1
             if (!flagshipFlag) {
               if (ship.api_lv > trainingLv) {
@@ -358,11 +385,10 @@ export const reactClass = connect(
     let mapRow = (horizontal == 'horizontal' || doubleTabbed) ? 7 : 4
     let rankRow = (horizontal == 'horizontal' || doubleTabbed) ? 5 : 3
     let nullShip = { api_id: 0, text: __("NULL") }
-    const { $ships } = this.props
     const _ships = this.props.ships
     let ships = values(_ships)
     ships = sortBy(ships, e => -e.api_lv)
-    const firstFleet = __map(firstFleetShipId, shipId => _ships[shipId])
+    const firstFleet = map(firstFleetShipId, shipId => _ships[shipId])
     return (
       <div id="ExpCalcView" className="ExpCalcView">
         <link rel="stylesheet" href={join(__dirname, 'assets', 'exp-calc.css')} />
@@ -380,7 +406,7 @@ export const reactClass = connect(
                   { ships &&
                     ships.map(ship => 
                       <option value={ship.api_id} key={ship.api_id}>
-                        Lv.{ship.api_lv} - {window.i18n.resources.__($ships[ship.api_ship_id].api_name)}
+                        Lv.{ship.api_lv} - {window.i18n.resources.__(ship.api_name || '')}
                       </option>)
                   }
                 </FormControl>
@@ -393,12 +419,12 @@ export const reactClass = connect(
                 >
                   { 
                     firstFleet &&
-                    __map(firstFleet, (ship)=> typeof ship != undefined ?
+                    map(firstFleet, (ship)=> typeof ship != undefined ?
                       <MenuItem 
                         key={ship.api_id} 
                         eventKey={ship.api_id}
                       >
-                        {window.i18n.resources.__(($ships[(ship.api_ship_id || -1)] || {}).api_name)}
+                        {window.i18n.resources.__(ship.api_name || '')}
                       </MenuItem> 
                       :
                       '' )
