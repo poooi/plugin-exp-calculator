@@ -388,7 +388,7 @@ export const reactClass = connect(
     let nullShip = { api_id: 0, text: __("NULL") }
     const _ships = this.props.ships
     let ships = values(_ships)
-    ships = sortBy(ships, e => -e.api_lv)
+    ships = sortBy(ships, [e => -e.api_lv, e => get(e, 'api_exp.1', 0)])
     const firstFleet = map(fleets[0], shipId => _ships[shipId])
     return (
       <div id="ExpCalcView" className="ExpCalcView">
