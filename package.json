@@ -1,7 +1,7 @@
 {
   "name": "poi-plugin-exp-calc",
   "description": "Calculate experience value.",
-  "version": "3.2.3",
+  "version": "3.3.0",
   "main": "index.es",
   "dependencies": {},
   "devDependencies": {
