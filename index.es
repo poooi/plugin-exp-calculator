@@ -201,11 +201,12 @@ export const reactClass = connect(
     }
   }
 
-  handleExpChange = (currentLevel=1, nextExp=100, goalLevel=99, mapValue, mapPercent) => {
-    currentLevel = parseInt(currentLevel)
-    nextExp = parseInt(nextExp)
-    goalLevel = parseInt(goalLevel)
-    mapValue = parseInt(mapValue)
+  handleExpChange = (_currentLevel=1, _nextExp=100, _goalLevel=99, _mapValue, _mapPercent) => {
+    const currentLevel = parseInt(_currentLevel)
+    const nextExp = parseInt(_nextExp)
+    const goalLevel = parseInt(_goalLevel)
+    const mapValue = parseInt(_mapValue)
+    const mapPercent = parseFloat(_mapPercent)
     let totalExp = exp[goalLevel] - exp[currentLevel + 1] + nextExp
 
     let userDefinedValue = this.state.userDefinedValue
@@ -257,6 +258,7 @@ export const reactClass = connect(
       perExp,
       message,
       userDefinedValue,
+      mapPercent,
     })
     
   }
