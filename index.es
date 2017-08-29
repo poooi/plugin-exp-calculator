@@ -31,7 +31,8 @@ let exp = [
   1290000, 1329000, 1372000, 1419000, 1470000, 1525000, 1584000, 1647000, 1714000, 1785000,
   1860000, 1940000, 2025000, 2115000, 2210000, 2310000, 2415000, 2525000, 2640000, 2760000,
   2887000, 3021000, 3162000, 3310000, 3465000, 3628000, 3799000, 3978000, 4165000, 4360000,
-  4564000, 4777000, 4999000, 5230000, 5470000,
+  4564000, 4777000, 4999000, 5230000, 5470000, 5720000, 5780000, 5860000, 5970000, 6120000,
+  6320000, 6580000, 6910000, 7320000, 7820000,
 ]
 
 exp.unshift(exp[0])
@@ -98,10 +99,10 @@ const remodelLvSelector = createSelector(
   }
 )
 
-const expInfoSelector = memoize((shipId) => 
+const expInfoSelector = memoize((shipId) =>
   createSelector(
     [shipDataSelectorFactory(shipId)],
-    ([ship, $ship] = []) => 
+    ([ship, $ship] = []) =>
       typeof ship != 'undefined' && typeof $ship != 'undefined' ?
       {
         ...$ship,
@@ -260,7 +261,7 @@ export const reactClass = connect(
       userDefinedValue,
       mapPercent,
     })
-    
+
   }
   handleResponse = e => {
     const { path, body } = e.detail
@@ -379,8 +380,8 @@ export const reactClass = connect(
       })
     }
   }
-  
-  
+
+
   render() {
     const {horizontal, doubleTabbed, fleets} = this.props
     let row = (horizontal == 'horizontal' || doubleTabbed) ? 6 : 3
@@ -407,7 +408,7 @@ export const reactClass = connect(
                 >
                   <option value={nullShip.api_id}>{nullShip.text}</option>
                   { ships &&
-                    ships.map(ship => 
+                    ships.map(ship =>
                       <option value={ship.api_id} key={ship.api_id}>
                         Lv.{ship.api_lv} - {window.i18n.resources.__(ship.api_name || '')}
                       </option>)
@@ -420,15 +421,15 @@ export const reactClass = connect(
                   id = "first-fleet-select"
                   onSelect = {this.handleSetFirstFleet}
                 >
-                  { 
+                  {
                     firstFleet &&
                     map(firstFleet, (ship)=> typeof ship != undefined ?
-                      <MenuItem 
-                        key={ship.api_id} 
+                      <MenuItem
+                        key={ship.api_id}
                         eventKey={ship.api_id}
                       >
                         {window.i18n.resources.__(ship.api_name || '')}
-                      </MenuItem> 
+                      </MenuItem>
                       :
                       '' )
                   }
@@ -443,9 +444,9 @@ export const reactClass = connect(
                 componentClass="select"
                 onChange={this.handleExpMapChange}
               >
-                { 
-                  Array.from({length: expMap.length}, (v, k) => k).map(idx => 
-                    <option 
+                {
+                  Array.from({length: expMap.length}, (v, k) => k).map(idx =>
+                    <option
                       value={ expValue[idx]>0 ? expValue[idx] : this.state.userDefinedValue}
                       key={idx}
                     >
@@ -462,14 +463,14 @@ export const reactClass = connect(
                 {this.state.mapValue>=0 ? __("Result") : __("Customized Exp")}
               </ControlLabel>
               {
-                this.state.mapValue>=0 ? 
+                this.state.mapValue>=0 ?
                   <FormControl
                     componentClass="select"
                     onChange={this.handleExpLevelChange}
                   >
-                    { 
-                      Array.from({length: expLevel.length}, (v, k) => k).map(idx => 
-                        <option 
+                    {
+                      Array.from({length: expLevel.length}, (v, k) => k).map(idx =>
+                        <option
                           value={expPercent[idx]}
                           key={idx}
                         >
@@ -486,7 +487,7 @@ export const reactClass = connect(
                   />
               }
             </FormGroup>
-  
+
 
           </Col>
           <Col xs={row}>
@@ -549,8 +550,8 @@ export const reactClass = connect(
               <td>{__("Per attack")}</td>
               <td>{__("Remainder")}</td>
             </tr>
-            { 
-              Array.from({length: this.state.expType.length}, (v, k) => k).map( idx => 
+            {
+              Array.from({length: this.state.expType.length}, (v, k) => k).map( idx =>
                 <tr key={idx}>
                   <td>{this.state.expType[idx]}</td>
                   <td>{this.state.perExp[idx]}</td>
@@ -562,6 +563,6 @@ export const reactClass = connect(
         </Table>
       </div>
     )
-  
+
   }
 })
