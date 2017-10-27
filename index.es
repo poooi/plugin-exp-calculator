@@ -13,6 +13,8 @@ import { configLayoutSelector, configDoubleTabbedSelector, fleetShipsIdSelectorF
 const { i18n } = window
 const __ = i18n["poi-plugin-exp-calc"].__.bind(i18n["poi-plugin-exp-calc"])
 
+const MAX_LEVEL = 165
+
 let successFlag = false
 
 let exp = [
@@ -173,7 +175,7 @@ export const reactClass = connect(
     }
     let goalLevel = 99
     if (api_lv > 99) {
-      goalLevel = 155
+      goalLevel = MAX_LEVEL
     } else if (api_afterlv != 0) {
       const {remodelLvs} = this.props
       let remodelLv = remodelLvs[api_ship_id] || []
