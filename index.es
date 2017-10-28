@@ -343,7 +343,7 @@ const ExpCalc = connect(
                 {
                   range(expLevel.length).map(idx => (
                     <option
-                      value={expPercent[idx]}
+                      value={idx}
                       key={idx}
                     >
                       {expLevel[idx]}
@@ -407,8 +407,8 @@ const ExpCalc = connect(
               range(expClass.length).map(idx => (
                 <tr key={idx}>
                   <td>{__(expClass[idx])}</td>
-                  <td>{counts[idx]}</td>
                   <td>{perBattle[idx]}</td>
+                  <td>{counts[idx]}</td>
                 </tr>
                 ))
             }
