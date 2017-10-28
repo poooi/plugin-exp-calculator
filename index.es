@@ -1,9 +1,10 @@
 /* eslint-disable import/prefer-default-export */
+/* eslint-disable react/no-multi-comp */
 
 import React, { Component } from 'react'
 import { join } from 'path-extra'
 import { connect } from 'react-redux'
-import { sortBy, isEqual, map, values, keyBy, get } from 'lodash'
+import _, { sortBy, isEqual, map, values, keyBy, get, last, range } from 'lodash'
 import FontAwesome from 'react-fontawesome'
 import { createSelector } from 'reselect'
 import memoize from 'fast-memoize'
@@ -16,6 +17,8 @@ import {
   fleetShipsIdSelectorFactory,
   shipDataSelectorFactory,
   constSelector,
+  shipsSelector,
+  stateSelector,
 } from 'views/utils/selectors'
 
 const { i18n } = window
@@ -68,6 +71,38 @@ const expValue = [
   360, 380, 400, 420, 450,
   380, 420, 100,
 ]
+
+const expMap2 = {
+  11: 30,
+  12: 50,
+  13: 80,
+  14: 100,
+  15: 150,
+  16: 50,
+  21: 120,
+  22: 150,
+  23: 200,
+  24: 300,
+  25: 250,
+  31: 310,
+  32: 320,
+  33: 330,
+  34: 350,
+  35: 400,
+  41: 310,
+  42: 320,
+  43: 330,
+  44: 340,
+  45: 200,
+  51: 360,
+  52: 380,
+  53: 400,
+  54: 420,
+  55: 450,
+  61: 380,
+  62: 420,
+}
+
 // battle result
 const expLevel = [
   'S', 'A', 'B', 'C', 'D',
@@ -78,41 +113,54 @@ const expPercent = [
   1.2, 1.0, 1.0, 0.8, 0.7,
 ]
 
-
+// bonus for training crusier as flagship
 const bonusExpScaleFlagship = [
   [5, 8, 11, 15, 20],
   [10, 13, 16, 20, 25],
 ]
 
+// bonus for training crusier as flagship
 const bonusExpScaleNonFlagship = [
   [3, 5, 7, 10, 15],
   [4, 6, 8, 12, 17.5],
 ]
 
-function getBonusType(lv) {
-  return lv < 10 ? 0 : lv >= 10 && lv < 30 ? 1 : lv >= 30 && lv < 60 ? 2 : lv >= 60 && lv < 100 ? 3 : 4
+const getBonusType = (lv) => {
+  if (lv < 10) {
+    return 0
+  }
+  if (lv >= 10 && lv < 30) {
+    return 1
+  }
+  if (lv >= 30 && lv < 60) {
+    return 2
+  }
+  if (lv >= 60 && lv < 100) {
+    return 3
+  }
+  return 4
 }
 
-// selectors
-const remodelLvSelector = createSelector(
-  [constSelector],
-  ({ $ships = {} }) => {
-    const remodelLvs = {}
-    Object.keys($ships).forEach((shipId) => {
-      if (typeof $ships[shipId].api_aftershipid === 'undefined') return
-      const remodelLv = [($ships[shipId].api_afterlv)]
-      let nextShipId = parseInt($ships[shipId].api_aftershipid)
-      while (nextShipId != 0 && remodelLv[remodelLv.length - 1] < $ships[nextShipId].api_afterlv) {
-        remodelLv.push($ships[nextShipId].api_afterlv)
-        nextShipId = parseInt($ships[nextShipId].api_aftershipid)
-      }
-      remodelLvs[shipId] = remodelLv
-    })
-    return remodelLvs
-  }
-)
+const remodelLvSelector = createSelector([
+  constSelector,
+], ({ $ships = {} }) => _($ships)
+  .filter(ship => typeof ship.api_aftershipid !== 'undefined') // filter enemies
+  .map((ship) => {
+    let remodelLvs = [ship.api_afterlv]
+    let nextShipId = +ship.api_aftershipid
+    while (nextShipId !== 0 && last(remodelLvs) < $ships[nextShipId].api_afterlv) {
+      remodelLvs = [...remodelLvs, $ships[nextShipId].api_afterlv]
+      nextShipId = +(get($ships, [nextShipId, 'api_aftershipid'], 0))
+    }
+    remodelLvs = last(remodelLvs) < 100
+      ? [...remodelLvs, 99, MAX_LEVEL]
+      : [...remodelLvs, MAX_LEVEL]
+    return [ship.api_id, remodelLvs]
+  })
+  .fromPairs()
+  .value())
 
-const expInfoSelector = memoize(shipId =>
+const expInfoSelectorFactory = memoize(shipId =>
   createSelector(
     [shipDataSelectorFactory(shipId)],
     ([ship, $ship] = []) =>
@@ -124,13 +172,247 @@ const expInfoSelector = memoize(shipId =>
         : undefined
   ))
 
+const shipExpDataSelector = createSelector(
+  [
+    stateSelector,
+    shipsSelector,
+  ], (state, ships) => _(ships)
+    .mapValues(ship => expInfoSelectorFactory(ship.api_id)(state))
+    .value()
+)
+
+const mapDataSelctor = createSelector(
+  [
+    constSelector,
+  ], ({ $maps = {} } = {}) => $maps
+)
+
+const nullShip = { api_id: 0, api_name: __('NULL') }
+
+const expClass = [
+  'Basic',
+  'Flagship',
+  'MVP',
+  'MVP and flagship',
+]
+
+const ExpCalc = connect(
+  state => ({
+    horizontal: configLayoutSelector(state),
+    doubleTabbed: configDoubleTabbedSelector(state),
+    ships: shipExpDataSelector(state),
+    fleets: [...Array(4).keys()].map(fleetId => fleetShipsIdSelectorFactory(fleetId)(state)),
+    remodelLvs: remodelLvSelector(state),
+    maps: mapDataSelctor(state),
+  }),
+)(class ExpCalc extends Component {
+  state = {
+    shipId: 0,
+    mspId: 11,
+    result: 0, // 'S'
+    startLevel: 0,
+    lockGoal: false,
+  }
+
+  handleCurrentLevelChange = () => {
+    console.log(arguments)
+  }
+
+  handleMapChange = (value) => {
+    this.setState({
+      mapId: value,
+    })
+  }
+
+  render() {
+    const {
+      shipId, startLevel, goalLevel, lockGoal, mapId, result,
+    } = this.state
+    const {
+      horizontal, doubleTabbed, ships, maps,
+    } = this.props
+
+    const nextExp = get(ships, [shipId, 'api_exp', 1], 0)
+    const totalExp = exp[goalLevel] - get(ships, [shipId, 'api_exp', 0], 0)
+
+    const mapExp = expMap2[mapId] || 100
+    const mapPercent = expPercent[result]
+
+    const baseExp = mapExp * mapPercent
+    const baseCount = totalExp / baseExp
+    const counts = [
+      Math.ceil(baseCount),
+      Math.ceil(baseCount / 1.5),
+      Math.ceil(baseCount / 2.0),
+      Math.ceil(baseCount / 3.0),
+    ]
+    const perBattle = [
+      baseExp,
+      baseExp * 1.5,
+      baseExp * 2.0,
+      baseExp * 3.0,
+    ]
+
+    const rowSize = (horizontal === 'horizontal' || doubleTabbed) ? 6 : 3
+    const shipRowSize = (horizontal === 'horizontal' || doubleTabbed) ? 12 : 5
+    const mapRowSize = (horizontal === 'horizontal' || doubleTabbed) ? 7 : 4
+    const rankRowSize = (horizontal === 'horizontal' || doubleTabbed) ? 5 : 3
+    return (
+      <div id="exp-calc" className="exp-calc">
+        <link rel="stylesheet" href={join(__dirname, 'assets', 'exp-calc.css')} />
+        <Grid>
+          <Col xs={shipRowSize}>
+            <FormGroup>
+              <ControlLabel>{__('Ship')}</ControlLabel>
+              <InputGroup>
+                <FormControl
+                  componentClass="select"
+                  value={shipId}
+                  onChange={this.handleShipChange}
+                >
+                  <option value={nullShip.api_id}>{nullShip.api_name}</option>
+                  {
+                    _(ships)
+                    .map(ship => (
+                      <option value={ship.api_id} key={ship.api_id}>
+                        Lv.{ship.api_lv} - {window.i18n.resources.__(ship.api_name || '')}
+                      </option>
+                    ))
+                    .value()
+                  }
+                </FormControl>
+              </InputGroup>
+            </FormGroup>
+          </Col>
+          <Col xs={mapRowSize}>
+            <FormGroup>
+              <ControlLabel>{__('Map')}</ControlLabel>
+              <FormControl
+                componentClass="select"
+                onChange={this.handleMapChange}
+              >
+                {
+                  _(maps)
+                  .filter(world => world.api_id < 63)
+                  .map(world => (
+                    <option
+                      value={world.api_id}
+                      key={world.api_id}
+                    >
+                      {`${world.api_maparea_id}-${world.api_no} ${world.api_no > 4 ? '[EO] ' : ''}${world.api_name}`}
+                    </option>
+                  ))
+                  .value()
+                }
+              </FormControl>
+            </FormGroup>
+          </Col>
+          <Col xs={rankRowSize}>
+            <FormGroup>
+              <ControlLabel>
+                {__('Result')}
+              </ControlLabel>
+              <FormControl
+                componentClass="select"
+                onChange={this.handleExpLevelChange}
+              >
+                {
+                  range(expLevel.length).map(idx => (
+                    <option
+                      value={expPercent[idx]}
+                      key={idx}
+                    >
+                      {expLevel[idx]}
+                    </option>
+                  ))
+                }
+              </FormControl>
+            </FormGroup>
+
+          </Col>
+          <Col xs={rowSize}>
+            <FormGroup>
+              <ControlLabel>{__('Starting level')}</ControlLabel>
+              <FormControl
+                type="number"
+                value={startLevel || get(ships, [shipId, 'api_level'], 1)}
+                onChange={this.handleCurrentLevelChange}
+              />
+            </FormGroup>
+          </Col>
+          <Col xs={rowSize}>
+            <FormGroup>
+              <ControlLabel>{__('To next')}</ControlLabel>
+              <FormControl
+                type="number"
+                value={nextExp}
+                onChange={this.handleNextExpChange}
+              />
+            </FormGroup>
+          </Col>
+          <Col xs={rowSize}>
+            <FormGroup>
+              <ControlLabel>{__('Goal')}</ControlLabel>
+              <InputGroup>
+                <FormControl
+                  type="number"
+                  value={goalLevel}
+                  onChange={this.handleGoalLevelChange}
+                />
+                <InputGroup.Button>
+                  <Button
+                    bsStyle={lockGoal ? 'warning' : 'link'}
+                    onClick={this.handleLock}
+                    title={lockGoal ? __('Unlock') : __('Lock the goal level')}
+                  >
+                    <FontAwesome name={lockGoal ? 'lock' : 'unlock'} />
+                  </Button>
+                </InputGroup.Button>
+              </InputGroup>
+            </FormGroup>
+          </Col>
+          <Col xs={rowSize}>
+            <FormGroup>
+              <ControlLabel>{__('Total exp')}</ControlLabel>
+              <FormControl
+                type="number"
+                value={totalExp}
+                readOnly
+              />
+
+            </FormGroup>
+          </Col>
+        </Grid>
+        <Table>
+          <tbody>
+            <tr key={0}>
+              <td />
+              <td>{__('Per attack')}</td>
+              <td>{__('Remainder')}</td>
+            </tr>
+            {
+              range(expClass.length).map(idx => (
+                <tr key={idx}>
+                  <td>{__(expClass[idx])}</td>
+                  <td>{counts[idx]}</td>
+                  <td>{perBattle[idx]}</td>
+                </tr>
+                ))
+            }
+          </tbody>
+        </Table>
+      </div>
+    )
+  }
+})
+
 export const reactClass = connect((state) => {
   const ships = get(state, 'info.ships', {})
 
   return ({
     horizontal: configLayoutSelector(state),
     doubleTabbed: configDoubleTabbedSelector(state),
-    ships: keyBy(Object.keys(ships).map(shipId => expInfoSelector(parseInt(shipId))(state)), 'api_id'),
+    ships: keyBy(Object.keys(ships).map(shipId => expInfoSelectorFactory(parseInt(shipId))(state)), 'api_id'),
     fleets: [...Array(4).keys()].map(fleetId => fleetShipsIdSelectorFactory(fleetId)(state)),
     remodelLvs: remodelLvSelector(state),
   })
@@ -400,19 +682,20 @@ export const reactClass = connect((state) => {
   render() {
     const { horizontal, doubleTabbed, fleets } = this.props
     const row = (horizontal == 'horizontal' || doubleTabbed) ? 6 : 3
-    const shipRow = (horizontal == 'horizontal' || doubleTabbed) ? 12 : 5
-    const mapRow = (horizontal == 'horizontal' || doubleTabbed) ? 7 : 4
-    const rankRow = (horizontal == 'horizontal' || doubleTabbed) ? 5 : 3
+    const shipRowSize = (horizontal == 'horizontal' || doubleTabbed) ? 12 : 5
+    const mapRowSize = (horizontal == 'horizontal' || doubleTabbed) ? 7 : 4
+    const rankRowSize = (horizontal == 'horizontal' || doubleTabbed) ? 5 : 3
     const nullShip = { api_id: 0, text: __('NULL') }
     const _ships = this.props.ships
     let ships = values(_ships)
     ships = sortBy(ships, [e => -e.api_lv, e => get(e, 'api_exp.1', 0)])
     const firstFleet = map(fleets[0], shipId => _ships[shipId])
-    return (
+    return [
+      <ExpCalc />,
       <div id="ExpCalcView" className="ExpCalcView">
         <link rel="stylesheet" href={join(__dirname, 'assets', 'exp-calc.css')} />
         <Grid>
-          <Col xs={shipRow}>
+          <Col xs={shipRowSize}>
             <FormGroup>
               <ControlLabel>{__('Ship')}</ControlLabel>
               <InputGroup>
@@ -426,7 +709,7 @@ export const reactClass = connect((state) => {
                     ships.map(ship =>
                       (<option value={ship.api_id} key={ship.api_id}>
                         Lv.{ship.api_lv} - {window.i18n.resources.__(ship.api_name || '')}
-                      </option>))
+                       </option>))
                   }
                 </FormControl>
                 <DropdownButton
@@ -452,7 +735,7 @@ export const reactClass = connect((state) => {
               </InputGroup>
             </FormGroup>
           </Col>
-          <Col xs={mapRow}>
+          <Col xs={mapRowSize}>
             <FormGroup>
               <ControlLabel>{__('Map')}</ControlLabel>
               <FormControl
@@ -466,12 +749,12 @@ export const reactClass = connect((state) => {
                       key={idx}
                     >
                       {expMap[idx]}
-                    </option>))
+                     </option>))
                 }
               </FormControl>
             </FormGroup>
           </Col>
-          <Col xs={rankRow}>
+          <Col xs={rankRowSize}>
             <FormGroup>
               <ControlLabel>
                 {this.state.mapValue >= 0 ? __('Result') : __('Customized Exp')}
@@ -489,7 +772,7 @@ export const reactClass = connect((state) => {
                           key={idx}
                         >
                           {expLevel[idx]}
-                        </option>))
+                         </option>))
                     }
                   </FormControl>
                 : // Customized exp
@@ -569,11 +852,11 @@ export const reactClass = connect((state) => {
                   <td>{this.state.expType[idx]}</td>
                   <td>{this.state.perExp[idx]}</td>
                   <td>{this.state.expSecond[idx]}</td>
-                </tr>))
+                 </tr>))
             }
           </tbody>
         </Table>
       </div>
-    )
+    ]
   }
 })

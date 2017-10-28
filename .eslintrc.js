@@ -28,6 +28,7 @@ module.exports = {
     'no-confusing-arrow': 'off',
     'react/require-default-props': 'off',
     'no-console': ['error', {allow: ['warn', 'error']}],
+    'function-paren-newline': 'off',
   },
   'settings': {
     'import/resolver': {
