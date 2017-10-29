@@ -1,9 +1,7 @@
 import React, { Component } from 'react'
 import { join } from 'path-extra'
 import { connect } from 'react-redux'
-import _, { get, last, range, find, each } from 'lodash'
-import { createSelector } from 'reselect'
-import memoize from 'fast-memoize'
+import _, { get, range, find, each } from 'lodash'
 
 import { FormControl, FormGroup, ControlLabel, Grid, Col, Table, InputGroup } from 'react-bootstrap'
 
@@ -11,12 +9,10 @@ import {
   configLayoutSelector,
   configDoubleTabbedSelector,
   fleetShipsIdSelectorFactory,
-  shipDataSelectorFactory,
-  constSelector,
-  shipsSelector,
-  stateSelector,
   extensionSelectorFactory,
 } from 'views/utils/selectors'
+
+import { remodelLvSelector, expInfoSelectorFactory, shipExpDataSelector, mapDataSelctor } from './selectors'
 
 import { exp, expMap } from './constants'
 
@@ -62,52 +58,6 @@ const getBonusType = (lv) => {
   }
   return 4
 }
-
-const remodelLvSelector = createSelector([
-  constSelector,
-], ({ $ships = {} }) => _($ships)
-  .filter(ship => typeof ship.api_aftershipid !== 'undefined') // filter enemies
-  .map((ship) => {
-    let remodelLvs = [ship.api_afterlv]
-    let nextShipId = +ship.api_aftershipid
-    while (nextShipId !== 0 && last(remodelLvs) < $ships[nextShipId].api_afterlv) {
-      remodelLvs = [...remodelLvs, $ships[nextShipId].api_afterlv]
-      nextShipId = +(get($ships, [nextShipId, 'api_aftershipid'], 0))
-    }
-    remodelLvs = last(remodelLvs) < 100
-      ? [...remodelLvs, 99, MAX_LEVEL]
-      : [...remodelLvs, MAX_LEVEL]
-    return [ship.api_id, remodelLvs]
-  })
-  .fromPairs()
-  .value())
-
-const expInfoSelectorFactory = memoize(shipId =>
-  createSelector(
-    [shipDataSelectorFactory(shipId)],
-    ([ship, $ship] = []) =>
-      typeof ship !== 'undefined' && typeof $ship !== 'undefined' ?
-        {
-          ...$ship,
-          ...ship,
-        }
-        : undefined
-  ))
-
-const shipExpDataSelector = createSelector(
-  [
-    stateSelector,
-    shipsSelector,
-  ], (state, ships) => _(ships)
-    .mapValues(ship => expInfoSelectorFactory(ship.api_id)(state))
-    .value()
-)
-
-const mapDataSelctor = createSelector(
-  [
-    constSelector,
-  ], ({ $maps = {} } = {}) => $maps
-)
 
 const nullShip = { api_id: 0, api_name: __('NULL') }
 
