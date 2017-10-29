@@ -15,6 +15,7 @@ import {
   constSelector,
   shipsSelector,
   stateSelector,
+  extensionSelectorFactory,
 } from 'views/utils/selectors'
 
 import { exp, expMap } from './constants'
@@ -178,17 +179,21 @@ const handleResponse = (e) => {
 }
 
 const ExpCalc = connect(
-  state => ({
-    horizontal: configLayoutSelector(state),
-    doubleTabbed: configDoubleTabbedSelector(state),
-    ships: shipExpDataSelector(state),
-    fleets: [...Array(4).keys()].map(fleetId => fleetShipsIdSelectorFactory(fleetId)(state)),
-    remodelLvs: remodelLvSelector(state),
-    maps: mapDataSelctor(state),
-  }),
+  (state) => {
+    const id = get(extensionSelectorFactory('poi-plugin-exp-calc')(state), 'id')
+    return ({
+      id,
+      horizontal: configLayoutSelector(state),
+      doubleTabbed: configDoubleTabbedSelector(state),
+      ship: expInfoSelectorFactory(id)(state),
+      ships: shipExpDataSelector(state),
+      fleets: [...Array(4).keys()].map(fleetId => fleetShipsIdSelectorFactory(fleetId)(state)),
+      remodelLvs: remodelLvSelector(state),
+      maps: mapDataSelctor(state),
+    })
+  },
 )(class ExpCalc extends Component {
   state = {
-    id: 0,
     mapId: 11,
     result: 0, // 'S'
     startLevel: 0,
@@ -200,19 +205,28 @@ const ExpCalc = connect(
     window.addEventListener('game.response', handleResponse)
   }
 
+  componentWillReceiveProps = (nextProps) => {
+    const { id, ship, remodelLvs } = nextProps
+    if (this.props.id !== id) {
+      const level = get(ship, ['api_lv'], 0)
+      const shipId = get(ship, ['api_ship_id'], 0)
+      const endLevel = find(remodelLvs[shipId], lv => lv > level) || MAX_LEVEL
+      this.setState({
+        startLevel: level,
+        endLevel,
+      })
+    }
+  }
+
   componentWillUnmount = () => {
     window.removeEventListener('game.response', handleResponse)
   }
 
   handleShipChange = (e) => {
     const id = e.target.value
-    const level = get(this.props.ships, [id, 'api_lv'], 0)
-    const shipId = get(this.props.ships, [id, 'api_ship_id'], 0)
-    const endLevel = find(this.props.remodelLvs[shipId], lv => lv > level) || MAX_LEVEL
-    this.setState({
+    this.props.dispatch({
+      type: '@@poi-plugin-exp-calc@select',
       id,
-      startLevel: level,
-      endLevel,
     })
   }
 
@@ -248,14 +262,14 @@ const ExpCalc = connect(
 
   render() {
     const {
-      id, startLevel, endLevel, mapId, result,
+      startLevel, endLevel, mapId, result,
     } = this.state
     const {
-      horizontal, doubleTabbed, ships, maps,
+      horizontal, doubleTabbed, ships, maps, ship, id,
     } = this.props
 
-    const nextExp = get(ships, [id, 'api_exp', 1], 0)
-    const totalExp = exp[endLevel] - get(ships, [id, 'api_exp', 0], 0)
+    const nextExp = get(ship, ['api_exp', 1], 0)
+    const totalExp = exp[endLevel] - get(ship, ['api_exp', 0], 0)
 
     const mapExp = expMap[mapId] || 100
     const mapPercent = expPercent[result]
@@ -295,9 +309,9 @@ const ExpCalc = connect(
                   <option value={nullShip.api_id}>{nullShip.api_name}</option>
                   {
                     _(ships)
-                    .map(ship => (
-                      <option value={ship.api_id} key={ship.api_id}>
-                        Lv.{ship.api_lv} - {window.i18n.resources.__(ship.api_name || '')}
+                    .map(_ship => (
+                      <option value={_ship.api_id} key={_ship.api_id}>
+                        Lv.{_ship.api_lv} - {window.i18n.resources.__(_ship.api_name || '')}
                       </option>
                     ))
                     .value()
@@ -359,7 +373,7 @@ const ExpCalc = connect(
               <ControlLabel>{__('Starting level')}</ControlLabel>
               <FormControl
                 type="number"
-                value={startLevel || get(ships, [id, 'api_level'], 1)}
+                value={startLevel || get(ship, ['api_lv'], 1)}
                 onChange={this.handleStartLevelChange}
               />
             </FormGroup>
@@ -419,5 +433,20 @@ const ExpCalc = connect(
   }
 })
 
-/* eslint-disable import/prefer-default-export */
 export const reactClass = ExpCalc
+
+// reducer part
+const initState = {
+  id: 0,
+}
+
+export const reducer = (state = initState, action) => {
+  const { type, id } = action
+  if (type === '@@poi-plugin-exp-calc@select') {
+    return {
+      ...state,
+      id,
+    }
+  }
+  return state
+}
