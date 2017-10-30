@@ -3,7 +3,7 @@ import { join } from 'path-extra'
 import { connect } from 'react-redux'
 import _, { get, range, find, each } from 'lodash'
 
-import { FormControl, FormGroup, ControlLabel, Grid, Col, Table, InputGroup } from 'react-bootstrap'
+import { FormControl, FormGroup, ControlLabel, Table, InputGroup } from 'react-bootstrap'
 
 import {
   configLayoutSelector,
@@ -13,6 +13,8 @@ import {
 } from 'views/utils/selectors'
 
 import { remodelLvSelector, expInfoSelectorFactory, shipExpDataSelector, mapDataSelctor } from './selectors'
+
+import ShipDropdown from './ship-dropdown'
 
 import { exp, expMap } from './constants'
 
@@ -246,8 +248,8 @@ const ExpCalc = connect(
     return (
       <div id="exp-calc" className="exp-calc">
         <link rel="stylesheet" href={join(__dirname, 'assets', 'exp-calc.css')} />
-        <Grid>
-          <Col xs={shipRowSize}>
+        <div>
+          <div xs={shipRowSize}>
             <FormGroup>
               <ControlLabel>{__('Ship')}</ControlLabel>
               <InputGroup>
@@ -269,8 +271,9 @@ const ExpCalc = connect(
                 </FormControl>
               </InputGroup>
             </FormGroup>
-          </Col>
-          <Col xs={mapRowSize}>
+            <ShipDropdown />
+          </div>
+          <div xs={mapRowSize}>
             <FormGroup>
               <ControlLabel>{__('Map')}</ControlLabel>
               <FormControl
@@ -293,8 +296,8 @@ const ExpCalc = connect(
                 }
               </FormControl>
             </FormGroup>
-          </Col>
-          <Col xs={rankRowSize}>
+          </div>
+          <div xs={rankRowSize}>
             <FormGroup>
               <ControlLabel>
                 {__('Result')}
@@ -317,8 +320,8 @@ const ExpCalc = connect(
               </FormControl>
             </FormGroup>
 
-          </Col>
-          <Col xs={rowSize}>
+          </div>
+          <div xs={rowSize}>
             <FormGroup>
               <ControlLabel>{__('Starting level')}</ControlLabel>
               <FormControl
@@ -327,8 +330,8 @@ const ExpCalc = connect(
                 onChange={this.handleStartLevelChange}
               />
             </FormGroup>
-          </Col>
-          <Col xs={rowSize}>
+          </div>
+          <div xs={rowSize}>
             <FormGroup>
               <ControlLabel>{__('To next')}</ControlLabel>
               <FormControl
@@ -337,8 +340,8 @@ const ExpCalc = connect(
                 onChange={this.handleNextExpChange}
               />
             </FormGroup>
-          </Col>
-          <Col xs={rowSize}>
+          </div>
+          <div xs={rowSize}>
             <FormGroup>
               <ControlLabel>{__('Goal')}</ControlLabel>
               <FormControl
@@ -347,8 +350,8 @@ const ExpCalc = connect(
                 onChange={this.handleEndLevelChange}
               />
             </FormGroup>
-          </Col>
-          <Col xs={rowSize}>
+          </div>
+          <div xs={rowSize}>
             <FormGroup>
               <ControlLabel>{__('Total exp')}</ControlLabel>
               <FormControl
@@ -358,8 +361,8 @@ const ExpCalc = connect(
               />
 
             </FormGroup>
-          </Col>
-        </Grid>
+          </div>
+        </div>
         <Table>
           <tbody>
             <tr key={0}>
@@ -388,14 +391,21 @@ export const reactClass = ExpCalc
 // reducer part
 const initState = {
   id: 0,
+  active: '',
 }
 
 export const reducer = (state = initState, action) => {
-  const { type, id } = action
+  const { type, id, active } = action
   if (type === '@@poi-plugin-exp-calc@select') {
     return {
       ...state,
       id,
+    }
+  }
+  if (type === '@@poi-plugin-exp-calc@active-dropdown') {
+    return {
+      ...state,
+      active,
     }
   }
   return state

@@ -1,29 +1,51 @@
-#ExpCalcView label {
-  font-size: 13px;
-  margin-bottom: 0;
-}
-#ExpCalcView .hidden {
-  display: none;
-}
-#ExpCalcView .show {
-  display: block;
-}
-#ExpCalcView table td {
-  overflow: hidden;
-  text-overflow: ellipsis;
+#exp-calc .radio-check {
+  display: flex;
+  flex-direction: row;
   white-space: nowrap;
+  align-items: center;
+  height: 3em;
 }
-#ExpCalcView table tr td {
-  padding-left: 5px;
-  font-size: 100%;
+
+#exp-calc .filter-option {
+  flex: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+  line-height: 160%;
+  transition: 0.2s;
+  border-width: 1px;
+  border-style: solid;
 }
-#ExpCalcView table {
-  font-size: 100%;
-  text-align: center;
-  width: 80%;
-  margin-left: 10%;
-  margin-bottom: 0;
+
+#exp-calc .filter-option:not(:last-child) {
+  border-right-width: 0;
 }
-#ExpCalcView {
-  padding-top: 15px;
+
+#exp-calc .filter-option.dark {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+#exp-calc .filter-option.light {
+  border-color: rgba(0, 0, 0, 0.5);
+}
+
+#exp-calc .filter-option.checked {
+  background-color: rgba(105, 240, 174, 0.5);
+}
+
+#exp-calc .filter-span {
+  font-weight: bold;
+  flex: 1;
+  padding-left: 1ex;
+  padding-right: 2em;
+}
+
+#exp-cal .dropdown-menu {
+  overflow-y: scroll;
+  user-select: none;
+  cursor: default;
+  left: 0;
+}
+
+.dropdown-menu::-webkit-scrollbar {
+  width: 1em;
 }
