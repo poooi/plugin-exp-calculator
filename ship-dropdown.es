@@ -156,7 +156,7 @@ const Menu = connect(
         onRootClose={handleRootClose}
         event="click"
       >
-        <ul className="dropdown-menu pull-right">
+        <ul className="dropdown-menu pull-right" id="exp-calc-ship-menu">
           <div>
             <FormGroup>
               <InputGroup>
@@ -285,7 +285,7 @@ const ShipDropdown = connect(
     } = this.props
     return (
       <Dropdown id="exp-calc-ship" open={open} onToggle={this.handleToggle}>
-        <Dropdown.Toggle>
+        <Dropdown.Toggle bsSize="small">
           <FA name="list" />
         </Dropdown.Toggle>
         <Menu bsRole="menu" open={open} onSelect={onSelect} handleRootClose={this.handleRootClose} />

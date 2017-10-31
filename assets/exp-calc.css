@@ -53,12 +53,12 @@
   display: flex;
 }
 
-#exp-calc .selection {
+#exp-calc #exp-calc-ship-menu .selection {
   flex-grow: 1;
   min-width: 10em;
   border-left: 1px solid var(--exp-calc-grey);
   margin-left: -1px;
-  height: 16em;
+  height: 15em;
   overflow: scroll;
 }
 
@@ -106,8 +106,12 @@
   padding-bottom: 0;
 }
 
+#exp-calc .end-level,
 #exp-calc .end-level-active {
   background: none;
-  border-bottom: 1px solid var(--exp-calc-blue);
-  width: 2em;
+  border: none;
+  border-bottom: 2px solid var(--exp-calc-blue);
+  width: 3em;
+  line-height: 120%;
+  display: inline-block;
 }
