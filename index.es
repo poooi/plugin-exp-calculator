@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { join } from 'path-extra'
 import { connect } from 'react-redux'
 import _, { get, range, find, each } from 'lodash'
+import FA from 'react-fontawesome'
 
 import { FormControl, FormGroup, ControlLabel, Table, InputGroup } from 'react-bootstrap'
 
@@ -264,39 +265,32 @@ const ExpCalc = connect(
       baseExp * 3.0,
     ]
 
-    const rowSize = (horizontal === 'horizontal' || doubleTabbed) ? 6 : 3
-    const shipRowSize = (horizontal === 'horizontal' || doubleTabbed) ? 12 : 5
-    const mapRowSize = (horizontal === 'horizontal' || doubleTabbed) ? 7 : 4
-    const rankRowSize = (horizontal === 'horizontal' || doubleTabbed) ? 5 : 3
     return (
       <div id="exp-calc" className="exp-calc">
         <link rel="stylesheet" href={join(__dirname, 'assets', 'exp-calc.css')} />
         <div>
-          <div xs={shipRowSize}>
-            <FormGroup>
-              <ControlLabel>{__('Ship')}</ControlLabel>
-              <InputGroup>
-                <FormControl
-                  componentClass="select"
-                  value={id}
-                  onChange={this.handleShipChange}
-                >
-                  <option value={nullShip.api_id}>{nullShip.api_name}</option>
-                  {
-                    _(ships)
-                    .map(_ship => (
-                      <option value={_ship.api_id} key={_ship.api_id}>
-                        Lv.{_ship.api_lv} - {window.i18n.resources.__(_ship.api_name || '')}
-                      </option>
-                    ))
-                    .value()
-                  }
-                </FormControl>
-              </InputGroup>
-            </FormGroup>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <ShipDropdown onSelect={this.handleShipSelect} />
+            {
+              id > 0
+              ? <span className="ship-name">{window.i18n.resources.__(ship.api_name)}</span>
+              : <span className="ship-name">{__('Custom')}</span>
+            }
           </div>
-          <div xs={mapRowSize}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontSize: '200%' }}>Lv.{startLevel}</div>
+              <div>{__('Next')} {nextExp}</div>
+            </div>
+            <div style={{ flexGrow: 1, textAlign: 'center' }}>
+              <FA name="arrow-right" />
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '200%' }}>Lv.{endLevel}</div>
+              <div>{__('Remaining')} {totalExp}</div>
+            </div>
+          </div>
+          <div>
             <FormGroup>
               <ControlLabel>{__('Map')}</ControlLabel>
               <FormControl
@@ -320,7 +314,7 @@ const ExpCalc = connect(
               </FormControl>
             </FormGroup>
           </div>
-          <div xs={rankRowSize}>
+          <div>
             <FormGroup>
               <ControlLabel>
                 {__('Result')}
@@ -344,7 +338,7 @@ const ExpCalc = connect(
             </FormGroup>
 
           </div>
-          <div xs={rowSize}>
+          <div>
             <FormGroup>
               <ControlLabel>{__('Starting level')}</ControlLabel>
               <FormControl
@@ -353,7 +347,7 @@ const ExpCalc = connect(
               />
             </FormGroup>
           </div>
-          <div xs={rowSize}>
+          <div>
             <FormGroup>
               <ControlLabel>{__('To next')}</ControlLabel>
               <FormControl
@@ -362,7 +356,7 @@ const ExpCalc = connect(
               />
             </FormGroup>
           </div>
-          <div xs={rowSize}>
+          <div>
             <FormGroup>
               <ControlLabel>{__('Goal')}</ControlLabel>
               <FormControl
@@ -372,7 +366,7 @@ const ExpCalc = connect(
               />
             </FormGroup>
           </div>
-          <div xs={rowSize}>
+          <div>
             <FormGroup>
               <ControlLabel>{__('Total exp')}</ControlLabel>
               <FormControl

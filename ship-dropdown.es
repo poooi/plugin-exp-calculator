@@ -7,6 +7,7 @@ import { extensionSelectorFactory } from 'views/utils/selectors'
 import _, { get, values } from 'lodash'
 import Fuse from 'fuse.js'
 import { RootCloseWrapper } from 'react-overlays'
+import FA from 'react-fontawesome'
 
 import { shipCat, exp } from './constants'
 import { shipExpDataSelector, shipFleetMapSelector, expInfoSelectorFactory } from './selectors'
@@ -285,7 +286,7 @@ const ShipDropdown = connect(
     return (
       <Dropdown id="exp-calc-ship" open={open} onToggle={this.handleToggle}>
         <Dropdown.Toggle>
-          {__('Choose')}
+          <FA name="list" />
         </Dropdown.Toggle>
         <Menu bsRole="menu" open={open} onSelect={onSelect} handleRootClose={this.handleRootClose} />
       </Dropdown>

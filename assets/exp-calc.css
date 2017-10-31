@@ -3,6 +3,10 @@
   --exp-calc-grey: #aaa;
 }
 
+#exp-calc {
+  padding: 1ex 1em;
+}
+
 #exp-calc * {
   outline: none;
 }
@@ -86,4 +90,13 @@
 #exp-calc .ship-item:hover .label {
   color: var(--exp-calc-blue);
   background: white;
+}
+
+#exp-calc .caret {
+  display: none;
+}
+
+#exp-calc .ship-name{
+  font-size: 150%;
+  font-weight: 500;
 }
