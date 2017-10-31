@@ -30,6 +30,7 @@ module.exports = {
     'no-console': ['error', {allow: ['warn', 'error']}],
     'function-paren-newline': 'off',
     'jsx-a11y/click-events-have-key-events': 'off',
+    'react/no-multi-comp': 'off',
   },
   'settings': {
     'import/resolver': {

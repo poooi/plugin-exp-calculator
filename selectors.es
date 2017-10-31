@@ -1,12 +1,14 @@
-import _, { get, last } from 'lodash'
+import _, { get, last, range } from 'lodash'
 import { createSelector } from 'reselect'
 import memoize from 'fast-memoize'
+import { toRomaji } from 'wanakana'
 
 import {
   shipDataSelectorFactory,
   constSelector,
   shipsSelector,
   stateSelector,
+  fleetShipsIdSelectorFactory,
 } from 'views/utils/selectors'
 
 import { exp } from './constants'
@@ -32,6 +34,9 @@ export const remodelLvSelector = createSelector([
   .fromPairs()
   .value())
 
+
+// const toRomaji = kana => wanakana.toRomaji(kana)
+
 export const expInfoSelectorFactory = memoize(shipId =>
   createSelector(
     [shipDataSelectorFactory(shipId)],
@@ -40,6 +45,7 @@ export const expInfoSelectorFactory = memoize(shipId =>
         {
           ...$ship,
           ...ship,
+          romaji: toRomaji($ship.api_yomi),
         }
         : undefined
   ))
@@ -57,4 +63,21 @@ export const mapDataSelctor = createSelector(
   [
     constSelector,
   ], ({ $maps = {} } = {}) => $maps
+)
+
+const fleetsSelector = state => state.info.fleets
+
+export const shipFleetMapSelector = createSelector(
+  [
+    fleetsSelector,
+  ], fleets => _(fleets)
+    .filter(Boolean)
+    .flatMap(
+      fleet => _(fleet.api_ship)
+        .filter(id => id > 0)
+        .map(id => ([id, fleet.api_id]))
+        .value()
+    )
+    .fromPairs()
+    .value()
 )

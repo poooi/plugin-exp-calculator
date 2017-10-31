@@ -1,35 +1,33 @@
+:root {
+  --exp-calc-blue: #2196F3;
+  --exp-calc-grey: #aaa;
+}
+
+#exp-calc * {
+  outline: none;
+}
+
 #exp-calc .radio-check {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   white-space: nowrap;
-  align-items: center;
-  height: 3em;
+  align-items: stretch;
 }
 
 #exp-calc .filter-option {
-  flex: 0;
-  padding-left: 4px;
-  padding-right: 4px;
+  padding-left: 8px;
+  padding-right: 8px;
   line-height: 160%;
   transition: 0.2s;
-  border-width: 1px;
-  border-style: solid;
-}
-
-#exp-calc .filter-option:not(:last-child) {
-  border-right-width: 0;
-}
-
-#exp-calc .filter-option.dark {
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-#exp-calc .filter-option.light {
-  border-color: rgba(0, 0, 0, 0.5);
+  line-height: 250%;
+  width: 5em;
 }
 
 #exp-calc .filter-option.checked {
-  background-color: rgba(105, 240, 174, 0.5);
+  border-right: 2px solid var(--exp-calc-blue);
+  color: var(--exp-calc-blue);
+  font-weight: bold;
+  z-index: 1;
 }
 
 #exp-calc .filter-span {
@@ -39,13 +37,53 @@
   padding-right: 2em;
 }
 
-#exp-cal .dropdown-menu {
+#exp-calc .dropdown-menu {
   overflow-y: scroll;
   user-select: none;
   cursor: default;
   left: 0;
+  width: fit-content;
 }
 
-.dropdown-menu::-webkit-scrollbar {
+#exp-calc .ship-select {
+  display: flex;
+}
+
+#exp-calc .selection {
+  flex-grow: 1;
+  min-width: 10em;
+  border-left: 2px solid var(--exp-calc-grey);
+  margin-left: -2px;
+  height: 25em;
+  overflow: scroll;
+}
+
+#exp-calc .selection::-webkit-scrollbar {
   width: 1em;
+}
+
+#exp-calc .ship-item {
+  padding-right: 8px;
+  padding-left: 8px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  line-height: 250%;
+  width: 15em;
+}
+
+#exp-calc .ship-item:hover {
+  background: var(--exp-calc-blue);
+}
+
+#exp-calc .ship-item .label {
+  background: var(--exp-calc-blue);
+  color: white;
+  margin-right: 1ex;
+  font-size: 100%;
+}
+
+#exp-calc .ship-item:hover .label {
+  color: var(--exp-calc-blue);
+  background: white;
 }
