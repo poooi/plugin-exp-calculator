@@ -64,14 +64,10 @@ RadioCheck.propTypes = {
 }
 
 const Menu = connect(
-  (state) => {
-    const id = get(extensionSelectorFactory('poi-plugin-exp-calc')(state), 'id')
-    return ({
-      ships: shipExpDataSelector(state),
-      fleetMap: shipFleetMapSelector(state),
-      ship: expInfoSelectorFactory(id)(state),
-    })
-  }
+  state => ({
+    ships: shipExpDataSelector(state),
+    fleetMap: shipFleetMapSelector(state),
+  })
 )(class Menu extends Component {
   constructor(props) {
     super(props)
@@ -94,6 +90,9 @@ const Menu = connect(
   componentWillReceiveProps = (nextProps) => {
     this.fuse.setCollection(values(nextProps.ships))
   }
+
+  shouldComponentUpdate = nextProps =>
+    nextProps.open || this.props.open !== nextProps.open
 
   handleQueryChange = (e) => {
     this.setState({
@@ -123,7 +122,6 @@ const Menu = connect(
 
   handleStartLevelChange = (e) => {
     const startLevel = +e.target.value
-    console.log(startLevel)
     this.setState({
       startLevel,
       nextExp: (exp[startLevel + 1] || 0) - exp[startLevel],
@@ -147,7 +145,7 @@ const Menu = connect(
       query, type, startLevel, nextExp,
     } = this.state
     const {
-      open, handleRootClose, ships, fleetMap, ship: prevShip,
+      open, handleRootClose, ships, fleetMap,
     } = this.props
 
     const filtered = this.fuse.search(query)
@@ -286,8 +284,8 @@ const ShipDropdown = connect(
     } = this.props
     return (
       <Dropdown id="exp-calc-ship" open={open} onToggle={this.handleToggle}>
-        <Dropdown.Toggle style={{ width: '200px' }}>
-          Lv.{ship.api_lv} - {window.i18n.resources.__(ship.api_name || '')}
+        <Dropdown.Toggle>
+          {__('Choose')}
         </Dropdown.Toggle>
         <Menu bsRole="menu" open={open} onSelect={onSelect} handleRootClose={this.handleRootClose} />
       </Dropdown>
