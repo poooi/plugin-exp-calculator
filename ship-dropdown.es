@@ -167,7 +167,7 @@ const Menu = connect(
                   onChange={this.handleQueryChange}
                 />
                 <InputGroup.Button>
-                  <Button onClick={this.handleClear}>{__('Clear')}</Button>
+                  <Button onClick={this.handleClear} bsStyle="danger">{__('Clear')}</Button>
                 </InputGroup.Button>
               </InputGroup>
             </FormGroup>
@@ -226,7 +226,7 @@ const Menu = connect(
                     .map(
                       ship => (
                         <div
-                          className="ship-item"
+                          className="select-item"
                           role="button"
                           tabIndex="0"
                           key={ship.api_id}

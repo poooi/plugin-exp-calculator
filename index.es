@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 import { join } from 'path-extra'
 import { connect } from 'react-redux'
-import _, { get, range, find, each } from 'lodash'
+import _, { get, range, find, each, filter } from 'lodash'
 import FA from 'react-fontawesome'
+import InplaceEdit from 'react-edit-inplace'
 
 import { FormControl, FormGroup, ControlLabel, Table, InputGroup } from 'react-bootstrap'
 
@@ -16,6 +17,7 @@ import {
 import { remodelLvSelector, expInfoSelectorFactory, shipExpDataSelector, mapDataSelctor } from './selectors'
 
 import ShipDropdown from './ship-dropdown'
+import LevelDropdown from './level-dropdown'
 
 import { exp, expMap } from './constants'
 
@@ -221,9 +223,15 @@ const ExpCalc = connect(
     })
   }
 
-  handleEndLevelChange = (e) => {
+  handleEndLevelChange = ({ endLevel }) => {
     this.setState({
-      endLevel: e.target.value,
+      endLevel,
+    })
+  }
+
+  handleEndLevelSelect = (endLevel) => {
+    this.setState({
+      endLevel,
     })
   }
 
@@ -238,7 +246,7 @@ const ExpCalc = connect(
       endLevel, mapId, result,
     } = this.state
     const {
-      horizontal, doubleTabbed, ships, maps, ship, id,
+      horizontal, doubleTabbed, ships, maps, ship = {}, id, remodelLvs,
     } = this.props
 
     const startLevel = id > 0 ? ship.api_lv : this.state.startLevel
@@ -265,6 +273,10 @@ const ExpCalc = connect(
       baseExp * 3.0,
     ]
 
+    const levels = id > 0
+      ? filter(remodelLvs[ship.api_ship_id], lv => lv > ship.api_lv)
+      : [99, MAX_LEVEL]
+
     return (
       <div id="exp-calc" className="exp-calc">
         <link rel="stylesheet" href={join(__dirname, 'assets', 'exp-calc.css')} />
@@ -286,7 +298,19 @@ const ExpCalc = connect(
               <FA name="arrow-right" />
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '200%' }}>Lv.{endLevel}</div>
+              <div style={{ fontSize: '200%' }}>
+                Lv.
+                <InplaceEdit
+                  validate={text => (+text > 0 && +text <= MAX_LEVEL)}
+                  text={endLevel}
+                  paramName="endLevel"
+                  className="end-level"
+                  activeClassName="end-level-active"
+                  change={this.handleEndLevelChange}
+                  stopPropagation
+                />
+                <LevelDropdown onSelect={this.handleEndLevelSelect} levels={levels} />
+              </div>
               <div>{__('Remaining')} {totalExp}</div>
             </div>
           </div>
@@ -337,45 +361,6 @@ const ExpCalc = connect(
               </FormControl>
             </FormGroup>
 
-          </div>
-          <div>
-            <FormGroup>
-              <ControlLabel>{__('Starting level')}</ControlLabel>
-              <FormControl
-                type="number"
-                value={startLevel}
-              />
-            </FormGroup>
-          </div>
-          <div>
-            <FormGroup>
-              <ControlLabel>{__('To next')}</ControlLabel>
-              <FormControl
-                type="number"
-                value={nextExp}
-              />
-            </FormGroup>
-          </div>
-          <div>
-            <FormGroup>
-              <ControlLabel>{__('Goal')}</ControlLabel>
-              <FormControl
-                type="number"
-                value={endLevel}
-                onChange={this.handleEndLevelChange}
-              />
-            </FormGroup>
-          </div>
-          <div>
-            <FormGroup>
-              <ControlLabel>{__('Total exp')}</ControlLabel>
-              <FormControl
-                type="number"
-                value={totalExp}
-                readOnly
-              />
-
-            </FormGroup>
           </div>
         </div>
         <Table>

@@ -23,7 +23,7 @@
   padding-right: 8px;
   line-height: 160%;
   transition: 0.2s;
-  line-height: 250%;
+  line-height: 150%;
   width: 5em;
 }
 
@@ -58,7 +58,7 @@
   min-width: 10em;
   border-left: 1px solid var(--exp-calc-grey);
   margin-left: -1px;
-  height: 25em;
+  height: 16em;
   overflow: scroll;
 }
 
@@ -66,28 +66,28 @@
   width: 1em;
 }
 
-#exp-calc .ship-item {
+#exp-calc .select-item {
   padding-right: 8px;
   padding-left: 8px;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  line-height: 250%;
+  line-height: 200%;
   width: 15em;
 }
 
-#exp-calc .ship-item:hover {
+#exp-calc .select-item:hover {
   background: var(--exp-calc-blue);
 }
 
-#exp-calc .ship-item .label {
+#exp-calc .select-item .label {
   background: var(--exp-calc-blue);
   color: white;
   margin-right: 1ex;
   font-size: 100%;
 }
 
-#exp-calc .ship-item:hover .label {
+#exp-calc .select-item:hover .label {
   color: var(--exp-calc-blue);
   background: white;
 }
@@ -99,4 +99,15 @@
 #exp-calc .ship-name{
   font-size: 150%;
   font-weight: 500;
+}
+
+#exp-calc input {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+#exp-calc .end-level-active {
+  background: none;
+  border-bottom: 1px solid var(--exp-calc-blue);
+  width: 2em;
 }
