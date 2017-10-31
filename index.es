@@ -74,7 +74,7 @@ const handleResponse = (e) => {
   const { path, body } = e.detail
   if (path === '/kcsapi/api_req_member/get_practice_enemyinfo') {
     const enemyShips = body.api_deck.api_ships
-    let baseExp = (exp[enemyShips[0].api_level] / 100) + (exp[get(enemyShips, [1, 'api_level'], 0)] / 300)
+    let baseExp = (exp[enemyShips[0].api_level] / 100) + (exp[get(enemyShips, [1, 'api_level'], 1)] / 300)
     baseExp = baseExp <= 500 ? baseExp : 500 + Math.floor(Math.sqrt(baseExp - 500))
     const bonusStr = []
     let bonusFlag = false
