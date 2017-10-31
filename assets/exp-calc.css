@@ -24,7 +24,7 @@
 }
 
 #exp-calc .filter-option.checked {
-  border-right: 2px solid var(--exp-calc-blue);
+  border-right: 4px solid var(--exp-calc-blue);
   color: var(--exp-calc-blue);
   font-weight: bold;
   z-index: 1;
@@ -52,8 +52,8 @@
 #exp-calc .selection {
   flex-grow: 1;
   min-width: 10em;
-  border-left: 2px solid var(--exp-calc-grey);
-  margin-left: -2px;
+  border-left: 1px solid var(--exp-calc-grey);
+  margin-left: -1px;
   height: 25em;
   overflow: scroll;
 }

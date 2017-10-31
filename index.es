@@ -145,10 +145,17 @@ const ExpCalc = connect(
     })
   },
 )(class ExpCalc extends Component {
+  constructor(props) {
+    super(props)
+
+    this.handleShipSelect = this._handleShipSelect.bind(this)
+  }
+
   state = {
     mapId: 11,
     result: 0, // 'S'
-    startLevel: 0,
+    startLevel: 1,
+    nextExp: exp[2] - exp[1],
     endLevel: MAX_LEVEL,
     lockGoal: false,
   }
@@ -180,6 +187,19 @@ const ExpCalc = connect(
       type: '@@poi-plugin-exp-calc@select',
       id,
     })
+  }
+
+  _handleShipSelect = (id, startLevel, nextExp) => {
+    this.props.dispatch({
+      type: '@@poi-plugin-exp-calc@select',
+      id,
+    })
+    if (id === 0) {
+      this.setState({
+        startLevel,
+        nextExp,
+      })
+    }
   }
 
   handleResultChange = (e) => {
@@ -214,20 +234,23 @@ const ExpCalc = connect(
 
   render() {
     const {
-      startLevel, endLevel, mapId, result,
+      endLevel, mapId, result,
     } = this.state
     const {
       horizontal, doubleTabbed, ships, maps, ship, id,
     } = this.props
 
-    const nextExp = get(ship, ['api_exp', 1], 0)
-    const totalExp = exp[endLevel] - get(ship, ['api_exp', 0], 0)
+    const startLevel = id > 0 ? ship.api_lv : this.state.startLevel
+    const nextExp = id > 0 ? get(ship, ['api_exp', 1], 0) : this.state.nextExp
+    const totalExp = id > 0
+      ? exp[endLevel] - get(ship, ['api_exp', 0], 0)
+      : (exp[endLevel] - exp[startLevel + 1]) + nextExp
 
     const mapExp = expMap[mapId] || 100
     const mapPercent = expPercent[result]
 
     const baseExp = mapExp * mapPercent
-    const baseCount = totalExp / baseExp
+    const baseCount = Math.max(totalExp / baseExp, 0)
     const counts = [
       Math.ceil(baseCount),
       Math.ceil(baseCount / 1.5),
@@ -271,7 +294,7 @@ const ExpCalc = connect(
                 </FormControl>
               </InputGroup>
             </FormGroup>
-            <ShipDropdown />
+            <ShipDropdown onSelect={this.handleShipSelect} />
           </div>
           <div xs={mapRowSize}>
             <FormGroup>
@@ -326,8 +349,7 @@ const ExpCalc = connect(
               <ControlLabel>{__('Starting level')}</ControlLabel>
               <FormControl
                 type="number"
-                value={startLevel || get(ship, ['api_lv'], 1)}
-                onChange={this.handleStartLevelChange}
+                value={startLevel}
               />
             </FormGroup>
           </div>
@@ -337,7 +359,6 @@ const ExpCalc = connect(
               <FormControl
                 type="number"
                 value={nextExp}
-                onChange={this.handleNextExpChange}
               />
             </FormGroup>
           </div>
