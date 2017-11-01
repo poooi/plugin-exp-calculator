@@ -3,14 +3,13 @@ import propTypes from 'prop-types'
 import { Dropdown, Button, FormGroup, InputGroup, FormControl, Label, ControlLabel } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import cls from 'classnames'
-import { extensionSelectorFactory } from 'views/utils/selectors'
 import _, { get, values } from 'lodash'
 import Fuse from 'fuse.js'
 import { RootCloseWrapper } from 'react-overlays'
 import FA from 'react-fontawesome'
 
 import { shipCat, exp } from './constants'
-import { shipExpDataSelector, shipFleetMapSelector, expInfoSelectorFactory } from './selectors'
+import { shipExpDataSelector, shipFleetMapSelector } from './selectors'
 
 const { i18n } = window
 const __ = i18n['poi-plugin-exp-calc'].__.bind(i18n['poi-plugin-exp-calc'])
@@ -58,7 +57,6 @@ const RadioCheck = ({ options, value: currentValue, onChange }) => (
 )
 
 RadioCheck.propTypes = {
-  label: propTypes.string,
   options: propTypes.arrayOf(propTypes.object),
   value: propTypes.string,
   onChange: propTypes.func,
@@ -70,6 +68,14 @@ const Menu = connect(
     fleetMap: shipFleetMapSelector(state),
   })
 )(class Menu extends Component {
+  static propTypes = {
+    ships: propTypes.objectOf(propTypes.object).isRequired,
+    fleetMap: propTypes.objectOf(propTypes.number).isRequired,
+    open: propTypes.bool.isRequired,
+    handleRootClose: propTypes.func.isRequired,
+    onSelect: propTypes.func.isRequired,
+  }
+
   constructor(props) {
     super(props)
 
@@ -252,11 +258,11 @@ const Menu = connect(
   }
 })
 
-const ShipDropdown = connect(
-  state => ({
-    active: get(extensionSelectorFactory('poi-plugin-exp-calc')(state), 'active', ''),
-  }),
-)(class ShipDropdown extends PureComponent {
+class ShipDropdown extends PureComponent {
+  static propTypes = {
+    onSelect: propTypes.func.isRequired,
+  }
+
   constructor(props) {
     super(props)
     this.handleRootClose = this._handleRootClose.bind(this)
@@ -281,7 +287,7 @@ const ShipDropdown = connect(
       open,
     } = this.state
     const {
-      ship = {}, onSelect,
+      onSelect,
     } = this.props
     return (
       <Dropdown id="exp-calc-ship" open={open} onToggle={this.handleToggle}>
@@ -292,6 +298,6 @@ const ShipDropdown = connect(
       </Dropdown>
     )
   }
-})
+}
 
 export default ShipDropdown

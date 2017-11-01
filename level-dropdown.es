@@ -5,10 +5,14 @@ import _ from 'lodash'
 import { RootCloseWrapper } from 'react-overlays'
 import FA from 'react-fontawesome'
 
-const { i18n } = window
-const __ = i18n['poi-plugin-exp-calc'].__.bind(i18n['poi-plugin-exp-calc'])
-
 class Menu extends Component {
+  static propTypes = {
+    open: propTypes.bool.isRequired,
+    onSelect: propTypes.func.isRequired,
+    handleRootClose: propTypes.func.isRequired,
+    levels: propTypes.arrayOf(propTypes.number).isRequired,
+  }
+
   shouldComponentUpdate = nextProps =>
     nextProps.open || this.props.open !== nextProps.open
 
@@ -51,6 +55,11 @@ class Menu extends Component {
 }
 
 class LevelDropdown extends PureComponent {
+  static propTypes = {
+    onSelect: propTypes.func.isRequired,
+    levels: propTypes.arrayOf(propTypes.number).isRequired,
+  }
+
   constructor(props) {
     super(props)
     this.handleRootClose = this._handleRootClose.bind(this)
@@ -75,7 +84,7 @@ class LevelDropdown extends PureComponent {
       open,
     } = this.state
     const {
-      ship = {}, onSelect, levels,
+      onSelect, levels,
     } = this.props
     return (
       <Dropdown id="exp-calc-level" open={open} onToggle={this.handleToggle} pullRight>

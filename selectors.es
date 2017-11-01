@@ -1,4 +1,4 @@
-import _, { get, last, range } from 'lodash'
+import _, { get, last } from 'lodash'
 import { createSelector } from 'reselect'
 import memoize from 'fast-memoize'
 import { toRomaji } from 'wanakana'
@@ -8,7 +8,6 @@ import {
   constSelector,
   shipsSelector,
   stateSelector,
-  fleetShipsIdSelectorFactory,
 } from 'views/utils/selectors'
 
 import { exp } from './constants'

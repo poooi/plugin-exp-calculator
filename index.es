@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
+import propTypes from 'prop-types'
 import { join } from 'path-extra'
 import { connect } from 'react-redux'
-import _, { get, range, find, each, filter } from 'lodash'
+import { get, range, find, each, filter } from 'lodash'
 import FA from 'react-fontawesome'
 import InplaceEdit from 'react-edit-inplace'
 import cls from 'classnames'
@@ -19,7 +20,7 @@ import {
   remodelLvSelector,
   expInfoSelectorFactory,
   shipExpDataSelector,
-  mapDataSelctor
+  mapDataSelctor,
 } from './selectors'
 
 import ShipDropdown from './ship-dropdown'
@@ -70,8 +71,6 @@ const getBonusType = (lv) => {
   }
   return 4
 }
-
-const nullShip = { api_id: 0, api_name: __('NULL') }
 
 const expClass = [
   'Basic',
@@ -148,13 +147,21 @@ const ExpCalc = connect(
       horizontal: configLayoutSelector(state),
       doubleTabbed: configDoubleTabbedSelector(state),
       ship: expInfoSelectorFactory(id)(state),
-      ships: shipExpDataSelector(state),
-      fleets: [...Array(4).keys()].map(fleetId => fleetShipsIdSelectorFactory(fleetId)(state)),
       remodelLvs: remodelLvSelector(state),
       maps: mapDataSelctor(state),
     })
   },
 )(class ExpCalc extends Component {
+  static propTypes = {
+    id: propTypes.number.isRequired,
+    horizontal: propTypes.string.isRequired,
+    doubleTabbed: propTypes.bool.isRequired,
+    ship: propTypes.object.isRequired,
+    remodelLvs: propTypes.objectOf(propTypes.array),
+    maps: propTypes.objectOf(propTypes.object),
+    dispatch: propTypes.func,
+  }
+
   constructor(props) {
     super(props)
 
@@ -261,7 +268,7 @@ const ExpCalc = connect(
       endLevel, mapId, result, lockGoal,
     } = this.state
     const {
-      horizontal, doubleTabbed, ships, maps, ship = {}, id, remodelLvs,
+      horizontal, doubleTabbed, maps, ship = {}, id, remodelLvs,
     } = this.props
 
     const startLevel = id > 0 ? ship.api_lv : this.state.startLevel
@@ -405,21 +412,14 @@ export const reactClass = ExpCalc
 // reducer part
 const initState = {
   id: 0,
-  active: '',
 }
 
 export const reducer = (state = initState, action) => {
-  const { type, id, active } = action
+  const { type, id } = action
   if (type === '@@poi-plugin-exp-calc@select') {
     return {
       ...state,
       id,
-    }
-  }
-  if (type === '@@poi-plugin-exp-calc@active-dropdown') {
-    return {
-      ...state,
-      active,
     }
   }
   return state

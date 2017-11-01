@@ -16,6 +16,13 @@ const Menu = connect(
     maps: mapDataSelctor(state),
   })
 )(class Menu extends Component {
+  static propTypes = {
+    maps: propTypes.objectOf(propTypes.object).isRequired,
+    open: propTypes.bool.isRequired,
+    handleRootClose: propTypes.func.isRequired,
+    onSelect: propTypes.func.isRequired,
+  }
+
   shouldComponentUpdate = nextProps =>
     nextProps.open || this.props.open !== nextProps.open
 
@@ -63,6 +70,10 @@ const Menu = connect(
 })
 
 class MapDropdown extends PureComponent {
+  static propTypes = {
+    onSelect: propTypes.func.isRequired,
+  }
+
   constructor(props) {
     super(props)
     this.handleRootClose = this._handleRootClose.bind(this)
@@ -87,7 +98,7 @@ class MapDropdown extends PureComponent {
       open,
     } = this.state
     const {
-      ship = {}, onSelect,
+      onSelect,
     } = this.props
     return (
       <Dropdown id="exp-calc-map" open={open} onToggle={this.handleToggle} pullRight>

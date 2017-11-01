@@ -59,6 +59,8 @@ module.exports = {
       'semver',
       'react-virtualized',
       'prop-types',
+      'fuse.js',
+      'react-overlays',
     ],
   },
 }
