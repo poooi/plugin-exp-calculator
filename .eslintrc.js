@@ -31,6 +31,7 @@ module.exports = {
     'function-paren-newline': 'off',
     'jsx-a11y/click-events-have-key-events': 'off',
     'react/no-multi-comp': 'off',
+    'react/forbid-prop-types': 'off',
   },
   'settings': {
     'import/resolver': {

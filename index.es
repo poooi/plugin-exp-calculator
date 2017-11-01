@@ -7,7 +7,7 @@ import FA from 'react-fontawesome'
 import InplaceEdit from 'react-edit-inplace'
 import cls from 'classnames'
 
-import { Button, table } from 'react-bootstrap'
+import { Button } from 'react-bootstrap'
 
 import {
   configLayoutSelector,
@@ -156,7 +156,7 @@ const ExpCalc = connect(
     id: propTypes.number.isRequired,
     horizontal: propTypes.string.isRequired,
     doubleTabbed: propTypes.bool.isRequired,
-    ship: propTypes.object.isRequired,
+    ship: propTypes.object,
     remodelLvs: propTypes.objectOf(propTypes.array),
     maps: propTypes.objectOf(propTypes.object),
     dispatch: propTypes.func,
@@ -237,7 +237,7 @@ const ExpCalc = connect(
 
   handleEndLevelChange = ({ endLevel }) => {
     this.setState({
-      endLevel,
+      endLevel: parseInt(endLevel, 10),
     })
   }
 
@@ -337,7 +337,7 @@ const ExpCalc = connect(
                 Lv.
                 <InplaceEdit
                   validate={text => (+text > 0 && +text <= MAX_LEVEL)}
-                  text={endLevel}
+                  text={String(endLevel)}
                   paramName="endLevel"
                   className="end-level"
                   activeClassName="end-level-active"
@@ -387,9 +387,11 @@ const ExpCalc = connect(
           </div>
           <table>
             <thead>
-              <th />
-              <th>{__('Per attack')}</th>
-              <th>{__('Remainder')}</th>
+              <tr>
+                <th />
+                <th>{__('Per attack')}</th>
+                <th>{__('Remainder')}</th>
+              </tr>
             </thead>
             <tbody>
               {
