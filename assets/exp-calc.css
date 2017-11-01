@@ -62,6 +62,12 @@
   overflow: scroll;
 }
 
+#exp-calc #exp-calc-map-menu .selection {
+  overflow: scroll;
+  min-width: 10em;
+  height: 15em;
+}
+
 #exp-calc .selection::-webkit-scrollbar {
   width: 1em;
 }
@@ -99,6 +105,7 @@
 #exp-calc .ship-name{
   font-size: 150%;
   font-weight: 500;
+  flex-grow: 1;
 }
 
 #exp-calc input {
@@ -114,4 +121,26 @@
   width: 3em;
   line-height: 120%;
   display: inline-block;
+}
+
+#exp-calc .result-selection {
+  display: flex;
+}
+
+#exp-calc .result-option {
+  font-size: 120%;
+  padding-left: 4px;
+  padding-right: 4px;
+  border-bottom: 1px solid var(--exp-calc-grey);
+}
+
+#exp-calc .result-option.checked {
+  border-bottom-color: var(--exp-calc-blue);
+  font-weight: 500;
+  background: var(--exp-calc-blue);
+}
+
+#exp-calc tr,
+#exp-calc td {
+  vertical-align: middle;
 }

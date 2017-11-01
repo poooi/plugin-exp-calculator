@@ -1,22 +1,29 @@
 import React, { Component, PureComponent } from 'react'
 import propTypes from 'prop-types'
-import { Dropdown } from 'react-bootstrap'
+import { connect } from 'react-redux'
+import { Dropdown, Label } from 'react-bootstrap'
 import _ from 'lodash'
 import { RootCloseWrapper } from 'react-overlays'
 import FA from 'react-fontawesome'
 
+import { mapDataSelctor } from './selectors'
+
 const { i18n } = window
 const __ = i18n['poi-plugin-exp-calc'].__.bind(i18n['poi-plugin-exp-calc'])
 
-class Menu extends Component {
+const Menu = connect(
+  state => ({
+    maps: mapDataSelctor(state),
+  })
+)(class Menu extends Component {
   shouldComponentUpdate = nextProps =>
     nextProps.open || this.props.open !== nextProps.open
 
-  handleSelect = lv => () => this.props.onSelect(lv)
+  handleSelect = mapId => () => this.props.onSelect(mapId)
 
   render() {
     const {
-      open, handleRootClose, levels,
+      open, handleRootClose, maps,
     } = this.props
     return (
       <RootCloseWrapper
@@ -24,20 +31,25 @@ class Menu extends Component {
         onRootClose={handleRootClose}
         event="click"
       >
-        <ul className="dropdown-menu pull-right" style={{ left: 'initial', right: 0 }}>
+        <ul className="dropdown-menu pull-right" id="exp-calc-map-menu" style={{ left: 'initial', right: 0 }}>
           <div className="selection">
             {
-              _(levels)
+              _(maps)
+              .filter(world => world.api_id < 63)
               .map(
-                level => (
+                world => (
                   <div
                     className="select-item"
                     role="button"
                     tabIndex="0"
-                    key={level}
-                    onClick={this.handleSelect(level)}
+                    key={world.api_id}
+                    onClick={this.handleSelect(world.api_id)}
                   >
-                    {level}
+                    {
+                      world.api_no > 4 &&
+                        <Label>EO</Label>
+                    }
+                    {`${world.api_maparea_id}-${world.api_no} ${world.api_name}`}
                   </div>
                 )
               )
@@ -48,9 +60,9 @@ class Menu extends Component {
       </RootCloseWrapper>
     )
   }
-}
+})
 
-class LevelDropdown extends PureComponent {
+class MapDropdown extends PureComponent {
   constructor(props) {
     super(props)
     this.handleRootClose = this._handleRootClose.bind(this)
@@ -75,17 +87,17 @@ class LevelDropdown extends PureComponent {
       open,
     } = this.state
     const {
-      ship = {}, onSelect, levels,
+      ship = {}, onSelect,
     } = this.props
     return (
-      <Dropdown id="exp-calc-level" open={open} onToggle={this.handleToggle} pullRight>
+      <Dropdown id="exp-calc-map" open={open} onToggle={this.handleToggle} pullRight>
         <Dropdown.Toggle bsSize="small">
-          <FA name="star" />
+          <FA name="map" />
         </Dropdown.Toggle>
-        <Menu bsRole="menu" open={open} onSelect={onSelect} handleRootClose={this.handleRootClose} levels={levels} />
+        <Menu bsRole="menu" open={open} onSelect={onSelect} handleRootClose={this.handleRootClose} />
       </Dropdown>
     )
   }
 }
 
-export default LevelDropdown
+export default MapDropdown

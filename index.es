@@ -4,8 +4,9 @@ import { connect } from 'react-redux'
 import _, { get, range, find, each, filter } from 'lodash'
 import FA from 'react-fontawesome'
 import InplaceEdit from 'react-edit-inplace'
+import cls from 'classnames'
 
-import { FormControl, FormGroup, ControlLabel, Table, InputGroup } from 'react-bootstrap'
+import { Button, Table } from 'react-bootstrap'
 
 import {
   configLayoutSelector,
@@ -14,10 +15,16 @@ import {
   extensionSelectorFactory,
 } from 'views/utils/selectors'
 
-import { remodelLvSelector, expInfoSelectorFactory, shipExpDataSelector, mapDataSelctor } from './selectors'
+import {
+  remodelLvSelector,
+  expInfoSelectorFactory,
+  shipExpDataSelector,
+  mapDataSelctor
+} from './selectors'
 
 import ShipDropdown from './ship-dropdown'
 import LevelDropdown from './level-dropdown'
+import MapDropdown from './map-dropdown'
 
 import { exp, expMap } from './constants'
 
@@ -172,7 +179,9 @@ const ExpCalc = connect(
     if (this.props.id !== id) {
       const level = get(ship, ['api_lv'], 0)
       const shipId = get(ship, ['api_ship_id'], 0)
-      const endLevel = find(remodelLvs[shipId], lv => lv > level) || MAX_LEVEL
+      const endLevel = this.state.lockGoal
+        ? this.state.endLevel
+        : find(remodelLvs[shipId], lv => lv > level) || MAX_LEVEL
       this.setState({
         startLevel: level,
         endLevel,
@@ -205,15 +214,15 @@ const ExpCalc = connect(
     }
   }
 
-  handleResultChange = (e) => {
+  handleResultChange = result => () => {
     this.setState({
-      result: e.target.value,
+      result,
     })
   }
 
-  handleMapChange = (e) => {
+  handleMapSelect = (mapId) => {
     this.setState({
-      mapId: e.target.value,
+      mapId,
     })
   }
 
@@ -241,9 +250,15 @@ const ExpCalc = connect(
     })
   }
 
+  handleLockChange = () => {
+    this.setState({
+      lockGoal: !this.state.lockGoal,
+    })
+  }
+
   render() {
     const {
-      endLevel, mapId, result,
+      endLevel, mapId, result, lockGoal,
     } = this.state
     const {
       horizontal, doubleTabbed, ships, maps, ship = {}, id, remodelLvs,
@@ -277,6 +292,8 @@ const ExpCalc = connect(
       ? filter(remodelLvs[ship.api_ship_id], lv => lv > ship.api_lv)
       : [99, MAX_LEVEL]
 
+    const world = maps[mapId] || {}
+
     return (
       <div id="exp-calc" className="exp-calc">
         <link rel="stylesheet" href={join(__dirname, 'assets', 'exp-calc.css')} />
@@ -288,6 +305,8 @@ const ExpCalc = connect(
               ? <span className="ship-name">{window.i18n.resources.__(ship.api_name)}</span>
               : <span className="ship-name">{__('Custom')}</span>
             }
+            <span>{`${world.api_maparea_id}-${world.api_no} ${world.api_name}`}</span>
+            <MapDropdown onSelect={this.handleMapSelect} />
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div>
@@ -310,63 +329,41 @@ const ExpCalc = connect(
                   stopPropagation
                 />
                 <LevelDropdown onSelect={this.handleEndLevelSelect} levels={levels} />
+                <Button
+                  bsSize="small"
+                  style={{ background: lockGoal && 'var(--exp-calc-blue)' }}
+                  onClick={this.handleLockChange}
+                >
+                  <FA name="lock" />
+                </Button>
               </div>
               <div>{__('Remaining')} {totalExp}</div>
             </div>
-          </div>
-          <div>
-            <FormGroup>
-              <ControlLabel>{__('Map')}</ControlLabel>
-              <FormControl
-                componentClass="select"
-                value={mapId}
-                onChange={this.handleMapChange}
-              >
-                {
-                  _(maps)
-                  .filter(world => world.api_id < 63)
-                  .map(world => (
-                    <option
-                      value={world.api_id}
-                      key={world.api_id}
-                    >
-                      {`${world.api_maparea_id}-${world.api_no} ${world.api_no > 4 ? '[EO] ' : ''}${world.api_name}`}
-                    </option>
-                  ))
-                  .value()
-                }
-              </FormControl>
-            </FormGroup>
-          </div>
-          <div>
-            <FormGroup>
-              <ControlLabel>
-                {__('Result')}
-              </ControlLabel>
-              <FormControl
-                componentClass="select"
-                value={result}
-                onChange={this.handleResultChange}
-              >
-                {
-                  range(expLevel.length).map(idx => (
-                    <option
-                      value={idx}
-                      key={idx}
-                    >
-                      {expLevel[idx]}
-                    </option>
-                  ))
-                }
-              </FormControl>
-            </FormGroup>
-
           </div>
         </div>
         <Table>
           <tbody>
             <tr key={0}>
-              <td />
+              <td>
+                <div className="result-selection">
+                  {
+                    range(expLevel.length).map(idx => (
+                      <div
+                        className={cls('result-option', {
+                          checked: result === idx,
+                        })}
+                        role="button"
+                        tabIndex="0"
+                        value={idx}
+                        key={idx}
+                        onClick={this.handleResultChange(idx)}
+                      >
+                        {expLevel[idx]}
+                      </div>
+                    ))
+                  }
+                </div>
+              </td>
               <td>{__('Per attack')}</td>
               <td>{__('Remainder')}</td>
             </tr>
