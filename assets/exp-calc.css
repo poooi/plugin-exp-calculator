@@ -1,29 +1,176 @@
-#ExpCalcView label {
-  font-size: 13px;
-  margin-bottom: 0;
+:root {
+  --exp-calc-blue: #2196F3;
+  --exp-calc-grey: #aaa;
 }
-#ExpCalcView .hidden {
+
+#exp-calc {
+  padding: 1ex 1em;
+}
+
+#exp-calc * {
+  outline: none;
+}
+
+#exp-calc.exp-calc-wrapper {
+  display: flex;
+}
+
+#exp-calc.exp-calc-wrapper >div {
+  flex-grow: 1;
+}
+
+#exp-calc.vertical {
+  flex-direction: column;
+}
+
+#exp-calc.horizontal {
+  flex-direction: column;
+}
+
+#exp-calc .radio-check {
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+  align-items: stretch;
+}
+
+#exp-calc .filter-option {
+  padding-left: 8px;
+  padding-right: 8px;
+  line-height: 160%;
+  transition: 0.2s;
+  line-height: 150%;
+  width: 6em;
+}
+
+#exp-calc .filter-option.checked {
+  border-right: 4px solid var(--exp-calc-blue);
+  color: var(--exp-calc-blue);
+  font-weight: bold;
+  z-index: 1;
+}
+
+#exp-calc .filter-span {
+  font-weight: bold;
+  flex: 1;
+  padding-left: 1ex;
+  padding-right: 2em;
+}
+
+#exp-calc .dropdown-menu {
+  overflow-y: scroll;
+  user-select: none;
+  cursor: default;
+  left: 0;
+  width: fit-content;
+}
+
+#exp-calc .ship-select {
+  display: flex;
+}
+
+#exp-calc #exp-calc-ship-menu .selection {
+  flex-grow: 1;
+  min-width: 10em;
+  border-left: 1px solid var(--exp-calc-grey);
+  margin-left: -1px;
+  height: 15em;
+  overflow: scroll;
+}
+
+#exp-calc #exp-calc-map-menu .selection {
+  overflow: scroll;
+  min-width: 10em;
+  height: 15em;
+}
+
+#exp-calc .selection::-webkit-scrollbar {
+  width: 1em;
+}
+
+#exp-calc .select-item {
+  padding-right: 8px;
+  padding-left: 8px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  line-height: 200%;
+  width: 15em;
+}
+
+#exp-calc .select-item:hover {
+  background: var(--exp-calc-blue);
+}
+
+#exp-calc .select-item .label {
+  background: var(--exp-calc-blue);
+  color: white;
+  margin-right: 1ex;
+  font-size: 100%;
+}
+
+#exp-calc .select-item:hover .label {
+  color: var(--exp-calc-blue);
+  background: white;
+}
+
+#exp-calc .caret {
   display: none;
 }
-#ExpCalcView .show {
-  display: block;
+
+#exp-calc .ship-name{
+  font-size: 150%;
+  font-weight: 500;
+  flex-grow: 1;
 }
-#ExpCalcView table td {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+
+#exp-calc input {
+  padding-top: 0;
+  padding-bottom: 0;
 }
-#ExpCalcView table tr td {
-  padding-left: 5px;
-  font-size: 100%;
+
+#exp-calc .end-level,
+#exp-calc .end-level-active {
+  background: none;
+  border: none;
+  border-bottom: 2px solid var(--exp-calc-blue);
+  width: 3em;
+  line-height: 120%;
+  display: inline-block;
 }
-#ExpCalcView table {
-  font-size: 100%;
+
+#exp-calc .result-selection {
+  display: flex;
+  justify-content: center;
+}
+
+#exp-calc .result-option {
+  font-size: 120%;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+#exp-calc .result-option.checked {
+  font-weight: 500;
+  background: var(--exp-calc-blue);
+}
+
+#exp-calc table {
+  width: 100%;
+}
+
+#exp-calc th,
+#exp-calc tr,
+#exp-calc td {
+  vertical-align: middle;
+  line-height: 160%;
   text-align: center;
-  width: 80%;
-  margin-left: 10%;
-  margin-bottom: 0;
 }
-#ExpCalcView {
-  padding-top: 15px;
+
+.exp-progress {
+  display: flex;
+  margin: 1ex 1em;
+  padding: 0 4px;
+  border: 1px solid var(--exp-calc-blue);
+  transform: skewX(-15deg);
 }

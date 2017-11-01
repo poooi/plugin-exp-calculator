@@ -1,570 +1,430 @@
 import React, { Component } from 'react'
+import propTypes from 'prop-types'
 import { join } from 'path-extra'
 import { connect } from 'react-redux'
-import { sortBy, isEqual, map, values, keyBy, get } from 'lodash'
-import FontAwesome from 'react-fontawesome'
-import { createSelector } from 'reselect'
-import memoize from 'fast-memoize'
+import { get, range, find, each, filter } from 'lodash'
+import FA from 'react-fontawesome'
+import InplaceEdit from 'react-edit-inplace'
+import cls from 'classnames'
 
-import { FormControl, FormGroup, ControlLabel, Grid, Col, Table, InputGroup, Button, DropdownButton, MenuItem } from 'react-bootstrap'
+import { Button } from 'react-bootstrap'
 
-import { configLayoutSelector, configDoubleTabbedSelector, fleetShipsIdSelectorFactory, shipDataSelectorFactory,
-  constSelector } from 'views/utils/selectors'
+import {
+  configLayoutSelector,
+  configDoubleTabbedSelector,
+  fleetShipsIdSelectorFactory,
+  extensionSelectorFactory,
+} from 'views/utils/selectors'
+
+import {
+  remodelLvSelector,
+  expInfoSelectorFactory,
+  shipExpDataSelector,
+  mapDataSelctor,
+} from './selectors'
+
+import ShipDropdown from './ship-dropdown'
+import LevelDropdown from './level-dropdown'
+import MapDropdown from './map-dropdown'
+
+import { exp, expMap } from './constants'
+
 const { i18n } = window
-const __ = i18n["poi-plugin-exp-calc"].__.bind(i18n["poi-plugin-exp-calc"])
+const __ = i18n['poi-plugin-exp-calc'].__.bind(i18n['poi-plugin-exp-calc'])
 
-const MAX_LEVEL = 165
+const MAX_LEVEL = Object.keys(exp).length
 
-let successFlag = false
-
-let exp = [
-  0,       100,     300,     600,     1000,    1500,    2100,    2800,    3600,    4500,
-  5500,    6600,    7800,    9100,    10500,   12000,   13600,   15300,   17100,   19000,
-  21000,   23100,   25300,   27600,   30000,   32500,   35100,   37800,   40600,   43500,
-  46500,   49600,   52800,   56100,   59500,   63000,   66600,   70300,   74100,   78000,
-  82000,   86100,   90300,   94600,   99000,   103500,  108100,  112800,  117600,  122500,
-  127500,  132700,  138100,  143700,  149500,  155500,  161700,  168100,  174700,  181500,
-  188500,  195800,  203400,  211300,  219500,  228000,  236800,  245900,  255300,  265000,
-  275000,  285400,  296200,  307400,  319000,  331000,  343400,  356200,  369400,  383000,
-  397000,  411500,  426500,  442000,  458000,  474500,  491500,  509000,  527000,  545500,
-  564500,  584500,  606500,  631500,  661500,  701500,  761500,  851500,  1000000, 1000000,
-  1010000, 1011000, 1013000, 1016000, 1020000, 1025000, 1031000, 1038000, 1046000, 1055000,
-  1065000, 1077000, 1091000, 1107000, 1125000, 1145000, 1168000, 1194000, 1223000, 1255000,
-  1290000, 1329000, 1372000, 1419000, 1470000, 1525000, 1584000, 1647000, 1714000, 1785000,
-  1860000, 1940000, 2025000, 2115000, 2210000, 2310000, 2415000, 2525000, 2640000, 2760000,
-  2887000, 3021000, 3162000, 3310000, 3465000, 3628000, 3799000, 3978000, 4165000, 4360000,
-  4564000, 4777000, 4999000, 5230000, 5470000, 5720000, 5780000, 5860000, 5970000, 6120000,
-  6320000, 6580000, 6910000, 7320000, 7820000,
+// battle result
+const expLevel = [
+  'S', 'A', 'B', 'C', 'D',
 ]
 
-exp.unshift(exp[0])
-exp.push(exp[exp.length - 1])
-
-const expValue = [
-  -100,
-  30, 50, 80, 100, 150, 50,
-  120, 150, 200, 300, 250,
-  310, 320, 330, 350, 400,
-  310, 320, 330, 340, 200,
-  360, 380, 400, 420, 450,
-  380, 420, 100,
-]
-
+// exp effect for battle results
 const expPercent = [
   1.2, 1.0, 1.0, 0.8, 0.7,
 ]
 
-const expLevel = [
-  "S", "A", "B", "C", "D",
-]
-
-const expMap = [
-  __("Customized"),
-  "1-1 鎮守府正面海域", "1-2 南西諸島沖", "1-3 製油所地帯沿岸", "1-4 南西諸島防衛線", "1-5 [Extra] 鎮守府近海", "1-6 [Extra Operation] 鎮守府近海航路",
-  "2-1 カムラン半島", "2-2 バシー島沖", "2-3 東部オリョール海", "2-4 沖ノ島海域", "2-5 [Extra] 沖ノ島沖",
-  "3-1 モーレイ海", "3-2 キス島沖", "3-3 アルフォンシーノ方面", "3-4 北方海域全域", "3-5 [Extra] 北方AL海域",
-  "4-1 ジャム島攻略作戦", "4-2 カレー洋制圧戦", "4-3 リランカ島空襲", "4-4 カスガダマ沖海戦", "4-5 [Extra] カレー洋リランカ島沖",
-  "5-1 南方海域前面", "5-2 珊瑚諸島沖", "5-3 サブ島沖海域", "5-4 サーモン海域", "5-5 [Extra] サーモン海域北方",
-  "6-1 中部海域哨戒線", "6-2 MS諸島沖", "6-3 グアノ環礁沖海域",
-]
-
+// bonus for training crusier as flagship
 const bonusExpScaleFlagship = [
   [5, 8, 11, 15, 20],
   [10, 13, 16, 20, 25],
 ]
 
+// bonus for training crusier as flagship
 const bonusExpScaleNonFlagship = [
   [3, 5, 7, 10, 15],
   [4, 6, 8, 12, 17.5],
 ]
 
-function getBonusType(lv) {
-  return lv < 10 ? 0 : 10 <= lv && lv < 30 ? 1 : 30 <= lv && lv < 60 ? 2 : 60 <= lv && lv < 100 ? 3 : 4
+const getBonusType = (lv) => {
+  if (lv < 10) {
+    return 0
+  }
+  if (lv >= 10 && lv < 30) {
+    return 1
+  }
+  if (lv >= 30 && lv < 60) {
+    return 2
+  }
+  if (lv >= 60 && lv < 100) {
+    return 3
+  }
+  return 4
 }
 
-// selectors
-const remodelLvSelector = createSelector(
-  [constSelector],
-  ({$ships={}}) => {
-    const remodelLvs = {}
-    Object.keys($ships).forEach(shipId => {
-      if (typeof $ships[shipId].api_aftershipid == 'undefined') return
-      let remodelLv = [($ships[shipId].api_afterlv)]
-      let nextShipId = parseInt($ships[shipId].api_aftershipid)
-      while (nextShipId != 0 && remodelLv[remodelLv.length - 1] < $ships[nextShipId].api_afterlv) {
-        remodelLv.push($ships[nextShipId].api_afterlv)
-        nextShipId = parseInt($ships[nextShipId].api_aftershipid)
+const expClass = [
+  'Basic',
+  'Flagship',
+  'MVP',
+  'MVP and flagship',
+]
+
+const handleResponse = (e) => {
+  const { path, body } = e.detail
+  if (path === '/kcsapi/api_req_member/get_practice_enemyinfo') {
+    const enemyShips = body.api_deck.api_ships
+    let baseExp = (exp[enemyShips[0].api_level] / 100) + (exp[get(enemyShips, [1, 'api_level'], 1)] / 300)
+    baseExp = baseExp <= 500 ? baseExp : 500 + Math.floor(Math.sqrt(baseExp - 500))
+    const bonusStr = []
+    let bonusFlag = false
+    const state = window.getStore()
+    const fleets = range(4).map(fleetId => fleetShipsIdSelectorFactory(fleetId)(state))
+    const ships = shipExpDataSelector(state)
+
+
+    each(fleets, (fleet) => {
+      if (!fleet) {
+        return
       }
-      remodelLvs[shipId] = remodelLv
+      let flagshipFlag = false
+      let trainingLv = 0
+      let trainingCount = 0
+      each(fleet, (id, idx) => {
+        const ship = ships[id]
+        if (ship.api_stype === 21) {
+          trainingCount += 1
+          if (!flagshipFlag) {
+            if (ship.api_lv > trainingLv) {
+              trainingLv = ship.api_lv
+            }
+          }
+          if (idx === 0) {
+            flagshipFlag = true
+          }
+        }
+      })
+      if (trainingCount >= 2) {
+        trainingCount = 2
+      }
+      if (trainingCount !== 0) {
+        bonusFlag = true
+        const bonusType = getBonusType(trainingLv)
+        const bonusScale = flagshipFlag
+          ? bonusExpScaleFlagship[trainingCount - 1][bonusType]
+          : bonusExpScaleNonFlagship[trainingCount - 1][bonusType]
+        bonusStr.push(`${bonusScale}%`)
+      } else {
+        bonusStr.push('0%')
+      }
     })
-    return remodelLvs
+
+    let message = `${__('Exp')}: [A/B] ${Math.floor(baseExp)}, [S] ${Math.floor(baseExp * 1.2)}`
+    if (bonusFlag) {
+      message = `${message}, ${__('+ %s for each fleet', bonusStr.join(' '))}`
+    }
+    window.success(message, {
+      priority: 2,
+      stickyFor: 1000,
+    })
   }
-)
+}
 
-const expInfoSelector = memoize((shipId) =>
-  createSelector(
-    [shipDataSelectorFactory(shipId)],
-    ([ship, $ship] = []) =>
-      typeof ship != 'undefined' && typeof $ship != 'undefined' ?
-      {
-        ...$ship,
-        ...ship,
-      }
-      : undefined
-  )
-)
-
-export const reactClass = connect(
-  state => {
-    const ships = get(state, 'info.ships', {})
-
+const ExpCalc = connect(
+  (state) => {
+    const id = get(extensionSelectorFactory('poi-plugin-exp-calc')(state), 'id')
     return ({
+      id,
       horizontal: configLayoutSelector(state),
       doubleTabbed: configDoubleTabbedSelector(state),
-      ships: keyBy(Object.keys(ships).map( shipId => expInfoSelector(parseInt(shipId))(state)), 'api_id'),
-      fleets: [...Array(4).keys()].map(fleetId => fleetShipsIdSelectorFactory(fleetId)(state)),
+      ship: expInfoSelectorFactory(id)(state),
       remodelLvs: remodelLvSelector(state),
+      maps: mapDataSelctor(state),
     })
-  }
-)(class PoiPluginExpCalc extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      lastShipId: 0,
-      currentLevel: 1,
-      nextExp: 100,
-      goalLevel: 99,
-      mapValue: -100,
-      userDefinedValue: -100,
-      mapPercent: 1.2,
-      totalExp: 1000000,
-      lockGoal: false,
-      expSecond: [
-        Math.ceil(1000000 / 100),
-      ],
-      perExp: [
-        100,
-      ],
-      expType: [
-        __("Customized"),
-      ],
-
-      message: null,
-    }
+  },
+)(class ExpCalc extends Component {
+  static propTypes = {
+    id: propTypes.number.isRequired,
+    horizontal: propTypes.string.isRequired,
+    doubleTabbed: propTypes.bool.isRequired,
+    ship: propTypes.object,
+    remodelLvs: propTypes.objectOf(propTypes.array),
+    maps: propTypes.objectOf(propTypes.object),
+    dispatch: propTypes.func,
   }
 
-  componentWillReceiveProps(nextProps) {
-    // if the goalLevel not lock, update the component
-    if (this.state.lastShipId){
-      const {ships} = nextProps
-      const {currentLevel, nextExp, goalLevel} = this.state
-
-      let [_currentLevel, _nextExp, _goalLevel] = this.getExpInfo(this.state.lastShipId, ships)
-      _goalLevel = this.state.lockGoal ?  goalLevel : _goalLevel
-
-      if (!isEqual([_currentLevel, _nextExp, _goalLevel], [currentLevel, nextExp, goalLevel])) { // prevent changes from other props
-        this.handleExpChange(_currentLevel, _nextExp, _goalLevel, this.state.mapValue, this.state.mapPercent)
-      }
-    }
-  }
-
-  getExpInfo(shipId, ships=this.props.ships) {
-    const {api_lv, api_afterlv, api_ship_id, api_exp} = (ships[shipId] || {})
-    if (shipId <= 0) {
-      return [1, 100, 99]
-    }
-    let goalLevel = 99
-    if (api_lv > 99) {
-      goalLevel = MAX_LEVEL
-    } else if (api_afterlv != 0) {
-      const {remodelLvs} = this.props
-      let remodelLv = remodelLvs[api_ship_id] || []
-      for (const lv of remodelLv) {
-        if (lv > api_lv) {
-          goalLevel = lv
-          break
-        }
-      }
-    }
-    return [api_lv, (api_exp || [])[1], goalLevel]
-  }
-
-  updateShip = (shipId = this.state.lastShipId) => {
-    let [_currentLevel, _nextExp, _goalLevel] = this.getExpInfo(shipId)
-    this.handleExpChange(_currentLevel, _nextExp, _goalLevel, this.state.mapValue, this.state.mapPercent)
-  }
-
-  handleShipChange = e => {
-    if (e && e.target && e.target.value != null) {
-      if (e.target.value != this.state.lastShipId) {
-        this.setState({ lastShipId: e.target.value, message: null })
-      }
-      let [currentLevel, nextExp, goalLevel] = this.getExpInfo(e.target.value)
-      this.handleExpChange(currentLevel, nextExp, goalLevel, this.state.mapValue, this.state.mapPercent)
-    }
-  }
-
-  handleExpChange = (_currentLevel=1, _nextExp=100, _goalLevel=99, _mapValue, _mapPercent) => {
-    const currentLevel = parseInt(_currentLevel)
-    const nextExp = parseInt(_nextExp)
-    const goalLevel = parseInt(_goalLevel)
-    const mapValue = parseInt(_mapValue)
-    const mapPercent = parseFloat(_mapPercent)
-    let totalExp = exp[goalLevel] - exp[currentLevel + 1] + nextExp
-
-    let userDefinedValue = this.state.userDefinedValue
-    let noneType, noneRank, expSecond, expType, perExp
-    let message = null
-    if (mapValue > 0) {//represented value
-      noneType = totalExp / mapValue / mapPercent
-      noneRank = mapValue * mapPercent
-      expSecond = [
-        Math.ceil(noneType),
-        Math.ceil(noneType / 1.5),
-        Math.ceil(noneType / 2.0),
-        Math.ceil(noneType / 3.0),
-      ]
-      expType = [
-        __("Basic"),
-        __("Flagship"),
-        __("MVP"),
-        __("MVP and flagship"),
-      ]
-      perExp = [
-        noneRank,
-        noneRank * 1.5,
-        noneRank * 2.0,
-        noneRank * 3.0,
-      ]
-    } else { //Customized value
-      userDefinedValue = mapValue
-      noneType = -totalExp / mapValue
-      noneRank = -mapValue
-      expSecond = [
-        Math.ceil(noneType),
-      ]
-      perExp = [
-        noneRank,
-      ]
-      expType = [
-        __("Customized"),
-      ]
-    }
-    this.setState({
-      currentLevel,
-      nextExp,
-      goalLevel,
-      mapValue,
-      totalExp,
-      expSecond,
-      expType,
-      perExp,
-      message,
-      userDefinedValue,
-      mapPercent,
-    })
-
-  }
-  handleResponse = e => {
-    const { path, body } = e.detail
-    if (path == '/kcsapi/api_req_member/get_practice_enemyinfo') {
-      let enemyShips = body.api_deck.api_ships
-      let baseExp = exp[enemyShips[0].api_level] / 100 + exp[enemyShips[1].api_level != null ? enemyShips[1].api_level : 0] / 300
-      baseExp = baseExp <= 500 ? baseExp : 500 + Math.floor(Math.sqrt(baseExp - 500))
-      let bonusScale = {}
-      let bonusStr = []
-      let bonusFlag = false
-      let message = null
-      const {fleets, ships} = this.props
-      for (const index in fleets) {
-        let fleetShips = fleets[index]
-        if (typeof fleetShips == 'undefined') continue
-        let flagshipFlag = false
-        let trainingLv = 0
-        let trainingCount = 0
-        for (const idx in fleetShips) {
-          let shipId = fleetShips[idx]
-          let ship = ships[shipId]
-          if (ship.api_stype == 21) {
-            trainingCount += 1
-            if (!flagshipFlag) {
-              if (ship.api_lv > trainingLv) {
-                trainingLv = ship.api_lv
-              }
-            }
-            if (idx == 0) {
-              flagshipFlag = true
-            }
-          }
-        }
-        if (trainingCount >= 2) {
-          trainingCount = 2
-        }
-        if (trainingCount != 0) {
-          bonusFlag = true
-          let bonusType = getBonusType(trainingLv)
-          if (flagshipFlag) {
-            bonusScale[index] = bonusExpScaleFlagship[trainingCount - 1][bonusType]
-          } else {
-            bonusScale[index] = bonusExpScaleNonFlagship[trainingCount - 1][bonusType]
-          }
-          bonusStr.push(`${ bonusScale[index] }%`)
-        } else {
-          bonusScale[index] = 0
-          bonusStr.push(`0%`)
-        }
-      }
-      message = `${ __('Exp') }: [A/B] ${ Math.floor(baseExp) }, [S] ${ Math.floor(baseExp * 1.2) }`
-      if (bonusFlag) {
-        message = `${ message }, ${ __("+ %s for each fleet", bonusStr.join(' ')) }`
-      }
-      if (message != null) {
-        successFlag = true
-        this.setState({ message: message })
-      }
-    }
-  }
-  handleCurrentLevelChange = e => {
-    this.handleExpChange(Math.max(1, e.target.value), this.state.nextExp, this.state.goalLevel, this.state.mapValue, this.state.mapPercent)
-  }
-  handleNextExpChange = e => {
-    this.handleExpChange(this.state.currentLevel, e.target.value, this.state.goalLevel, this.state.mapValue, this.state.mapPercent)
-  }
-  handleGoalLevelChange = e => {
-    this.handleExpChange(this.state.currentLevel, this.state.nextExp, Math.max(1, e.target.value), this.state.mapValue, this.state.mapPercent)
-  }
-  handleExpMapChange = e => {
-    this.handleExpChange(this.state.currentLevel, this.state.nextExp, this.state.goalLevel, e.target.value, this.state.mapPercent)
-  }
-  handleExpLevelChange = e => {
-    this.handleExpChange(this.state.currentLevel, this.state.nextExp, this.state.goalLevel, this.state.mapValue, e.target.value)
-  }
-  handleUserDefinedExpChange = e => {
-    this.handleExpChange(this.state.currentLevel, this.state.nextExp, this.state.goalLevel, -Math.max(1, e.target.value), this.state.mapPercent)
-  }
-
-  handleShipChange = e => {
-    if (e && e.target.value != this.state.lastShipId) {
-      this.setState({lastShipId : e.target.value})
-      this.updateShip(e.target.value)
-    }
-  }
-
-  handleLock = e => {
-    if(this.state.lockGoal) { // need to unlock and update state
-      this.setState({lockGoal: !this.state.lockGoal})
-      this.updateShip()
-    }
-    else {
-      this.setState({lockGoal: !this.state.lockGoal})
-    }
-  }
-
-  handleSetFirstFleet = (eventKey, e) =>{
-    if (eventKey && eventKey != this.state.lastShipId) {
-      this.setState({lastShipId : eventKey})
-      this.updateShip(eventKey)
-    }
+  state = {
+    mapId: 11,
+    result: 0, // 'S'
+    startLevel: 1,
+    nextExp: exp[2] - exp[1],
+    endLevel: MAX_LEVEL,
+    lockGoal: false,
+    mapExp: 100,
   }
 
   componentDidMount = () => {
-    window.addEventListener('game.response', this.handleResponse)
+    window.addEventListener('game.response', handleResponse)
   }
-  componentWillUnmount = () => {
-    window.removeEventListener('game.response', this.handleResponse)
-  }
-  componentDidUpdate = () => {
-    if (successFlag) {
-      successFlag = false
-      window.success(this.state.message, {
-        priority: 2,
-        stickyFor: 1000,
+
+  componentWillReceiveProps = (nextProps) => {
+    const { id, ship, remodelLvs } = nextProps
+    if (this.props.id !== id) {
+      const level = get(ship, ['api_lv'], 0)
+      const shipId = get(ship, ['api_ship_id'], 0)
+      const endLevel = this.state.lockGoal
+        ? this.state.endLevel
+        : find(remodelLvs[shipId], lv => lv > level) || MAX_LEVEL
+      this.setState({
+        startLevel: level,
+        endLevel,
       })
     }
   }
 
+  componentWillUnmount = () => {
+    window.removeEventListener('game.response', handleResponse)
+  }
+
+  handleShipChange = (e) => {
+    const id = e.target.value
+    this.props.dispatch({
+      type: '@@poi-plugin-exp-calc@select',
+      id,
+    })
+  }
+
+  handleShipSelect = (id, startLevel, nextExp) => {
+    this.props.dispatch({
+      type: '@@poi-plugin-exp-calc@select',
+      id,
+    })
+    if (id === 0) {
+      this.setState({
+        startLevel,
+        nextExp,
+      })
+    }
+  }
+
+  handleResultChange = result => () => {
+    this.setState({
+      result,
+    })
+  }
+
+  handleMapSelect = (mapId, mapExp = 100) => {
+    this.setState({
+      mapId,
+      mapExp,
+    })
+  }
+
+  handleStartLevelChange = (e) => {
+    this.setState({
+      startLevel: e.target.value,
+    })
+  }
+
+  handleEndLevelChange = ({ endLevel }) => {
+    this.setState({
+      endLevel: parseInt(endLevel, 10),
+    })
+  }
+
+  handleEndLevelSelect = (endLevel) => {
+    this.setState({
+      endLevel,
+    })
+  }
+
+  handleNextExpChange = (e) => {
+    this.setState({
+      nextExp: e.target.value,
+    })
+  }
+
+  handleLockChange = () => {
+    this.setState({
+      lockGoal: !this.state.lockGoal,
+    })
+  }
 
   render() {
-    const {horizontal, doubleTabbed, fleets} = this.props
-    let row = (horizontal == 'horizontal' || doubleTabbed) ? 6 : 3
-    let shipRow = (horizontal == 'horizontal' || doubleTabbed) ? 12 : 5
-    let mapRow = (horizontal == 'horizontal' || doubleTabbed) ? 7 : 4
-    let rankRow = (horizontal == 'horizontal' || doubleTabbed) ? 5 : 3
-    let nullShip = { api_id: 0, text: __("NULL") }
-    const _ships = this.props.ships
-    let ships = values(_ships)
-    ships = sortBy(ships, [e => -e.api_lv, e => get(e, 'api_exp.1', 0)])
-    const firstFleet = map(fleets[0], shipId => _ships[shipId])
+    const {
+      endLevel, mapId, result, lockGoal,
+    } = this.state
+    const {
+      horizontal, doubleTabbed, maps, ship = {}, id, remodelLvs,
+    } = this.props
+
+    const startLevel = id > 0 ? ship.api_lv : this.state.startLevel
+    const nextExp = id > 0 ? get(ship, ['api_exp', 1], 0) : this.state.nextExp
+    const totalExp = id > 0
+      ? exp[endLevel] - get(ship, ['api_exp', 0], 0)
+      : (exp[endLevel] - exp[startLevel + 1]) + nextExp
+
+    const percentage = Math.round(((exp[endLevel] - totalExp) / exp[endLevel]) * 100)
+
+    const mapExp = mapId > 0
+      ? (expMap[mapId] || 100)
+      : this.state.mapExp
+    const mapPercent = expPercent[result]
+
+    const baseExp = mapExp * mapPercent
+    const baseCount = Math.max(totalExp / baseExp, 0)
+    const counts = [
+      baseCount,
+      baseCount / 1.5,
+      baseCount / 2.0,
+      baseCount / 3.0,
+    ].map(Math.ceil)
+    const perBattle = [
+      baseExp,
+      baseExp * 1.5,
+      baseExp * 2.0,
+      baseExp * 3.0,
+    ].map(Math.floor)
+
+    const levels = id > 0
+      ? filter(remodelLvs[ship.api_ship_id], lv => lv > ship.api_lv)
+      : [99, MAX_LEVEL]
+
+    const world = maps[mapId] || {}
+
     return (
-      <div id="ExpCalcView" className="ExpCalcView">
+      <div
+        id="exp-calc"
+        className={cls('exp-calc-wrapper', {
+          vertical: horizontal === 'vertical' && !doubleTabbed,
+          horizontal: horizontal === 'horizontal' || doubleTabbed,
+        })}
+      >
         <link rel="stylesheet" href={join(__dirname, 'assets', 'exp-calc.css')} />
-        <Grid>
-          <Col xs={shipRow}>
-            <FormGroup>
-              <ControlLabel>{__("Ship")}</ControlLabel>
-              <InputGroup>
-                <FormControl
-                  componentClass="select"
-                  value={this.state.lastShipId}
-                  onChange={this.handleShipChange}
-                >
-                  <option value={nullShip.api_id}>{nullShip.text}</option>
-                  { ships &&
-                    ships.map(ship =>
-                      <option value={ship.api_id} key={ship.api_id}>
-                        Lv.{ship.api_lv} - {window.i18n.resources.__(ship.api_name || '')}
-                      </option>)
-                  }
-                </FormControl>
-                <DropdownButton
-                  componentClass={InputGroup.Button}
-                  bsStyle="link"
-                  title={__("First fleet")}
-                  id = "first-fleet-select"
-                  onSelect = {this.handleSetFirstFleet}
-                >
-                  {
-                    firstFleet &&
-                    map(firstFleet, (ship)=> typeof ship != undefined ?
-                      <MenuItem
-                        key={ship.api_id}
-                        eventKey={ship.api_id}
-                      >
-                        {window.i18n.resources.__(ship.api_name || '')}
-                      </MenuItem>
-                      :
-                      '' )
-                  }
-                </DropdownButton>
-              </InputGroup>
-            </FormGroup>
-          </Col>
-          <Col xs={mapRow}>
-            <FormGroup>
-              <ControlLabel>{__("Map")}</ControlLabel>
-              <FormControl
-                componentClass="select"
-                onChange={this.handleExpMapChange}
-              >
-                {
-                  Array.from({length: expMap.length}, (v, k) => k).map(idx =>
-                    <option
-                      value={ expValue[idx]>0 ? expValue[idx] : this.state.userDefinedValue}
-                      key={idx}
-                    >
-                      {expMap[idx]}
-                    </option>
-                  )
-                }
-              </FormControl>
-            </FormGroup>
-          </Col>
-          <Col xs={rankRow}>
-            <FormGroup>
-              <ControlLabel>
-                {this.state.mapValue>=0 ? __("Result") : __("Customized Exp")}
-              </ControlLabel>
-              {
-                this.state.mapValue>=0 ?
-                  <FormControl
-                    componentClass="select"
-                    onChange={this.handleExpLevelChange}
-                  >
-                    {
-                      Array.from({length: expLevel.length}, (v, k) => k).map(idx =>
-                        <option
-                          value={expPercent[idx]}
-                          key={idx}
-                        >
-                          {expLevel[idx]}
-                        </option>
-                      )
-                    }
-                  </FormControl>
-                : // Customized exp
-                  <FormControl
-                    type="number"
-                    value={-this.state.userDefinedValue}
-                    onChange={this.handleUserDefinedExpChange}
-                  />
-              }
-            </FormGroup>
-
-
-          </Col>
-          <Col xs={row}>
-            <FormGroup>
-              <ControlLabel>{__("Actual level")}</ControlLabel>
-              <FormControl
-                type="number"
-                value={this.state.currentLevel}
-                onChange={this.handleCurrentLevelChange}
-              />
-            </FormGroup>
-          </Col>
-          <Col xs={row}>
-            <FormGroup>
-              <ControlLabel>{__("To next")}</ControlLabel>
-              <FormControl
-                type="number"
-                value={this.state.nextExp}
-                onChange={this.handleNextExpChange}
-              />
-            </FormGroup>
-          </Col>
-          <Col xs={row}>
-            <FormGroup>
-              <ControlLabel>{__("Goal")}</ControlLabel>
-              <InputGroup>
-                <FormControl
-                  type="number"
-                  value={this.state.goalLevel}
-                  onChange={this.handleGoalLevelChange}
-                />
-                <InputGroup.Button>
-                  <Button
-                    bsStyle={this.state.lockGoal ? "warning" : "link"}
-                    onClick={this.handleLock}
-                    title = {this.state.lockGoal ? __("Unlock") : __("Lock the goal level")}
-                  >
-                    <FontAwesome name={this.state.lockGoal ? "lock" : "unlock"} />
-                  </Button>
-                </InputGroup.Button>
-              </InputGroup>
-            </FormGroup>
-          </Col>
-          <Col xs={row}>
-            <FormGroup>
-              <ControlLabel>{__("Total exp")}</ControlLabel>
-              <FormControl
-                type="number"
-                value={this.state.totalExp}
-                readOnly
-              />
-
-            </FormGroup>
-          </Col>
-        </Grid>
-        <Table>
-          <tbody>
-            <tr key={0}>
-              <td>　</td>
-              <td>{__("Per attack")}</td>
-              <td>{__("Remainder")}</td>
-            </tr>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <ShipDropdown onSelect={this.handleShipSelect} />
             {
-              Array.from({length: this.state.expType.length}, (v, k) => k).map( idx =>
-                <tr key={idx}>
-                  <td>{this.state.expType[idx]}</td>
-                  <td>{this.state.perExp[idx]}</td>
-                  <td>{this.state.expSecond[idx]}</td>
-                </tr>
-              )
+              id > 0
+              ? <div className="ship-name">{window.i18n.resources.__(ship.api_name)}</div>
+              : <div className="ship-name">{__('Custom')}</div>
             }
-          </tbody>
-        </Table>
+            {
+              mapId > 0
+              ? <div>{`${world.api_maparea_id}-${world.api_no} ${world.api_name}`}</div>
+              : <div>{__('Custom')}: {mapExp}</div>
+            }
+            <MapDropdown onSelect={this.handleMapSelect} />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '200%' }}>Lv.{startLevel}</div>
+            </div>
+            <div style={{ flex: 1, textAlign: 'center' }}>
+              <FA name="arrow-right" />
+            </div>
+            <div style={{ textAlign: 'right', flex: 1, whiteSpace: 'nowrap' }}>
+              <div style={{ fontSize: '200%' }}>
+                Lv.
+                <InplaceEdit
+                  validate={text => (+text > 0 && +text <= MAX_LEVEL)}
+                  text={String(endLevel)}
+                  paramName="endLevel"
+                  className="end-level"
+                  activeClassName="end-level-active"
+                  change={this.handleEndLevelChange}
+                  stopPropagation
+                />
+                <LevelDropdown onSelect={this.handleEndLevelSelect} levels={levels} />
+                <Button
+                  bsSize="small"
+                  style={{ background: lockGoal && 'var(--exp-calc-blue)' }}
+                  onClick={this.handleLockChange}
+                >
+                  <FA name="lock" />
+                </Button>
+              </div>
+
+            </div>
+          </div>
+          <div
+            className="exp-progress"
+            style={{
+              background: `linear-gradient(90deg, var(--exp-calc-blue) ${percentage}%, rgba(0, 0, 0, 0) 0%)`,
+            }}
+          >
+            <div style={{ flex: 1 }} >{__('Next')} {nextExp}</div>
+            <div style={{ textAlign: 'right', flex: 1 }}>{__('Remaining')} {totalExp}</div>
+          </div>
+        </div>
+        <div>
+          <div className="result-selection">
+            {
+              range(expLevel.length).map(idx => (
+                <div
+                  className={cls('result-option', {
+                    checked: result === idx,
+                  })}
+                  role="button"
+                  tabIndex="0"
+                  value={idx}
+                  key={idx}
+                  onClick={this.handleResultChange(idx)}
+                >
+                  {expLevel[idx]}
+                </div>
+              ))
+            }
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th />
+                <th>{__('Per attack')}</th>
+                <th>{__('Remainder')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                range(expClass.length).map(idx => (
+                  <tr key={idx}>
+                    <td>{__(expClass[idx])}</td>
+                    <td>{perBattle[idx]}</td>
+                    <td>{counts[idx]}</td>
+                  </tr>
+                  ))
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
     )
-
   }
 })
+
+export const reactClass = ExpCalc
+
+// reducer part
+const initState = {
+  id: 0,
+}
+
+export const reducer = (state = initState, action) => {
+  const { type, id } = action
+  if (type === '@@poi-plugin-exp-calc@select') {
+    return {
+      ...state,
+      id,
+    }
+  }
+  return state
+}

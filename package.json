@@ -1,14 +1,19 @@
 {
   "name": "poi-plugin-exp-calc",
   "description": "Calculate experience value.",
-  "version": "3.4.1",
+  "version": "4.0.0-beta.1",
   "main": "index.es",
-  "dependencies": {},
+  "dependencies": {
+    "react-edit-inplace": "^1.1.1",
+    "wanakana": "^2.3.1"
+  },
   "devDependencies": {
-    "babel-eslint": "^7.1.1",
-    "eslint": "^3.11.1",
-    "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-react": "^6.7.1",
+    "babel-eslint": "^8.0.1",
+    "eslint": "^4.10.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jsx-a11y": "^6.0.2",
+    "eslint-plugin-react": "^7.4.0",
     "poi-util-transpile": "^7.6.2"
   },
   "scripts": {
@@ -36,7 +41,8 @@
     "icon": "fa/calculator",
     "priority": 2,
     "apiVer": {
-      "6.99.99": "3.0.0"
+      "6.99.99": "3.0.0",
+      "7.8.99": "3.4.1"
     }
   }
 }
