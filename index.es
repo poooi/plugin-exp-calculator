@@ -6,7 +6,7 @@ import FA from 'react-fontawesome'
 import InplaceEdit from 'react-edit-inplace'
 import cls from 'classnames'
 
-import { Button, Table } from 'react-bootstrap'
+import { Button, table } from 'react-bootstrap'
 
 import {
   configLayoutSelector,
@@ -270,23 +270,25 @@ const ExpCalc = connect(
       ? exp[endLevel] - get(ship, ['api_exp', 0], 0)
       : (exp[endLevel] - exp[startLevel + 1]) + nextExp
 
+    const percentage = Math.round(((exp[endLevel] - totalExp) / exp[endLevel]) * 100)
+
     const mapExp = expMap[mapId] || 100
     const mapPercent = expPercent[result]
 
     const baseExp = mapExp * mapPercent
     const baseCount = Math.max(totalExp / baseExp, 0)
     const counts = [
-      Math.ceil(baseCount),
-      Math.ceil(baseCount / 1.5),
-      Math.ceil(baseCount / 2.0),
-      Math.ceil(baseCount / 3.0),
-    ]
+      baseCount,
+      baseCount / 1.5,
+      baseCount / 2.0,
+      baseCount / 3.0,
+    ].map(Math.ceil)
     const perBattle = [
       baseExp,
       baseExp * 1.5,
       baseExp * 2.0,
       baseExp * 3.0,
-    ]
+    ].map(Math.floor)
 
     const levels = id > 0
       ? filter(remodelLvs[ship.api_ship_id], lv => lv > ship.api_lv)
@@ -295,28 +297,33 @@ const ExpCalc = connect(
     const world = maps[mapId] || {}
 
     return (
-      <div id="exp-calc" className="exp-calc">
+      <div
+        id="exp-calc"
+        className={cls('exp-calc-wrapper', {
+          vertical: horizontal === 'vertical' && !doubleTabbed,
+          horizontal: horizontal === 'horizontal' || doubleTabbed,
+        })}
+      >
         <link rel="stylesheet" href={join(__dirname, 'assets', 'exp-calc.css')} />
         <div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <ShipDropdown onSelect={this.handleShipSelect} />
             {
               id > 0
-              ? <span className="ship-name">{window.i18n.resources.__(ship.api_name)}</span>
-              : <span className="ship-name">{__('Custom')}</span>
+              ? <div className="ship-name">{window.i18n.resources.__(ship.api_name)}</div>
+              : <div className="ship-name">{__('Custom')}</div>
             }
-            <span>{`${world.api_maparea_id}-${world.api_no} ${world.api_name}`}</span>
+            <div>{`${world.api_maparea_id}-${world.api_no} ${world.api_name}`}</div>
             <MapDropdown onSelect={this.handleMapSelect} />
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <div>
+            <div style={{ flex: 1 }}>
               <div style={{ fontSize: '200%' }}>Lv.{startLevel}</div>
-              <div>{__('Next')} {nextExp}</div>
             </div>
-            <div style={{ flexGrow: 1, textAlign: 'center' }}>
+            <div style={{ flex: 1, textAlign: 'center' }}>
               <FA name="arrow-right" />
             </div>
-            <div style={{ textAlign: 'right' }}>
+            <div style={{ textAlign: 'right', flex: 1, whiteSpace: 'nowrap' }}>
               <div style={{ fontSize: '200%' }}>
                 Lv.
                 <InplaceEdit
@@ -337,47 +344,57 @@ const ExpCalc = connect(
                   <FA name="lock" />
                 </Button>
               </div>
-              <div>{__('Remaining')} {totalExp}</div>
+
             </div>
           </div>
+          <div
+            className="exp-progress"
+            style={{
+              background: `linear-gradient(90deg, var(--exp-calc-blue) ${percentage}%, rgba(0, 0, 0, 0) 0%)`,
+            }}
+          >
+            <div style={{ flex: 1 }} >{__('Next')} {nextExp}</div>
+            <div style={{ textAlign: 'right', flex: 1 }}>{__('Remaining')} {totalExp}</div>
+          </div>
         </div>
-        <Table>
-          <tbody>
-            <tr key={0}>
-              <td>
-                <div className="result-selection">
-                  {
-                    range(expLevel.length).map(idx => (
-                      <div
-                        className={cls('result-option', {
-                          checked: result === idx,
-                        })}
-                        role="button"
-                        tabIndex="0"
-                        value={idx}
-                        key={idx}
-                        onClick={this.handleResultChange(idx)}
-                      >
-                        {expLevel[idx]}
-                      </div>
-                    ))
-                  }
-                </div>
-              </td>
-              <td>{__('Per attack')}</td>
-              <td>{__('Remainder')}</td>
-            </tr>
+        <div>
+          <div className="result-selection">
             {
-              range(expClass.length).map(idx => (
-                <tr key={idx}>
-                  <td>{__(expClass[idx])}</td>
-                  <td>{perBattle[idx]}</td>
-                  <td>{counts[idx]}</td>
-                </tr>
-                ))
+              range(expLevel.length).map(idx => (
+                <div
+                  className={cls('result-option', {
+                    checked: result === idx,
+                  })}
+                  role="button"
+                  tabIndex="0"
+                  value={idx}
+                  key={idx}
+                  onClick={this.handleResultChange(idx)}
+                >
+                  {expLevel[idx]}
+                </div>
+              ))
             }
-          </tbody>
-        </Table>
+          </div>
+          <table>
+            <thead>
+              <th />
+              <th>{__('Per attack')}</th>
+              <th>{__('Remainder')}</th>
+            </thead>
+            <tbody>
+              {
+                range(expClass.length).map(idx => (
+                  <tr key={idx}>
+                    <td>{__(expClass[idx])}</td>
+                    <td>{perBattle[idx]}</td>
+                    <td>{counts[idx]}</td>
+                  </tr>
+                  ))
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
     )
   }

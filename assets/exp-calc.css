@@ -11,6 +11,22 @@
   outline: none;
 }
 
+#exp-calc.exp-calc-wrapper {
+  display: flex;
+}
+
+#exp-calc.exp-calc-wrapper >div {
+  flex-grow: 1;
+}
+
+#exp-calc.vertical {
+  flex-direction: column;
+}
+
+#exp-calc.horizontal {
+  flex-direction: column;
+}
+
 #exp-calc .radio-check {
   display: flex;
   flex-direction: column;
@@ -125,22 +141,36 @@
 
 #exp-calc .result-selection {
   display: flex;
+  justify-content: center;
 }
 
 #exp-calc .result-option {
   font-size: 120%;
-  padding-left: 4px;
-  padding-right: 4px;
-  border-bottom: 1px solid var(--exp-calc-grey);
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 #exp-calc .result-option.checked {
-  border-bottom-color: var(--exp-calc-blue);
   font-weight: 500;
   background: var(--exp-calc-blue);
 }
 
+#exp-calc table {
+  width: 100%;
+}
+
+#exp-calc th,
 #exp-calc tr,
 #exp-calc td {
   vertical-align: middle;
+  line-height: 160%;
+  text-align: center;
+}
+
+.exp-progress {
+  display: flex;
+  margin: 1ex 1em;
+  padding: 0 4px;
+  border: 1px solid var(--exp-calc-blue);
+  transform: skewX(-15deg);
 }
