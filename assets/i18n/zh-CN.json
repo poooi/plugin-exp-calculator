@@ -19,7 +19,7 @@
   "First fleet": "第一舰队",
   "Lock the goal level": "锁定目标等级",
   "Unlock": "解锁",
-  "Customized Exp":"自定义经验值",
+  "Custom Exp":"自定义经验值",
   "Customized":"固定经验值",
   "Custom": "自定义",
   "Next": "下一级",
@@ -35,5 +35,6 @@
   "Others": "别的舰娘",
   "Starting Level": "起始等级",
   "Confirm": "确认",
-  "Clear": "清空"
+  "Clear": "清空",
+  "Search": "搜索"
 }

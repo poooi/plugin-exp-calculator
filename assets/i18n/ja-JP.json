@@ -20,7 +20,7 @@
   "First fleet": "第一艦隊",
   "Lock the goal level": "目標レベルをロックする",
   "Unlock": "ロック解除",
-  "Customized Exp":"経験値設定",
+  "Custom Exp":"経験値設定",
   "Customized":"固定経験値",
   "Custom": "設定",
   "Next": "次のレベルまて",
@@ -36,5 +36,6 @@
   "Others": "その他",
   "Starting Level": "レベル",
   "Confirm": "確認",
-  "Clear": "引き払う"
+  "Clear": "引き払う",
+  "Search": "検索"
 }

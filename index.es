@@ -162,12 +162,6 @@ const ExpCalc = connect(
     dispatch: propTypes.func,
   }
 
-  constructor(props) {
-    super(props)
-
-    this.handleShipSelect = this._handleShipSelect.bind(this)
-  }
-
   state = {
     mapId: 11,
     result: 0, // 'S'
@@ -175,6 +169,7 @@ const ExpCalc = connect(
     nextExp: exp[2] - exp[1],
     endLevel: MAX_LEVEL,
     lockGoal: false,
+    mapExp: 100,
   }
 
   componentDidMount = () => {
@@ -208,7 +203,7 @@ const ExpCalc = connect(
     })
   }
 
-  _handleShipSelect = (id, startLevel, nextExp) => {
+  handleShipSelect = (id, startLevel, nextExp) => {
     this.props.dispatch({
       type: '@@poi-plugin-exp-calc@select',
       id,
@@ -227,9 +222,10 @@ const ExpCalc = connect(
     })
   }
 
-  handleMapSelect = (mapId) => {
+  handleMapSelect = (mapId, mapExp = 100) => {
     this.setState({
       mapId,
+      mapExp,
     })
   }
 
@@ -279,7 +275,9 @@ const ExpCalc = connect(
 
     const percentage = Math.round(((exp[endLevel] - totalExp) / exp[endLevel]) * 100)
 
-    const mapExp = expMap[mapId] || 100
+    const mapExp = mapId > 0
+      ? (expMap[mapId] || 100)
+      : this.state.mapExp
     const mapPercent = expPercent[result]
 
     const baseExp = mapExp * mapPercent
@@ -320,7 +318,11 @@ const ExpCalc = connect(
               ? <div className="ship-name">{window.i18n.resources.__(ship.api_name)}</div>
               : <div className="ship-name">{__('Custom')}</div>
             }
-            <div>{`${world.api_maparea_id}-${world.api_no} ${world.api_name}`}</div>
+            {
+              mapId > 0
+              ? <div>{`${world.api_maparea_id}-${world.api_no} ${world.api_name}`}</div>
+              : <div>{__('Custom')}: {mapExp}</div>
+            }
             <MapDropdown onSelect={this.handleMapSelect} />
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
