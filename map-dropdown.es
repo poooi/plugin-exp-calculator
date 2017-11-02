@@ -75,11 +75,11 @@ const Menu = connect(
                       key={world.api_id}
                       onClick={this.handleSelect(world.api_id)}
                     >
+                      {`${world.api_maparea_id}-${world.api_no}  ${world.api_name}`}
                       {
                         world.api_no > 4 &&
                           <Label>EO</Label>
                       }
-                      {`${world.api_maparea_id}-${world.api_no} ${world.api_name}`}
                     </div>
                   )
                 )

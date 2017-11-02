@@ -95,7 +95,7 @@
   overflow: hidden;
   white-space: nowrap;
   line-height: 200%;
-  width: 15em;
+  width: 18em;
 }
 
 #exp-calc .select-item:hover {
@@ -105,7 +105,7 @@
 #exp-calc .select-item .label {
   background: var(--exp-calc-blue);
   color: white;
-  margin-right: 1ex;
+  margin-left: 1ex;
   font-size: 100%;
 }
 

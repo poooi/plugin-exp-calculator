@@ -3,7 +3,7 @@ import propTypes from 'prop-types'
 import { Dropdown, Button, FormGroup, InputGroup, FormControl, Label, ControlLabel } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import cls from 'classnames'
-import _, { get, values } from 'lodash'
+import _, { get, values, padEnd } from 'lodash'
 import Fuse from 'fuse.js'
 import { RootCloseWrapper } from 'react-overlays'
 import FA from 'react-fontawesome'
@@ -238,11 +238,13 @@ const Menu = connect(
                           key={ship.api_id}
                           onClick={this.handleSelect(ship.api_id)}
                         >
+                          Lv.
+                          <span style={{ width: '4ex', display: 'inline-block' }}>{padEnd(ship.api_lv, 4)}</span>
+                          {window.i18n.resources.__(ship.api_name || '')}
                           {
                             ship.api_id in fleetMap &&
                             <Label>{fleetMap[ship.api_id]}</Label>
                           }
-                          Lv.{ship.api_lv} {window.i18n.resources.__(ship.api_name || '')}
                         </div>
                       )
                     )
