@@ -145,9 +145,12 @@
 }
 
 #exp-calc .result-option {
-  font-size: 120%;
-  padding-left: 8px;
-  padding-right: 8px;
+  font-size: 150%;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  transition: .3s;
 }
 
 #exp-calc .result-option.checked {
@@ -163,11 +166,15 @@
 #exp-calc tr,
 #exp-calc td {
   vertical-align: middle;
-  line-height: 160%;
+  line-height: 200%;
   text-align: center;
 }
 
-.exp-progress {
+#exp-calc td {
+  font-size: 120%;
+}
+
+#exp-calc .exp-progress {
   display: flex;
   margin: 1ex 1em;
   padding: 0 4px;
