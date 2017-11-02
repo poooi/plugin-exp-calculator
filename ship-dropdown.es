@@ -155,7 +155,7 @@ const Menu = connect(
       open, handleRootClose, ships, fleetMap,
     } = this.props
 
-    const filtered = this.fuse.search(query)
+    const filtered = _(this.fuse.search(query)).map(Number).value()
     return (
       <RootCloseWrapper
         disabled={!open}
@@ -221,10 +221,10 @@ const Menu = connect(
                       ship => !catMap[type] || (catMap[type] || []).includes(ship.api_stype)
                     )
                     .filter(
-                      ship => !query || (filtered || []).includes(String(ship.api_id))
+                      ship => !query || (filtered || []).includes(ship.api_id)
                     )
                     .sortBy([
-                      ship => (filtered || []).indexOf(String(ship.api_id)),
+                      ship => (filtered || []).indexOf(ship.api_id),
                       ship => type !== 'fleet' || fleetMap[ship.api_id] || 0,
                       ship => -ship.api_lv,
                       ship => -get(ship, ['api_exp', 0], 0),
