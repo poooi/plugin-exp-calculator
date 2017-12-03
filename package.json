@@ -1,7 +1,7 @@
 {
   "name": "poi-plugin-exp-calc",
   "description": "Calculate experience value.",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "main": "index.es",
   "dependencies": {
     "react-edit-inplace": "^1.1.1",
