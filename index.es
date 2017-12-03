@@ -315,7 +315,7 @@ const ExpCalc = connect(
             <ShipDropdown onSelect={this.handleShipSelect} />
             {
               id > 0
-              ? <div className="ship-name">{window.i18n.resources.__(ship.api_name)}</div>
+              ? <div className="ship-name">{window.i18n.resources.__(ship.api_name || '')}</div>
               : <div className="ship-name">{__('Custom')}</div>
             }
             {
