@@ -4,17 +4,16 @@
   "version": "4.0.3",
   "main": "index.es",
   "dependencies": {
-    "react-edit-inplace": "^1.1.1",
-    "wanakana": "^2.3.1"
+    "react-edit-inplace": "^1.1.1"
   },
   "devDependencies": {
-    "babel-eslint": "^8.0.1",
-    "eslint": "^4.10.0",
+    "babel-eslint": "^8.0.3",
+    "eslint": "^4.13.1",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-jsx-a11y": "^6.0.2",
-    "eslint-plugin-react": "^7.4.0",
-    "poi-util-transpile": "^7.6.2"
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.5.1",
+    "poi-util-transpile": "^8.0.0"
   },
   "scripts": {
     "reset": "git clean -f && git checkout .",
@@ -42,7 +41,8 @@
     "priority": 2,
     "apiVer": {
       "6.99.99": "3.0.0",
-      "7.8.99": "3.4.1"
+      "7.8.99": "3.4.1",
+      "7.99.99": "4.0.3"
     }
   }
 }
