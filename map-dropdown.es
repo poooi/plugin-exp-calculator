@@ -7,6 +7,7 @@ import { RootCloseWrapper } from 'react-overlays'
 import FA from 'react-fontawesome'
 
 import { mapDataSelctor } from './selectors'
+import { frequentMaps } from './constants'
 
 const { i18n } = window
 const __ = i18n['poi-plugin-exp-calc'].__.bind(i18n['poi-plugin-exp-calc'])
@@ -32,7 +33,7 @@ const Menu = connect(
 
   handleSelect = mapId => () => this.props.onSelect(mapId)
 
-  handleCustomExpChange = (e) => this.setState({ exp: e.target.value })
+  handleCustomExpChange = e => this.setState({ exp: e.target.value })
 
   handleSetCustomExp = () => this.props.onSelect(0, this.state.exp)
 
@@ -62,6 +63,24 @@ const Menu = connect(
                 </InputGroup.Button>
               </InputGroup>
             </FormGroup>
+            <div className="shortcut">
+              {
+                _(frequentMaps).map(
+                  mapId => (
+                    <div
+                      className="select-item"
+                      role="button"
+                      tabIndex="0"
+                      key={mapId}
+                      onClick={this.handleSelect(mapId)}
+                    >
+                      {Math.floor(mapId / 10)}-{mapId % 10}
+                    </div>
+                  )
+                )
+                .value()
+              }
+            </div>
             <div className="selection">
               {
                 _(maps)

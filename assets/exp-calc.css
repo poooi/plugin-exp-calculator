@@ -181,3 +181,19 @@
   border: 1px solid var(--exp-calc-blue);
   transform: skewX(-15deg);
 }
+
+#exp-calc .shortcut {
+  display: flex;
+}
+
+#exp-calc .shortcut .select-item {
+  width: initial;
+  flex-grow: 1;
+  font-weight: 600;
+  text-align: center;
+  line-height: 3em;
+}
+
+#exp-calc .form-group {
+  margin-bottom: initial;
+}

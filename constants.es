@@ -198,6 +198,8 @@ export const expMap = {
   62: 420,
 }
 
+export const frequentMaps = [15, 23, 32, 43, 51, 53, 54]
+
 // ship types dated 20170106, beginning with id=1
 // const shipTypes = ["海防艦", "駆逐艦", "軽巡洋艦", "重雷装巡洋艦",
 // "重巡洋艦", "航空巡洋艦", "軽空母", "戦艦", "戦艦", "航空戦艦", "正規空母",
