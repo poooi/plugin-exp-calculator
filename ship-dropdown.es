@@ -1,6 +1,14 @@
 import React, { Component, PureComponent } from 'react'
 import propTypes from 'prop-types'
-import { Dropdown, Button, FormGroup, InputGroup, FormControl, Label, ControlLabel } from 'react-bootstrap'
+import {
+  Dropdown,
+  Button,
+  FormGroup,
+  InputGroup,
+  FormControl,
+  Label,
+  ControlLabel,
+} from 'react-bootstrap'
 import { connect } from 'react-redux'
 import cls from 'classnames'
 import _, { get, values, padEnd } from 'lodash'
@@ -14,7 +22,10 @@ import { shipExpDataSelector, shipFleetMapSelector } from './selectors'
 const { i18n } = window
 const __ = i18n['poi-plugin-exp-calc'].__.bind(i18n['poi-plugin-exp-calc'])
 
-const catMap = _(shipCat).map(({ name, id }) => ([name, id])).fromPairs().value()
+const catMap = _(shipCat)
+  .map(({ name, id }) => [name, id])
+  .fromPairs()
+  .value()
 
 const searchOptions = [
   {
@@ -29,30 +40,28 @@ const searchOptions = [
     name: 'All',
     value: 'all',
   },
-  ..._(shipCat).map(({ name }) => ({ name, value: name })).value(),
+  ..._(shipCat)
+    .map(({ name }) => ({ name, value: name }))
+    .value(),
 ]
 
 const RadioCheck = ({ options, value: currentValue, onChange }) => (
   <div className="radio-check">
-    {
-    options.map(({ name, value }) =>
-      (
-        <div
-          key={name}
-          role="button"
-          tabIndex="0"
-          onClick={onChange(value)}
-          className={cls('filter-option', {
-            checked: currentValue === value,
-            dark: window.isDarkTheme,
-            light: !window.isDarkTheme,
-          })}
-        >
-          {__(name)}
-        </div>
-      )
-    )
-  }
+    {options.map(({ name, value }) => (
+      <div
+        key={name}
+        role="button"
+        tabIndex="0"
+        onClick={onChange(value)}
+        className={cls('filter-option', {
+          checked: currentValue === value,
+          dark: window.isDarkTheme,
+          light: !window.isDarkTheme,
+        })}
+      >
+        {__(name)}
+      </div>
+    ))}
   </div>
 )
 
@@ -62,179 +71,188 @@ RadioCheck.propTypes = {
   onChange: propTypes.func,
 }
 
-const Menu = connect(
-  state => ({
-    ships: shipExpDataSelector(state),
-    fleetMap: shipFleetMapSelector(state),
-  })
-)(class Menu extends Component {
-  static propTypes = {
-    ships: propTypes.objectOf(propTypes.object).isRequired,
-    fleetMap: propTypes.objectOf(propTypes.number).isRequired,
-    open: propTypes.bool.isRequired,
-    handleRootClose: propTypes.func.isRequired,
-    onSelect: propTypes.func.isRequired,
-  }
-
-  constructor(props) {
-    super(props)
-
-    const options = {
-      keys: ['api_name', 'api_yomi', 'romaji'],
-      id: 'api_id',
-      shouldSort: true,
+const Menu = connect(state => ({
+  ships: shipExpDataSelector(state),
+  fleetMap: shipFleetMapSelector(state),
+}))(
+  class Menu extends Component {
+    static propTypes = {
+      ships: propTypes.objectOf(propTypes.object).isRequired,
+      fleetMap: propTypes.objectOf(propTypes.number).isRequired,
+      open: propTypes.bool.isRequired,
+      handleRootClose: propTypes.func.isRequired,
+      onSelect: propTypes.func.isRequired,
     }
-    this.fuse = new Fuse(values(props.ships), options)
-  }
 
-  state = {
-    query: '',
-    type: 'all',
-    startLevel: 1,
-    nextExp: exp[2] - exp[1],
-  }
+    constructor(props) {
+      super(props)
 
-  componentWillReceiveProps = (nextProps) => {
-    if ((nextProps.open || this.props.open !== nextProps.open) &&
-      values(this.props.ships).length !== values(nextProps.ships).length
-    ) {
-      this.fuse.list = values(nextProps.ships)
+      const options = {
+        keys: ['api_name', 'api_yomi', 'romaji'],
+        id: 'api_id',
+        shouldSort: true,
+      }
+      this.fuse = new Fuse(values(props.ships), options)
     }
-  }
 
-  shouldComponentUpdate = nextProps =>
-    nextProps.open || this.props.open !== nextProps.open
-
-  handleQueryChange = (e) => {
-    this.setState({
-      query: e.target.value,
-    })
-  }
-
-  handleTypeChange = value => async () => {
-    await this.setState({
-      type: value,
-    })
-    if (this.selection) {
-      this.selection.scrollTop = 0
-    }
-  }
-
-  handleClear = () => {
-    this.setState({
+    state = {
       query: '',
-    })
-  }
+      type: 'all',
+      startLevel: 1,
+      nextExp: exp[2] - exp[1],
+    }
 
-  handleSelect = id => async () => {
-    this.props.handleRootClose()
-    this.props.onSelect(id)
-  }
+    componentWillReceiveProps = nextProps => {
+      if (
+        (nextProps.open || this.props.open !== nextProps.open) &&
+        values(this.props.ships).length !== values(nextProps.ships).length
+      ) {
+        this.fuse.list = values(nextProps.ships)
+      }
+    }
 
-  handleStartLevelChange = (e) => {
-    const startLevel = +e.target.value
-    this.setState({
-      startLevel,
-      nextExp: (exp[startLevel + 1] || 0) - exp[startLevel],
-    })
-  }
+    shouldComponentUpdate = nextProps =>
+      nextProps.open || this.props.open !== nextProps.open
 
-  handleNextExpChange = (e) => {
-    this.setState({
-      nextExp: +e.target.value,
-    })
-  }
+    handleQueryChange = e => {
+      this.setState({
+        query: e.target.value,
+      })
+    }
 
-  handleConfirmCustom = () => {
-    const { startLevel, nextExp } = this.state
-    this.props.handleRootClose()
-    this.props.onSelect(0, startLevel, nextExp)
-  }
+    handleTypeChange = value => async () => {
+      await this.setState({
+        type: value,
+      })
+      if (this.selection) {
+        this.selection.scrollTop = 0
+      }
+    }
 
-  render() {
-    const {
-      query, type, startLevel, nextExp,
-    } = this.state
-    const {
-      open, handleRootClose, ships, fleetMap,
-    } = this.props
+    handleClear = () => {
+      this.setState({
+        query: '',
+      })
+    }
 
-    const filtered = _(this.fuse.search(query)).map(Number).value()
-    return (
-      <RootCloseWrapper
-        disabled={!open}
-        onRootClose={handleRootClose}
-        event="click"
-      >
-        <ul className="dropdown-menu pull-right" id="exp-calc-ship-menu">
-          <div>
-            <FormGroup>
-              <InputGroup>
-                <FormControl
-                  type="text"
-                  value={query}
-                  placeholder={__('Search')}
-                  onChange={this.handleQueryChange}
+    handleSelect = id => async () => {
+      this.props.handleRootClose()
+      this.props.onSelect(id)
+    }
+
+    handleStartLevelChange = e => {
+      const startLevel = +e.target.value
+      this.setState({
+        startLevel,
+        nextExp: (exp[startLevel + 1] || 0) - exp[startLevel],
+      })
+    }
+
+    handleNextExpChange = e => {
+      this.setState({
+        nextExp: +e.target.value,
+      })
+    }
+
+    handleConfirmCustom = () => {
+      const { startLevel, nextExp } = this.state
+      this.props.handleRootClose()
+      this.props.onSelect(0, startLevel, nextExp)
+    }
+
+    render() {
+      const { query, type, startLevel, nextExp } = this.state
+      const { open, handleRootClose, ships, fleetMap } = this.props
+
+      const filtered = _(this.fuse.search(query))
+        .map(Number)
+        .value()
+      return (
+        <RootCloseWrapper
+          disabled={!open}
+          onRootClose={handleRootClose}
+          event="click"
+        >
+          <ul className="dropdown-menu pull-right" id="exp-calc-ship-menu">
+            <div>
+              <FormGroup>
+                <InputGroup>
+                  <FormControl
+                    type="text"
+                    value={query}
+                    placeholder={__('Search')}
+                    onChange={this.handleQueryChange}
+                  />
+                  <InputGroup.Button>
+                    <Button onClick={this.handleClear} bsStyle="danger">
+                      {__('Clear')}
+                    </Button>
+                  </InputGroup.Button>
+                </InputGroup>
+              </FormGroup>
+
+              <div className="ship-select">
+                <RadioCheck
+                  options={searchOptions}
+                  value={type}
+                  label={__('Ship Type')}
+                  onChange={this.handleTypeChange}
                 />
-                <InputGroup.Button>
-                  <Button onClick={this.handleClear} bsStyle="danger">{__('Clear')}</Button>
-                </InputGroup.Button>
-              </InputGroup>
-            </FormGroup>
-
-            <div className="ship-select">
-              <RadioCheck
-                options={searchOptions}
-                value={type}
-                label={__('Ship Type')}
-                onChange={this.handleTypeChange}
-              />
-              {
-                type === 'custom' &&
-                <div className="selection">
-                  <div style={{ paddingLeft: '8px', paddingRight: '8px' }}>
-                    <FormGroup>
-                      <ControlLabel>{__('Starting level')}</ControlLabel>
-                      <FormControl
-                        type="number"
-                        value={startLevel}
-                        onChange={this.handleStartLevelChange}
-                      />
-                    </FormGroup>
-                    <FormGroup>
-                      <ControlLabel>{__('To next')}</ControlLabel>
-                      <FormControl
-                        type="number"
-                        value={nextExp}
-                        onChange={this.handleNextExpChange}
-                      />
-                    </FormGroup>
-                    <Button bsStyle="primary" onClick={this.handleConfirmCustom}>{__('Confirm')}</Button>
+                {type === 'custom' && (
+                  <div className="selection">
+                    <div style={{ paddingLeft: '8px', paddingRight: '8px' }}>
+                      <FormGroup>
+                        <ControlLabel>{__('Starting level')}</ControlLabel>
+                        <FormControl
+                          type="number"
+                          value={startLevel}
+                          onChange={this.handleStartLevelChange}
+                        />
+                      </FormGroup>
+                      <FormGroup>
+                        <ControlLabel>{__('To next')}</ControlLabel>
+                        <FormControl
+                          type="number"
+                          value={nextExp}
+                          onChange={this.handleNextExpChange}
+                        />
+                      </FormGroup>
+                      <Button
+                        bsStyle="primary"
+                        onClick={this.handleConfirmCustom}
+                      >
+                        {__('Confirm')}
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              }
-              {
-                type !== 'custom' &&
-                <div className="selection" ref={(ref) => { this.selection = ref }}>
-                  {
-                    _(ships)
-                    .filter(
-                      ship => type !== 'fleet' || ship.api_id in fleetMap
-                    )
-                    .filter(
-                      ship => !catMap[type] || (catMap[type] || []).includes(ship.api_stype)
-                    )
-                    .filter(
-                      ship => !query || (filtered || []).includes(ship.api_id)
-                    )
-                    .sortBy([
-                      ship => (filtered || []).indexOf(ship.api_id),
-                      ship => type !== 'fleet' || fleetMap[ship.api_id] || 0,
-                      ship => -ship.api_lv,
-                      ship => -get(ship, ['api_exp', 0], 0),
-                    ])
-                    .map(
-                      ship => (
+                )}
+                {type !== 'custom' && (
+                  <div
+                    className="selection"
+                    ref={ref => {
+                      this.selection = ref
+                    }}
+                  >
+                    {_(ships)
+                      .filter(
+                        ship => type !== 'fleet' || ship.api_id in fleetMap,
+                      )
+                      .filter(
+                        ship =>
+                          !catMap[type] ||
+                          (catMap[type] || []).includes(ship.api_stype),
+                      )
+                      .filter(
+                        ship =>
+                          !query || (filtered || []).includes(ship.api_id),
+                      )
+                      .sortBy([
+                        ship => (filtered || []).indexOf(ship.api_id),
+                        ship => type !== 'fleet' || fleetMap[ship.api_id] || 0,
+                        ship => -ship.api_lv,
+                        ship => -get(ship, ['api_exp', 0], 0),
+                      ])
+                      .map(ship => (
                         <div
                           className="select-item"
                           role="button"
@@ -243,26 +261,28 @@ const Menu = connect(
                           onClick={this.handleSelect(ship.api_id)}
                         >
                           Lv.
-                          <span style={{ width: '4ex', display: 'inline-block' }}>{padEnd(ship.api_lv, 4)}</span>
+                          <span
+                            style={{ width: '4ex', display: 'inline-block' }}
+                          >
+                            {padEnd(ship.api_lv, 4)}
+                          </span>
                           {window.i18n.resources.__(ship.api_name || '')}
-                          {
-                            ship.api_id in fleetMap &&
+                          {ship.api_id in fleetMap && (
                             <Label>{fleetMap[ship.api_id]}</Label>
-                          }
+                          )}
                         </div>
-                      )
-                    )
-                    .value()
-                  }
-                </div>
-              }
+                      ))
+                      .value()}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </ul>
-      </RootCloseWrapper>
-    )
-  }
-})
+          </ul>
+        </RootCloseWrapper>
+      )
+    }
+  },
+)
 
 class ShipDropdown extends PureComponent {
   static propTypes = {
@@ -278,7 +298,7 @@ class ShipDropdown extends PureComponent {
     open: false,
   }
 
-  handleToggle = (isOpen) => {
+  handleToggle = isOpen => {
     if (isOpen !== this.state.open) {
       this.setState({ open: isOpen })
     }
@@ -289,18 +309,19 @@ class ShipDropdown extends PureComponent {
   }
 
   render() {
-    const {
-      open,
-    } = this.state
-    const {
-      onSelect,
-    } = this.props
+    const { open } = this.state
+    const { onSelect } = this.props
     return (
       <Dropdown id="exp-calc-ship" open={open} onToggle={this.handleToggle}>
         <Dropdown.Toggle bsSize="small">
           <FA name="list" />
         </Dropdown.Toggle>
-        <Menu bsRole="menu" open={open} onSelect={onSelect} handleRootClose={this.handleRootClose} />
+        <Menu
+          bsRole="menu"
+          open={open}
+          onSelect={onSelect}
+          handleRootClose={this.handleRootClose}
+        />
       </Dropdown>
     )
   }

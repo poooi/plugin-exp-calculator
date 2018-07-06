@@ -25,4 +25,7 @@ module.exports = {
     'react/forbid-prop-types': 'off',
     'prettier/prettier': 'error',
   },
+  settings: {
+    'import/core-modules': ['react-overlays'],
+  },
 }

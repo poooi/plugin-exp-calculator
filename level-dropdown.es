@@ -19,34 +19,31 @@ class Menu extends Component {
   handleSelect = lv => () => this.props.onSelect(lv)
 
   render() {
-    const {
-      open, handleRootClose, levels,
-    } = this.props
+    const { open, handleRootClose, levels } = this.props
     return (
       <RootCloseWrapper
         disabled={!open}
         onRootClose={handleRootClose}
         event="click"
       >
-        <ul className="dropdown-menu pull-right" style={{ left: 'initial', right: 0 }}>
+        <ul
+          className="dropdown-menu pull-right"
+          style={{ left: 'initial', right: 0 }}
+        >
           <div className="selection">
-            {
-              _(levels)
-              .map(
-                level => (
-                  <div
-                    className="select-item"
-                    role="button"
-                    tabIndex="0"
-                    key={level}
-                    onClick={this.handleSelect(level)}
-                  >
-                    {level}
-                  </div>
-                )
-              )
-              .value()
-            }
+            {_(levels)
+              .map(level => (
+                <div
+                  className="select-item"
+                  role="button"
+                  tabIndex="0"
+                  key={level}
+                  onClick={this.handleSelect(level)}
+                >
+                  {level}
+                </div>
+              ))
+              .value()}
           </div>
         </ul>
       </RootCloseWrapper>
@@ -69,7 +66,7 @@ class LevelDropdown extends PureComponent {
     open: false,
   }
 
-  handleToggle = (isOpen) => {
+  handleToggle = isOpen => {
     if (isOpen !== this.state.open) {
       this.setState({ open: isOpen })
     }
@@ -80,18 +77,25 @@ class LevelDropdown extends PureComponent {
   }
 
   render() {
-    const {
-      open,
-    } = this.state
-    const {
-      onSelect, levels,
-    } = this.props
+    const { open } = this.state
+    const { onSelect, levels } = this.props
     return (
-      <Dropdown id="exp-calc-level" open={open} onToggle={this.handleToggle} pullRight>
+      <Dropdown
+        id="exp-calc-level"
+        open={open}
+        onToggle={this.handleToggle}
+        pullRight
+      >
         <Dropdown.Toggle bsSize="small">
           <FA name="star" />
         </Dropdown.Toggle>
-        <Menu bsRole="menu" open={open} onSelect={onSelect} handleRootClose={this.handleRootClose} levels={levels} />
+        <Menu
+          bsRole="menu"
+          open={open}
+          onSelect={onSelect}
+          handleRootClose={this.handleRootClose}
+          levels={levels}
+        />
       </Dropdown>
     )
   }
