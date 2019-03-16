@@ -70,15 +70,17 @@ export const mapDataSelctor = createSelector(
 
 const fleetsSelector = state => state.info.fleets
 
-export const shipFleetMapSelector = createSelector([fleetsSelector], fleets =>
-  _(fleets)
-    .filter(Boolean)
-    .flatMap(fleet =>
-      _(fleet.api_ship)
-        .filter(id => id > 0)
-        .map(id => [id, fleet.api_id])
-        .value(),
-    )
-    .fromPairs()
-    .value(),
+export const shipFleetMapSelector = createSelector(
+  [fleetsSelector],
+  fleets =>
+    _(fleets)
+      .filter(Boolean)
+      .flatMap(fleet =>
+        _(fleet.api_ship)
+          .filter(id => id > 0)
+          .map(id => [id, fleet.api_id])
+          .value(),
+      )
+      .fromPairs()
+      .value(),
 )

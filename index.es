@@ -167,6 +167,7 @@ const ExpCalc = connect(state => {
     }
 
     componentWillReceiveProps = nextProps => {
+      /* eslint-disable react/no-access-state-in-setstate */
       const { id, ship, remodelLvs } = nextProps
       if (this.props.id !== id) {
         const level = get(ship, ['api_lv'], 0)
@@ -179,6 +180,7 @@ const ExpCalc = connect(state => {
           endLevel,
         })
       }
+      /* eslint-enable react/no-access-state-in-setstate */
     }
 
     componentWillUnmount = () => {
@@ -244,9 +246,9 @@ const ExpCalc = connect(state => {
     }
 
     handleLockChange = () => {
-      this.setState({
-        lockGoal: !this.state.lockGoal,
-      })
+      this.setState(prevState => ({
+        lockGoal: !prevState.lockGoal,
+      }))
     }
 
     render() {

@@ -24,6 +24,7 @@ module.exports = {
     'react/no-multi-comp': 'off',
     'react/forbid-prop-types': 'off',
     'prettier/prettier': 'error',
+    'react/destructuring-assignment': 'off',
   },
   settings: {
     'import/core-modules': ['react-overlays'],
