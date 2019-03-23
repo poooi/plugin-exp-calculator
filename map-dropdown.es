@@ -28,12 +28,18 @@ const MapList = styled.ul`
   margin: 0;
   max-height: 20em;
   overflow: scroll;
+
   ::-webkit-scrollbar {
     width: 1em;
   }
+
   ::-webkit-scrollbar-thumb {
     background: ${props => props.theme.BLUE1};
     width: 1em;
+  }
+
+  span {
+    cursor: pointer;
   }
 `
 
@@ -118,11 +124,7 @@ const MapDropdown = connect(state => ({
                     tabIndex="0"
                     key={world.api_id}
                     onClick={this.handleSelect(world.api_id)}
-                    className={cls(
-                      Classes.POPOVER_DISMISS,
-                      Classes.BUTTON,
-                      Classes.MINIMAL,
-                    )}
+                    className={cls(Classes.POPOVER_DISMISS, Classes.MENU_ITEM)}
                   >
                     <MapId>
                       {world.api_maparea_id}-{world.api_no}

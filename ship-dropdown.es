@@ -62,12 +62,18 @@ const ShipList = styled.ul`
   height: 30em;
   overflow: scroll;
   width: 20em;
+
   ::-webkit-scrollbar {
     width: 1em;
   }
+
   ::-webkit-scrollbar-thumb {
     background: ${props => props.theme.BLUE1};
     width: 1em;
+  }
+
+  span {
+    cursor: pointer;
   }
 `
 
@@ -237,8 +243,7 @@ const Menu = connect(state => ({
                           onClick={this.handleSelect(ship.api_id)}
                           className={cls(
                             Classes.POPOVER_DISMISS,
-                            Classes.BUTTON,
-                            Classes.MINIMAL,
+                            Classes.MENU_ITEM,
                           )}
                         >
                           <ShipLv>Lv.{padEnd(ship.api_lv, 4)}</ShipLv>
