@@ -19,9 +19,9 @@ import {
   mapDataSelctor,
 } from '../selectors'
 
-import ShipDropdown from './ship-dropdown'
-import LevelDropdown from './level-dropdown'
-import MapDropdown from './map-dropdown'
+import ShipSelect from './select/ship'
+import LevelSelect from './select/level'
+import MapSelect from './select/map'
 
 import {
   exp,
@@ -265,7 +265,7 @@ const ExpCalc = connect(state => {
         <PluginContainer>
           <div>
             <div>
-              <ShipDropdown
+              <ShipSelect
                 onSelect={this.handleShipSelect}
                 text={
                   id > 0
@@ -273,7 +273,7 @@ const ExpCalc = connect(state => {
                     : __('Custom')
                 }
               />
-              <MapDropdown
+              <MapSelect
                 onSelect={this.handleMapSelect}
                 text={
                   mapId > 0
@@ -301,7 +301,7 @@ const ExpCalc = connect(state => {
                   change={this.handleEndLevelChange}
                   stopPropagation
                 />
-                <LevelDropdown
+                <LevelSelect
                   onSelect={this.handleEndLevelSelect}
                   levels={levels}
                 />
