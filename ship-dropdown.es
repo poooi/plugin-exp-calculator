@@ -184,7 +184,7 @@ const Menu = connect(state => ({
             }
           />
 
-          <Tabs vertical id="ship-selection">
+          <Tabs vertical id="ship-selection" renderActiveTabPanelOnly>
             <Tab
               id="custom"
               title={__('Custom')}
