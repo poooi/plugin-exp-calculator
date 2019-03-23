@@ -312,14 +312,14 @@ const ExpCalc = connect(state => {
           />
           <div>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <ShipDropdown onSelect={this.handleShipSelect} />
-              {id > 0 ? (
-                <div className="ship-name">
-                  {window.i18n.resources.__(ship.api_name || '')}
-                </div>
-              ) : (
-                <div className="ship-name">{__('Custom')}</div>
-              )}
+              <ShipDropdown
+                onSelect={this.handleShipSelect}
+                text={
+                  id > 0
+                    ? window.i18n.resources.__(ship.api_name || '')
+                    : __('Custom')
+                }
+              />
               <MapDropdown
                 onSelect={this.handleMapSelect}
                 text={
