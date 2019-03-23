@@ -320,16 +320,16 @@ const ExpCalc = connect(state => {
               ) : (
                 <div className="ship-name">{__('Custom')}</div>
               )}
-              {mapId > 0 ? (
-                <div>{`${world.api_maparea_id}-${world.api_no} ${
-                  world.api_name
-                }`}</div>
-              ) : (
-                <div>
-                  {__('Custom')}: {mapExp}
-                </div>
-              )}
-              <MapDropdown onSelect={this.handleMapSelect} />
+              <MapDropdown
+                onSelect={this.handleMapSelect}
+                text={
+                  mapId > 0
+                    ? `${world.api_maparea_id}-${world.api_no} ${
+                        world.api_name
+                      }`
+                    : `${__('Custom')}: ${mapExp}`
+                }
+              />
             </div>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div style={{ flex: 1 }}>
