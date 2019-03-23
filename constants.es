@@ -250,3 +250,19 @@ export const shipCat = [
     id: [15, 16, 17, 19, 20, 22],
   },
 ]
+
+export const MAX_LEVEL = Object.keys(exp).length
+
+// battle result
+export const expLevel = ['S', 'A', 'B', 'C', 'D']
+
+// exp effect for battle results
+export const expPercent = [1.2, 1.0, 1.0, 0.8, 0.7]
+
+// bonus for training crusier as flagship
+export const bonusExpScaleFlagship = [[5, 8, 11, 15, 20], [10, 13, 16, 20, 25]]
+
+// bonus for training crusier as flagship
+export const bonusExpScaleNonFlagship = [[3, 5, 7, 10, 15], [4, 6, 8, 12, 17.5]]
+
+export const expClass = ['Basic', 'Flagship', 'MVP', 'MVP and flagship']

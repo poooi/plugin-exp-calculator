@@ -17,8 +17,8 @@ import styled from 'styled-components'
 import FA from 'react-fontawesome'
 import cls from 'classnames'
 
-import { mapDataSelctor } from './selectors'
-import { frequentMaps } from './constants'
+import { mapDataSelctor } from '../selectors'
+import { frequentMaps } from '../constants'
 
 const { i18n } = window
 const __ = i18n['poi-plugin-exp-calc'].__.bind(i18n['poi-plugin-exp-calc'])

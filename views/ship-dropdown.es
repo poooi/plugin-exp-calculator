@@ -20,8 +20,8 @@ import Fuse from 'fuse.js'
 import FA from 'react-fontawesome'
 import styled from 'styled-components'
 
-import { shipCat, exp } from './constants'
-import { shipExpDataSelector, shipFleetMapSelector } from './selectors'
+import { shipCat, exp } from '../constants'
+import { shipExpDataSelector, shipFleetMapSelector } from '../selectors'
 
 const { i18n } = window
 const __ = i18n['poi-plugin-exp-calc'].__.bind(i18n['poi-plugin-exp-calc'])
