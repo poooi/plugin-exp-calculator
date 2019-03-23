@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import propTypes from 'prop-types'
 import { connect } from 'react-redux'
-import _ from 'lodash'
+import { map } from 'lodash'
 import {
   Popover,
   Button,
@@ -102,38 +102,33 @@ const MapDropdown = connect(state => ({
               </ControlGroup>
             </div>
             <ButtonGroup minimal>
-              {_(frequentMaps)
-                .map(mapId => (
-                  <Button
-                    intent={Intent.PRIMARY}
-                    key={mapId}
-                    onClick={this.handleSelect(mapId)}
-                    className={Classes.POPOVER_DISMISS}
-                  >
-                    {Math.floor(mapId / 10)}-{mapId % 10}
-                  </Button>
-                ))
-                .value()}
+              {map(frequentMaps, mapId => (
+                <Button
+                  intent={Intent.PRIMARY}
+                  key={mapId}
+                  onClick={this.handleSelect(mapId)}
+                  className={Classes.POPOVER_DISMISS}
+                >
+                  {Math.floor(mapId / 10)}-{mapId % 10}
+                </Button>
+              ))}
             </ButtonGroup>
             <MapList>
-              {_(maps)
-                .filter(world => world.api_id < 63)
-                .map(world => (
-                  <MapItem
-                    role="button"
-                    tabIndex="0"
-                    key={world.api_id}
-                    onClick={this.handleSelect(world.api_id)}
-                    className={cls(Classes.POPOVER_DISMISS, Classes.MENU_ITEM)}
-                  >
-                    <MapId>
-                      {world.api_maparea_id}-{world.api_no}
-                    </MapId>
-                    <MapName>{world.api_name}</MapName>
-                    {world.api_no > 4 && <Tag intent={Intent.PRIMARY}>EO</Tag>}
-                  </MapItem>
-                ))
-                .value()}
+              {map(maps, world => (
+                <MapItem
+                  role="button"
+                  tabIndex="0"
+                  key={world.api_id}
+                  onClick={this.handleSelect(world.api_id)}
+                  className={cls(Classes.POPOVER_DISMISS, Classes.MENU_ITEM)}
+                >
+                  <MapId>
+                    {world.api_maparea_id}-{world.api_no}
+                  </MapId>
+                  <MapName>{world.api_name}</MapName>
+                  {world.api_no > 4 && <Tag intent={Intent.PRIMARY}>EO</Tag>}
+                </MapItem>
+              ))}
             </MapList>
           </div>
         </Popover>

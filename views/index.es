@@ -24,7 +24,7 @@ import LevelSelect from './select/level'
 import ResultTable from './table'
 import ResultSelection from './result'
 
-import { exp, expMap, MAX_LEVEL, expPercent } from '../constants'
+import { exp, EXP_BY_POI_DB, MAX_LEVEL, expPercent } from '../constants'
 
 const { i18n } = window
 const __ = i18n['poi-plugin-exp-calc'].__.bind(i18n['poi-plugin-exp-calc'])
@@ -188,7 +188,7 @@ const ExpCalc = connect(state => {
         ((exp[endLevel] - totalExp) / exp[endLevel]) * 100,
       )
 
-      const mapExp = mapId > 0 ? expMap[mapId] || 100 : this.state.mapExp
+      const mapExp = mapId > 0 ? EXP_BY_POI_DB[mapId] || 100 : this.state.mapExp
       const mapPercent = expPercent[rank]
 
       const levels =
