@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { get, range, find, filter } from 'lodash'
+import { get, find, filter } from 'lodash'
 import FA from 'react-fontawesome'
 import InplaceEdit from 'react-edit-inplace'
 import { Button, Intent } from '@blueprintjs/core'
@@ -21,10 +21,10 @@ import {
 
 import ShipSelect from './select/ship'
 import LevelSelect from './select/level'
-import MapSelect from './select/map'
 import ResultTable from './table'
+import ResultSelection from './result'
 
-import { exp, expMap, MAX_LEVEL, expPercent, expLevel } from '../constants'
+import { exp, expMap, MAX_LEVEL, expPercent } from '../constants'
 
 const { i18n } = window
 const __ = i18n['poi-plugin-exp-calc'].__.bind(i18n['poi-plugin-exp-calc'])
@@ -69,22 +69,6 @@ const ExpProgress = styled.div.attrs(props => ({
   }
 `
 
-const RankSelection = styled.div`
-  display: flex;
-  justify-content: center;
-`
-
-const RankSelectionItem = styled.div`
-  font-size: 150%;
-  width: 30px;
-  height: 30px;
-  text-align: center;
-  line-height: 30px;
-  transition: 0.3s;
-  font-weight: ${props => props.checked && 500};
-  background: ${props => props.checked && props.theme.BLUE5};
-`
-
 const ExpCalc = connect(state => {
   const id = get(extensionSelectorFactory('poi-plugin-exp-calc')(state), 'id')
   return {
@@ -107,7 +91,7 @@ const ExpCalc = connect(state => {
 
     state = {
       mapId: 11,
-      result: 0, // 'S'
+      rank: 0, // 'S'
       startLevel: 1,
       nextExp: exp[2] - exp[1],
       endLevel: MAX_LEVEL,
@@ -146,9 +130,9 @@ const ExpCalc = connect(state => {
       }
     }
 
-    handleResultChange = result => () => {
+    handleRankChange = rank => () => {
       this.setState({
-        result,
+        rank,
       })
     }
 
@@ -190,7 +174,7 @@ const ExpCalc = connect(state => {
     }
 
     render() {
-      const { endLevel, mapId, result, lockGoal } = this.state
+      const { endLevel, mapId, rank, lockGoal } = this.state
       const { maps, ship = {}, id, remodelLvs } = this.props
 
       const startLevel = id > 0 ? ship.api_lv : this.state.startLevel
@@ -205,7 +189,7 @@ const ExpCalc = connect(state => {
       )
 
       const mapExp = mapId > 0 ? expMap[mapId] || 100 : this.state.mapExp
-      const mapPercent = expPercent[result]
+      const mapPercent = expPercent[rank]
 
       const levels =
         id > 0
@@ -224,16 +208,6 @@ const ExpCalc = connect(state => {
                   id > 0
                     ? window.i18n.resources.__(ship.api_name || '')
                     : __('Custom')
-                }
-              />
-              <MapSelect
-                onSelect={this.handleMapSelect}
-                text={
-                  mapId > 0
-                    ? `${world.api_maparea_id}-${world.api_no} ${
-                        world.api_name
-                      }`
-                    : `${__('Custom')}: ${mapExp}`
                 }
               />
             </div>
@@ -276,26 +250,22 @@ const ExpCalc = connect(state => {
             </ExpProgress>
           </div>
           <div>
-            <RankSelection>
-              {range(expLevel.length).map(idx => (
-                <RankSelectionItem
-                  checked={result === idx}
-                  role="button"
-                  tabIndex="0"
-                  value={idx}
-                  key={idx}
-                  onClick={this.handleResultChange(idx)}
-                >
-                  {expLevel[idx]}
-                </RankSelectionItem>
-              ))}
-            </RankSelection>
+            <ResultSelection
+              onMapSelect={this.handleMapSelect}
+              text={
+                mapId > 0
+                  ? `${world.api_maparea_id}-${world.api_no} ${world.api_name}`
+                  : `${__('Custom')}: ${mapExp}`
+              }
+              onRankChange={this.handleRankChange}
+              rank={rank}
+            />
+            <ResultTable
+              mapExp={mapExp}
+              mapPercent={mapPercent}
+              totalExp={totalExp}
+            />
           </div>
-          <ResultTable
-            mapExp={mapExp}
-            mapPercent={mapPercent}
-            totalExp={totalExp}
-          />
         </PluginContainer>
       )
     }

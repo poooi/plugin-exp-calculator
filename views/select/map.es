@@ -81,7 +81,7 @@ const MapDropdown = connect(state => ({
       const { exp } = this.state
       return (
         <Popover position={Position.BOTTOM} minimal>
-          <Button>
+          <Button minimal>
             <FA name="map" /> {text}
           </Button>
           <div>
