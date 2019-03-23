@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { get, range, find, filter } from 'lodash'
 import FA from 'react-fontawesome'
 import InplaceEdit from 'react-edit-inplace'
-import { Button, HTMLTable, Intent } from '@blueprintjs/core'
+import { Button, Intent } from '@blueprintjs/core'
 import styled from 'styled-components'
 
 import {
@@ -22,15 +22,9 @@ import {
 import ShipSelect from './select/ship'
 import LevelSelect from './select/level'
 import MapSelect from './select/map'
+import ResultTable from './table'
 
-import {
-  exp,
-  expMap,
-  MAX_LEVEL,
-  expClass,
-  expPercent,
-  expLevel,
-} from '../constants'
+import { exp, expMap, MAX_LEVEL, expPercent, expLevel } from '../constants'
 
 const { i18n } = window
 const __ = i18n['poi-plugin-exp-calc'].__.bind(i18n['poi-plugin-exp-calc'])
@@ -90,32 +84,6 @@ const RankSelectionItem = styled.div`
   font-weight: ${props => props.checked && 500};
   background: ${props => props.checked && props.theme.BLUE5};
 `
-
-const ResultTable = ({ perBattle, counts }) => (
-  <HTMLTable>
-    <thead>
-      <tr>
-        <th />
-        <th>{__('Per attack')}</th>
-        <th>{__('Remainder')}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {range(expClass.length).map(idx => (
-        <tr key={idx}>
-          <td>{__(expClass[idx])}</td>
-          <td>{perBattle[idx]}</td>
-          <td>{counts[idx]}</td>
-        </tr>
-      ))}
-    </tbody>
-  </HTMLTable>
-)
-
-ResultTable.propTypes = {
-  perBattle: PropTypes.arrayOf(PropTypes.number).isRequired,
-  counts: PropTypes.arrayOf(PropTypes.number).isRequired,
-}
 
 const ExpCalc = connect(state => {
   const id = get(extensionSelectorFactory('poi-plugin-exp-calc')(state), 'id')
@@ -239,21 +207,6 @@ const ExpCalc = connect(state => {
       const mapExp = mapId > 0 ? expMap[mapId] || 100 : this.state.mapExp
       const mapPercent = expPercent[result]
 
-      const baseExp = mapExp * mapPercent
-      const baseCount = Math.max(totalExp / baseExp, 0)
-      const counts = [
-        baseCount,
-        baseCount / 1.5,
-        baseCount / 2.0,
-        baseCount / 3.0,
-      ].map(Math.ceil)
-      const perBattle = [
-        baseExp,
-        baseExp * 1.5,
-        baseExp * 2.0,
-        baseExp * 3.0,
-      ].map(Math.floor)
-
       const levels =
         id > 0
           ? filter(remodelLvs[ship.api_ship_id], lv => lv > ship.api_lv)
@@ -338,7 +291,11 @@ const ExpCalc = connect(state => {
               ))}
             </RankSelection>
           </div>
-          <ResultTable perBattle={perBattle} counts={counts} />
+          <ResultTable
+            mapExp={mapExp}
+            mapPercent={mapPercent}
+            totalExp={totalExp}
+          />
         </PluginContainer>
       )
     }
