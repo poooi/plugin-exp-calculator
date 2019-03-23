@@ -1,13 +1,11 @@
 import React, { Component } from 'react'
-import propTypes from 'prop-types'
-import { join } from 'path-extra'
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { get, range, find, each, filter } from 'lodash'
 import FA from 'react-fontawesome'
 import InplaceEdit from 'react-edit-inplace'
-import cls from 'classnames'
-
-import { Button } from 'react-bootstrap'
+import { Button, HTMLTable, Intent } from '@blueprintjs/core'
+import styled from 'styled-components'
 
 import {
   configLayoutSelector,
@@ -130,6 +128,88 @@ const handleResponse = e => {
   }
 }
 
+const PluginContainer = styled.div`
+  padding: 1ex 1em;
+`
+
+const LevelSection = styled.div`
+  font-size: 200%;
+  display: flex;
+  align-items: center;
+
+  div:nth-child(2) {
+    flex: 1;
+    text-align: center;
+  }
+
+  div:last-child {
+    text-align: right;
+  }
+`
+
+const ExpProgress = styled.div.attrs(props => ({
+  background: `linear-gradient(90deg, ${props.theme.BLUE5} ${
+    props.percentage
+  }%, rgba(0, 0, 0, 0) 0%)`,
+}))`
+  display: flex;
+  margin: 1ex 1em;
+  padding: 0 4px;
+  border: 1px solid ${props => props.theme.BLUE5};
+  transform: skewX(-15deg);
+  background: ${props => props.background};
+
+  span {
+    flex: 1;
+  }
+
+  span:last-child {
+    text-align: right;
+  }
+`
+
+const RankSelection = styled.div`
+  display: flex;
+  justify-content: center;
+`
+
+const RankSelectionItem = styled.div`
+  font-size: 150%;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  transition: 0.3s;
+  font-weight: ${props => props.checked && 500};
+  background: ${props => props.checked && props.theme.BLUE5};
+`
+
+const ResultTable = ({ perBattle, counts }) => (
+  <HTMLTable>
+    <thead>
+      <tr>
+        <th />
+        <th>{__('Per attack')}</th>
+        <th>{__('Remainder')}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {range(expClass.length).map(idx => (
+        <tr key={idx}>
+          <td>{__(expClass[idx])}</td>
+          <td>{perBattle[idx]}</td>
+          <td>{counts[idx]}</td>
+        </tr>
+      ))}
+    </tbody>
+  </HTMLTable>
+)
+
+ResultTable.propTypes = {
+  perBattle: PropTypes.arrayOf(PropTypes.number).isRequired,
+  counts: PropTypes.arrayOf(PropTypes.number).isRequired,
+}
+
 const ExpCalc = connect(state => {
   const id = get(extensionSelectorFactory('poi-plugin-exp-calc')(state), 'id')
   return {
@@ -143,13 +223,11 @@ const ExpCalc = connect(state => {
 })(
   class ExpCalc extends Component {
     static propTypes = {
-      id: propTypes.number.isRequired,
-      horizontal: propTypes.string.isRequired,
-      doubleTabbed: propTypes.bool.isRequired,
-      ship: propTypes.object,
-      remodelLvs: propTypes.objectOf(propTypes.array),
-      maps: propTypes.objectOf(propTypes.object),
-      dispatch: propTypes.func,
+      id: PropTypes.number.isRequired,
+      ship: PropTypes.object,
+      remodelLvs: PropTypes.objectOf(PropTypes.array),
+      maps: PropTypes.objectOf(PropTypes.object),
+      dispatch: PropTypes.func,
     }
 
     state = {
@@ -160,39 +238,32 @@ const ExpCalc = connect(state => {
       endLevel: MAX_LEVEL,
       lockGoal: false,
       mapExp: 100,
+      id: 0,
     }
 
     componentDidMount = () => {
       window.addEventListener('game.response', handleResponse)
     }
 
-    componentWillReceiveProps = nextProps => {
-      /* eslint-disable react/no-access-state-in-setstate */
+    static getDerivedStateFromProps = (nextProps, prevState) => {
       const { id, ship, remodelLvs } = nextProps
-      if (this.props.id !== id) {
+      if (prevState.id !== id) {
         const level = get(ship, ['api_lv'], 0)
         const shipId = get(ship, ['api_ship_id'], 0)
-        const endLevel = this.state.lockGoal
-          ? this.state.endLevel
+        const endLevel = prevState.lockGoal
+          ? prevState.endLevel
           : find(remodelLvs[shipId], lv => lv > level) || MAX_LEVEL
-        this.setState({
+        return {
           startLevel: level,
           endLevel,
-        })
+          id,
+        }
       }
-      /* eslint-enable react/no-access-state-in-setstate */
+      return { id }
     }
 
     componentWillUnmount = () => {
       window.removeEventListener('game.response', handleResponse)
-    }
-
-    handleShipChange = e => {
-      const id = e.target.value
-      this.props.dispatch({
-        type: '@@poi-plugin-exp-calc@select',
-        id,
-      })
     }
 
     handleShipSelect = (id, startLevel, nextExp) => {
@@ -253,14 +324,7 @@ const ExpCalc = connect(state => {
 
     render() {
       const { endLevel, mapId, result, lockGoal } = this.state
-      const {
-        horizontal,
-        doubleTabbed,
-        maps,
-        ship = {},
-        id,
-        remodelLvs,
-      } = this.props
+      const { maps, ship = {}, id, remodelLvs } = this.props
 
       const startLevel = id > 0 ? ship.api_lv : this.state.startLevel
       const nextExp = id > 0 ? get(ship, ['api_exp', 1], 0) : this.state.nextExp
@@ -299,19 +363,9 @@ const ExpCalc = connect(state => {
       const world = maps[mapId] || {}
 
       return (
-        <div
-          id="exp-calc"
-          className={cls('exp-calc-wrapper', {
-            vertical: horizontal === 'vertical' && !doubleTabbed,
-            horizontal: horizontal === 'horizontal' || doubleTabbed,
-          })}
-        >
-          <link
-            rel="stylesheet"
-            href={join(__dirname, 'assets', 'exp-calc.css')}
-          />
+        <PluginContainer>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div>
               <ShipDropdown
                 onSelect={this.handleShipSelect}
                 text={
@@ -331,62 +385,49 @@ const ExpCalc = connect(state => {
                 }
               />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '200%' }}>Lv.{startLevel}</div>
-              </div>
-              <div style={{ flex: 1, textAlign: 'center' }}>
+            <LevelSection>
+              <div>Lv.{startLevel}</div>
+              <div>
                 <FA name="arrow-right" />
               </div>
-              <div
-                style={{ textAlign: 'right', flex: 1, whiteSpace: 'nowrap' }}
-              >
-                <div style={{ fontSize: '200%' }}>
-                  Lv.
-                  <InplaceEdit
-                    validate={text => +text > 0 && +text <= MAX_LEVEL}
-                    text={String(endLevel)}
-                    paramName="endLevel"
-                    className="end-level"
-                    activeClassName="end-level-active"
-                    change={this.handleEndLevelChange}
-                    stopPropagation
-                  />
-                  <LevelDropdown
-                    onSelect={this.handleEndLevelSelect}
-                    levels={levels}
-                  />
-                  <Button
-                    bsSize="small"
-                    style={{ background: lockGoal && 'var(--exp-calc-blue)' }}
-                    onClick={this.handleLockChange}
-                  >
-                    <FA name="lock" />
-                  </Button>
-                </div>
+
+              <div>
+                Lv.
+                <InplaceEdit
+                  validate={text => +text > 0 && +text <= MAX_LEVEL}
+                  text={String(endLevel)}
+                  paramName="endLevel"
+                  className="end-level"
+                  activeClassName="end-level-active"
+                  change={this.handleEndLevelChange}
+                  stopPropagation
+                />
+                <LevelDropdown
+                  onSelect={this.handleEndLevelSelect}
+                  levels={levels}
+                />
+                <Button
+                  intent={lockGoal ? Intent.PRIMARY : Intent.NONE}
+                  onClick={this.handleLockChange}
+                >
+                  <FA name="lock" />
+                </Button>
               </div>
-            </div>
-            <div
-              className="exp-progress"
-              style={{
-                background: `linear-gradient(90deg, var(--exp-calc-blue) ${percentage}%, rgba(0, 0, 0, 0) 0%)`,
-              }}
-            >
-              <div style={{ flex: 1 }}>
+            </LevelSection>
+            <ExpProgress percentage={percentage}>
+              <span>
                 {__('Next')} {nextExp}
-              </div>
-              <div style={{ textAlign: 'right', flex: 1 }}>
+              </span>
+              <span>
                 {__('Remaining')} {totalExp}
-              </div>
-            </div>
+              </span>
+            </ExpProgress>
           </div>
           <div>
-            <div className="result-selection">
+            <RankSelection>
               {range(expLevel.length).map(idx => (
-                <div
-                  className={cls('result-option', {
-                    checked: result === idx,
-                  })}
+                <RankSelectionItem
+                  checked={result === idx}
                   role="button"
                   tabIndex="0"
                   value={idx}
@@ -394,29 +435,12 @@ const ExpCalc = connect(state => {
                   onClick={this.handleResultChange(idx)}
                 >
                   {expLevel[idx]}
-                </div>
+                </RankSelectionItem>
               ))}
-            </div>
-            <table>
-              <thead>
-                <tr>
-                  <th />
-                  <th>{__('Per attack')}</th>
-                  <th>{__('Remainder')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {range(expClass.length).map(idx => (
-                  <tr key={idx}>
-                    <td>{__(expClass[idx])}</td>
-                    <td>{perBattle[idx]}</td>
-                    <td>{counts[idx]}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            </RankSelection>
           </div>
-        </div>
+          <ResultTable perBattle={perBattle} counts={counts} />
+        </PluginContainer>
       )
     }
   },
@@ -424,7 +448,8 @@ const ExpCalc = connect(state => {
 
 export const reactClass = ExpCalc
 
-// reducer part
+// reducer
+// FIXME: we store selected ship id in store to reduce unnecessary updates
 const initState = {
   id: 0,
 }
