@@ -218,18 +218,6 @@ export const frequentMaps = [15, 23, 32, 43, 51, 53, 54]
 
 export const shipCat = [
   {
-    name: 'DD',
-    id: [2],
-  },
-  {
-    name: 'CL',
-    id: [3, 4, 21],
-  },
-  {
-    name: 'CA',
-    id: [5, 6],
-  },
-  {
     name: 'BB',
     id: [8, 9, 10, 12],
   },
@@ -238,11 +226,27 @@ export const shipCat = [
     id: [7, 11, 18],
   },
   {
+    name: 'CA',
+    id: [5, 6],
+  },
+  {
+    name: 'CL',
+    id: [3, 4, 21],
+  },
+  {
+    name: 'DD',
+    id: [2],
+  },
+  {
+    name: 'DE',
+    id: [1],
+  },
+  {
     name: 'SS',
     id: [13, 14],
   },
   {
     name: 'Others',
-    id: [1, 15, 16, 17, 19, 20, 22],
+    id: [15, 16, 17, 19, 20, 22],
   },
 ]
