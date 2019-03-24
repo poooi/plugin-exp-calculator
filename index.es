@@ -1,6 +1,7 @@
 import { get, range, each } from 'lodash'
-
 import { fleetShipsIdSelectorFactory } from 'views/utils/selectors'
+import i18next from 'views/env-parts/i18next'
+
 import { shipExpDataSelector } from './selectors'
 import ExpCalc from './views'
 import {
@@ -9,8 +10,7 @@ import {
   bonusExpScaleNonFlagship,
 } from './constants'
 
-const { i18n } = window
-const __ = i18n['poi-plugin-exp-calc'].__.bind(i18n['poi-plugin-exp-calc'])
+const t = i18next.getFixedT(null, 'poi-plugin-exp-calc')
 
 const getBonusType = lv => {
   if (lv < 10) {
@@ -81,11 +81,13 @@ const handleResponse = e => {
       }
     })
 
-    let message = `${__('Exp')}: [A/B] ${Math.floor(baseExp)}, [S] ${Math.floor(
+    let message = `${t('Exp')}: [A/B] ${Math.floor(baseExp)}, [S] ${Math.floor(
       baseExp * 1.2,
     )}`
     if (bonusFlag) {
-      message = `${message}, ${__('+ %s for each fleet', bonusStr.join(' '))}`
+      message = `${message}, ${t('+ {{bonus}} for each fleet', {
+        bonus: bonusStr.join(' '),
+      })}`
     }
     window.success(message, {
       priority: 2,

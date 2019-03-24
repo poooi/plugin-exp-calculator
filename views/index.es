@@ -6,6 +6,8 @@ import FA from 'react-fontawesome'
 import InplaceEdit from 'react-edit-inplace'
 import { Button, Intent } from '@blueprintjs/core'
 import styled from 'styled-components'
+import { withTranslation } from 'react-i18next'
+import { compose } from 'redux'
 
 import {
   configLayoutSelector,
@@ -25,9 +27,6 @@ import ResultTable from './table'
 import ResultSelection from './result'
 
 import { exp, EXP_BY_POI_DB, MAX_LEVEL, expPercent } from '../constants'
-
-const { i18n } = window
-const __ = i18n['poi-plugin-exp-calc'].__.bind(i18n['poi-plugin-exp-calc'])
 
 const PluginContainer = styled.div`
   padding: 1ex 1em;
@@ -69,17 +68,20 @@ const ExpProgress = styled.div.attrs(props => ({
   }
 `
 
-const ExpCalc = connect(state => {
-  const id = get(extensionSelectorFactory('poi-plugin-exp-calc')(state), 'id')
-  return {
-    id,
-    horizontal: configLayoutSelector(state),
-    doubleTabbed: configDoubleTabbedSelector(state),
-    ship: expInfoSelectorFactory(id)(state),
-    remodelLvs: remodelLvSelector(state),
-    maps: mapDataSelctor(state),
-  }
-})(
+const ExpCalc = compose(
+  withTranslation('poi-plugin-exp-calc'),
+  connect(state => {
+    const id = get(extensionSelectorFactory('poi-plugin-exp-calc')(state), 'id')
+    return {
+      id,
+      horizontal: configLayoutSelector(state),
+      doubleTabbed: configDoubleTabbedSelector(state),
+      ship: expInfoSelectorFactory(id)(state),
+      remodelLvs: remodelLvSelector(state),
+      maps: mapDataSelctor(state),
+    }
+  }),
+)(
   class ExpCalc extends Component {
     static propTypes = {
       id: PropTypes.number.isRequired,
@@ -87,6 +89,7 @@ const ExpCalc = connect(state => {
       remodelLvs: PropTypes.objectOf(PropTypes.array),
       maps: PropTypes.objectOf(PropTypes.object),
       dispatch: PropTypes.func,
+      t: PropTypes.func,
     }
 
     state = {
@@ -175,7 +178,7 @@ const ExpCalc = connect(state => {
 
     render() {
       const { endLevel, mapId, rank, lockGoal } = this.state
-      const { maps, ship = {}, id, remodelLvs } = this.props
+      const { maps, ship = {}, id, remodelLvs, t } = this.props
 
       const startLevel = id > 0 ? ship.api_lv : this.state.startLevel
       const nextExp = id > 0 ? get(ship, ['api_exp', 1], 0) : this.state.nextExp
@@ -206,8 +209,8 @@ const ExpCalc = connect(state => {
                 onSelect={this.handleShipSelect}
                 text={
                   id > 0
-                    ? window.i18n.resources.__(ship.api_name || '')
-                    : __('Custom')
+                    ? t(ship.api_name || '', { ns: 'resources' })
+                    : t('Custom')
                 }
               />
             </div>
@@ -242,10 +245,10 @@ const ExpCalc = connect(state => {
             </LevelSection>
             <ExpProgress percentage={percentage}>
               <span>
-                {__('Next')} {nextExp}
+                {t('Next')} {nextExp}
               </span>
               <span>
-                {__('Remaining')} {totalExp}
+                {t('Remaining')} {totalExp}
               </span>
             </ExpProgress>
           </div>
@@ -255,7 +258,7 @@ const ExpCalc = connect(state => {
               text={
                 mapId > 0
                   ? `${world.api_maparea_id}-${world.api_no} ${world.api_name}`
-                  : `${__('Custom')}: ${mapExp}`
+                  : `${t('Custom')}: ${mapExp}`
               }
               onRankChange={this.handleRankChange}
               rank={rank}

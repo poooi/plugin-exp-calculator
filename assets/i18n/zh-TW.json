@@ -16,7 +16,7 @@
   "Per attack": "每場經驗值",
   "Remainder": "剩餘場數",
   "Exp": "演習經驗",
-  "+ %s for each fleet": "諸艦隊練巡加成: %s",
+  "+ {{bonus}} for each fleet": "諸艦隊練巡加成: {{bonus}}",
   "First fleet": "第一艦隊",
   "Lock the goal level": "鎖定目標等級",
   "Unlock": "解鎖",

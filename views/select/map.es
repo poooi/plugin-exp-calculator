@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import propTypes from 'prop-types'
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { map } from 'lodash'
 import {
@@ -17,12 +17,11 @@ import {
 import styled from 'styled-components'
 import FA from 'react-fontawesome'
 import cls from 'classnames'
+import { withTranslation } from 'react-i18next'
+import { compose } from 'redux'
 
 import { mapDataSelctor } from '../../selectors'
 import { frequentMaps } from '../../constants'
-
-const { i18n } = window
-const __ = i18n['poi-plugin-exp-calc'].__.bind(i18n['poi-plugin-exp-calc'])
 
 const MapList = styled.ul`
   padding: 0;
@@ -57,14 +56,18 @@ const MapName = styled.span`
   flex: 1;
 `
 
-const MapDropdown = connect(state => ({
-  maps: mapDataSelctor(state),
-}))(
+const MapDropdown = compose(
+  withTranslation('poi-plugin-exp-calc'),
+  connect(state => ({
+    maps: mapDataSelctor(state),
+  })),
+)(
   class MapDropdown extends Component {
     static propTypes = {
-      maps: propTypes.objectOf(propTypes.object).isRequired,
-      onSelect: propTypes.func.isRequired,
-      text: propTypes.string.isRequired,
+      maps: PropTypes.objectOf(PropTypes.object).isRequired,
+      onSelect: PropTypes.func.isRequired,
+      text: PropTypes.string.isRequired,
+      t: PropTypes.func.isRequired,
     }
 
     state = {
@@ -78,7 +81,7 @@ const MapDropdown = connect(state => ({
     handleSetCustomExp = () => this.props.onSelect(0, this.state.exp)
 
     render() {
-      const { maps, text } = this.props
+      const { maps, text, t } = this.props
       const { exp } = this.state
       return (
         <Popover position={Position.BOTTOM} minimal>
@@ -86,7 +89,7 @@ const MapDropdown = connect(state => ({
             <FA name="map" /> {text}
           </Button>
           <div>
-            <FormGroup inline label={__('Custom Exp')}>
+            <FormGroup inline label={t('Custom Exp')}>
               <ControlGroup fill>
                 <NumericInput
                   value={exp}
@@ -97,7 +100,7 @@ const MapDropdown = connect(state => ({
                   intent={Intent.PRIMARY}
                   className={Classes.POPOVER_DISMISS}
                 >
-                  {__('Confirm')}
+                  {t('Confirm')}
                 </Button>
               </ControlGroup>
             </FormGroup>

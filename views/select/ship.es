@@ -19,12 +19,11 @@ import _, { get, values, padEnd, map } from 'lodash'
 import Fuse from 'fuse.js'
 import FA from 'react-fontawesome'
 import styled from 'styled-components'
+import { withTranslation } from 'react-i18next'
+import { compose } from 'redux'
 
 import { shipCat, exp } from '../../constants'
 import { shipExpDataSelector, shipFleetMapSelector } from '../../selectors'
-
-const { i18n } = window
-const __ = i18n['poi-plugin-exp-calc'].__.bind(i18n['poi-plugin-exp-calc'])
 
 const catMap = _(shipCat)
   .map(({ name, id }) => [name, id])
@@ -90,15 +89,19 @@ const ShipName = styled.span`
   flex: 1;
 `
 
-const Menu = connect(state => ({
-  ships: shipExpDataSelector(state),
-  fleetMap: shipFleetMapSelector(state),
-}))(
+const Menu = compose(
+  withTranslation('poi-plugin-exp-calc'),
+  connect(state => ({
+    ships: shipExpDataSelector(state),
+    fleetMap: shipFleetMapSelector(state),
+  })),
+)(
   class Menu extends Component {
     static propTypes = {
       ships: PropTypes.objectOf(PropTypes.object).isRequired,
       fleetMap: PropTypes.objectOf(PropTypes.number).isRequired,
       onSelect: PropTypes.func.isRequired,
+      t: PropTypes.func.isRequired,
     }
 
     constructor(props) {
@@ -162,7 +165,7 @@ const Menu = connect(state => ({
 
     render() {
       const { query, startLevel, nextExp } = this.state
-      const { ships, fleetMap } = this.props
+      const { ships, fleetMap, t } = this.props
 
       const filtered = _(this.fuse.search(query))
         .map(Number)
@@ -171,7 +174,7 @@ const Menu = connect(state => ({
         <Wrapper>
           <InputGroup
             value={query}
-            placeholder={__('Search')}
+            placeholder={t('Search')}
             onChange={this.handleQueryChange}
             rightElement={
               <Button
@@ -187,16 +190,16 @@ const Menu = connect(state => ({
           <Tabs vertical id="ship-selection" renderActiveTabPanelOnly>
             <Tab
               id="custom"
-              title={__('Custom')}
+              title={t('Custom')}
               panel={
                 <CustomShip>
-                  <FormGroup label={__('Starting level')}>
+                  <FormGroup label={t('Starting level')}>
                     <NumericInput
                       value={startLevel}
                       onValueChange={this.handleStartLevelChange}
                     />
                   </FormGroup>
-                  <FormGroup label={__('To next')}>
+                  <FormGroup label={t('To next')}>
                     <NumericInput
                       value={nextExp}
                       onValueChange={this.handleNextExpChange}
@@ -207,7 +210,7 @@ const Menu = connect(state => ({
                     onClick={this.handleConfirmCustom}
                     className={Classes.POPOVER_DISMISS}
                   >
-                    {__('Confirm')}
+                    {t('Confirm')}
                   </Button>
                 </CustomShip>
               }
@@ -215,7 +218,7 @@ const Menu = connect(state => ({
             {map(searchOptions, ({ name, value: type }) => (
               <Tab
                 id={type}
-                title={__(name)}
+                title={t(name)}
                 panel={
                   <ShipList>
                     {_(ships)
@@ -248,7 +251,7 @@ const Menu = connect(state => ({
                         >
                           <ShipLv>Lv.{padEnd(ship.api_lv, 4)}</ShipLv>
                           <ShipName>
-                            {window.i18n.resources.__(ship.api_name || '')}
+                            {t(ship.api_name || '', { ns: 'resources' })}
                           </ShipName>
                           {ship.api_id in fleetMap && (
                             <Tag intent={Intent.PRIMARY}>
