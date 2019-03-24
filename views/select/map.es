@@ -12,6 +12,7 @@ import {
   Position,
   Intent,
   Classes,
+  FormGroup,
 } from '@blueprintjs/core'
 import styled from 'styled-components'
 import FA from 'react-fontawesome'
@@ -85,12 +86,11 @@ const MapDropdown = connect(state => ({
             <FA name="map" /> {text}
           </Button>
           <div>
-            <div>
+            <FormGroup inline label={__('Custom Exp')}>
               <ControlGroup fill>
                 <NumericInput
                   value={exp}
-                  placeholder={__('Custom Exp')}
-                  onChange={this.handleCustomExpChange}
+                  onValueChange={this.handleCustomExpChange}
                 />
                 <Button
                   onClick={this.handleSetCustomExp}
@@ -100,7 +100,7 @@ const MapDropdown = connect(state => ({
                   {__('Confirm')}
                 </Button>
               </ControlGroup>
-            </div>
+            </FormGroup>
             <ButtonGroup minimal>
               {map(frequentMaps, mapId => (
                 <Button
