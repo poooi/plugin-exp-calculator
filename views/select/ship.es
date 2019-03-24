@@ -53,6 +53,7 @@ const Wrapper = styled.div`
 const CustomShip = styled.div`
   width: 20em;
   height: 30em;
+  padding: 0.5em 1em;
 `
 
 const ShipList = styled.ul`
@@ -193,7 +194,7 @@ const Menu = compose(
               title={t('Custom')}
               panel={
                 <CustomShip>
-                  <FormGroup label={t('Starting level')}>
+                  <FormGroup label={t('Starting Level')}>
                     <NumericInput
                       value={startLevel}
                       onValueChange={this.handleStartLevelChange}
