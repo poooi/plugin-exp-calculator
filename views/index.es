@@ -1,15 +1,26 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Navbar, Tabs, Tab, Alignment } from '@blueprintjs/core'
 import styled from 'styled-components'
+import { observe } from 'redux-observers'
+import { store } from 'views/create-store'
 
+import { dataObserver } from '../reducer'
 import ShipExp from './ship-exp'
 
 const PluginContainer = styled.div`
   padding: 1ex 1em;
 `
 
+let unsubscribe
+
 const ExpCalc = () => {
   const [activeTab, setActiveTab] = useState('ship-exp')
+
+  useEffect(() => {
+    unsubscribe = observe(store, [dataObserver])
+
+    return () => unsubscribe()
+  }, [])
 
   return (
     <div>

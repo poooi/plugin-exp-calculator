@@ -1,11 +1,35 @@
+import { observer } from 'redux-observers'
+import { extensionSelectorFactory } from 'views/utils/selectors'
+import path from 'path'
+import { readJsonSync } from 'fs-extra'
+import { size } from 'lodash'
+
+import FileWriter from './file-writer'
+
+export const PLUGIN_KEY = 'poi-plugin-exp-calc'
+const { APPDATA_PATH } = window
+export const DATA_PATH = path.join(APPDATA_PATH, `${PLUGIN_KEY}.json`)
+
 // reducer
 // FIXME: we store selected ship id in store to reduce unnecessary updates
-const initState = {
+let initState = {
   id: 0,
   staging: {
     mapId: '',
   },
   stats: {},
+}
+
+try {
+  const persistence = readJsonSync(DATA_PATH)
+  initState = {
+    ...persistence,
+    staging: {
+      mapId: '',
+    },
+  }
+} catch (e) {
+  /* do nothing */
 }
 
 const reducer = (state = initState, action) => {
@@ -65,3 +89,13 @@ const reducer = (state = initState, action) => {
 }
 
 export default reducer
+
+const fileWriter = new FileWriter()
+export const dataObserver = observer(
+  extensionSelectorFactory(PLUGIN_KEY),
+  (dispatch, current) => {
+    if (size(current)) {
+      fileWriter.write(DATA_PATH, current)
+    }
+  },
+)
