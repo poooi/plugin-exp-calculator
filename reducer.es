@@ -23,6 +23,7 @@ let initState = {
 try {
   const persistence = readJsonSync(DATA_PATH)
   initState = {
+    ...initState,
     ...persistence,
     staging: {
       mapId: '',
