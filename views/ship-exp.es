@@ -205,13 +205,13 @@ const ExpCalc = compose(
                 onSelect={this.handleShipSelect}
                 text={
                   id > 0
-                    ? t(ship.api_name || '', { ns: 'resources' })
+                    ? t(ship.api_name || 'Unknown', { ns: 'resources' })
                     : t('Custom')
                 }
               />
             </div>
             <LevelSection>
-              <div>Lv.{startLevel}</div>
+              <div>Lv.{startLevel || 1}</div>
               <div>
                 <FA name="arrow-right" />
               </div>
