@@ -104,19 +104,4 @@ export const pluginDidLoad = () =>
 export const pluginWillUnload = () =>
   window.removeEventListener('game.response', handleResponse)
 
-// reducer
-// FIXME: we store selected ship id in store to reduce unnecessary updates
-const initState = {
-  id: 0,
-}
-
-export const reducer = (state = initState, action) => {
-  const { type, id } = action
-  if (type === '@@poi-plugin-exp-calc@select') {
-    return {
-      ...state,
-      id,
-    }
-  }
-  return state
-}
+export reducer from './reducer'
