@@ -218,6 +218,7 @@ const Menu = compose(
             />
             {map(searchOptions, ({ name, value: type }) => (
               <Tab
+                key={type}
                 id={type}
                 title={t(name)}
                 panel={
