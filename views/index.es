@@ -6,6 +6,7 @@ import { store } from 'views/create-store'
 
 import { dataObserver } from '../reducer'
 import ShipExp from './ship-exp'
+import Data from './data'
 
 const PluginContainer = styled.div`
   padding: 1ex 1em;
@@ -39,7 +40,7 @@ const ExpCalc = () => {
       </Navbar>
       <PluginContainer>
         {activeTab === 'ship-exp' && <ShipExp />}
-        {activeTab === 'data' && <div />}
+        {activeTab === 'data' && <Data />}
       </PluginContainer>
     </div>
   )
