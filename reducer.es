@@ -18,6 +18,7 @@ let initState = {
     mapId: '',
   },
   stats: {},
+  override: {},
 }
 
 try {
@@ -34,11 +35,21 @@ try {
 }
 
 const reducer = (state = initState, action) => {
-  const { type, id, body } = action
+  const { type, id, body, mapId, value } = action
   if (type === '@@poi-plugin-exp-calc@select') {
     return {
       ...state,
       id,
+    }
+  }
+
+  if (type === '@@poi-plugin-exp-calc@override-exp') {
+    return {
+      ...state,
+      override: {
+        ...state.override,
+        [mapId]: value,
+      },
     }
   }
 
@@ -77,12 +88,12 @@ const reducer = (state = initState, action) => {
     }
   }
   if (type === '@@Response/kcsapi/api_req_map/start') {
-    const { api_maparea_id: worldId, api_mapinfo_no: mapId } = body
+    const { api_maparea_id: worldId, api_mapinfo_no: currentMapId } = body
     return {
       ...state,
       staging: {
         ...state.staging,
-        mapId: `${worldId}${mapId}`,
+        mapId: `${worldId}${currentMapId}`,
       },
     }
   }
