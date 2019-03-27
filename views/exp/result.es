@@ -4,8 +4,8 @@ import styled from 'styled-components'
 import { range } from 'lodash'
 import FA from 'react-fontawesome'
 
-import MapSelect from './select/map'
-import { expLevel } from '../constants'
+import MapSelect from '../select/map'
+import { expLevel } from '../../constants'
 
 const Selection = styled.div`
   display: flex;

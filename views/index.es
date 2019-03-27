@@ -5,7 +5,7 @@ import { observe } from 'redux-observers'
 import { store } from 'views/create-store'
 
 import { dataObserver } from '../reducer'
-import ShipExp from './ship-exp'
+import ShipExp from './exp'
 import Data from './data'
 
 const PluginContainer = styled.div`

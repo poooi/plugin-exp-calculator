@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { range } from 'lodash'
 import styled from 'styled-components'
 
-import { expClass } from '../constants'
+import { expClass } from '../../constants'
 
 const Wrapper = styled.div`
   display: flex;

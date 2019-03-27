@@ -19,14 +19,14 @@ import {
   remodelLvSelector,
   expInfoSelectorFactory,
   mapDataSelctor,
-} from '../selectors'
+} from '../../selectors'
 
-import ShipSelect from './select/ship'
-import LevelSelect from './select/level'
+import ShipSelect from '../select/ship'
+import LevelSelect from '../select/level'
 import ResultTable from './table'
 import ResultSelection from './result'
 
-import { exp, EXP_BY_POI_DB, MAX_LEVEL, expPercent } from '../constants'
+import { exp, EXP_BY_POI_DB, MAX_LEVEL, expPercent } from '../../constants'
 
 const LevelSection = styled.div`
   font-size: 200%;
