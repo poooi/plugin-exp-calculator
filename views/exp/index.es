@@ -15,18 +15,13 @@ import {
   extensionSelectorFactory,
 } from 'views/utils/selectors'
 
-import {
-  remodelLvSelector,
-  expInfoSelectorFactory,
-  mapDataSelctor,
-} from '../../selectors'
+import { remodelLvSelector, expInfoSelectorFactory } from '../../selectors'
 
 import ShipSelect from '../select/ship'
 import LevelSelect from '../select/level'
-import ResultTable from './table'
-import ResultSelection from './result'
+import Result from './result'
 
-import { exp, EXP_BY_POI_DB, MAX_LEVEL, expPercent } from '../../constants'
+import { exp, MAX_LEVEL } from '../../constants'
 
 const LevelSection = styled.div`
   font-size: 200%;
@@ -74,7 +69,6 @@ const ExpCalc = compose(
       doubleTabbed: configDoubleTabbedSelector(state),
       ship: expInfoSelectorFactory(id)(state),
       remodelLvs: remodelLvSelector(state),
-      maps: mapDataSelctor(state),
     }
   }),
 )(
@@ -83,19 +77,15 @@ const ExpCalc = compose(
       id: PropTypes.number.isRequired,
       ship: PropTypes.object,
       remodelLvs: PropTypes.objectOf(PropTypes.array),
-      maps: PropTypes.objectOf(PropTypes.object),
       dispatch: PropTypes.func,
       t: PropTypes.func,
     }
 
     state = {
-      mapId: 11,
-      rank: 0, // 'S'
       startLevel: 1,
       nextExp: exp[2] - exp[1],
       endLevel: MAX_LEVEL,
       lockGoal: false,
-      mapExp: 100,
       id: 0,
     }
 
@@ -173,8 +163,8 @@ const ExpCalc = compose(
     }
 
     render() {
-      const { endLevel, mapId, rank, lockGoal } = this.state
-      const { maps, ship = {}, id, remodelLvs, t } = this.props
+      const { endLevel, lockGoal } = this.state
+      const { ship = {}, id, remodelLvs, t } = this.props
 
       const startLevel = id > 0 ? ship.api_lv : this.state.startLevel
       const nextExp = id > 0 ? get(ship, ['api_exp', 1], 0) : this.state.nextExp
@@ -187,15 +177,10 @@ const ExpCalc = compose(
         ((exp[endLevel] - totalExp) / exp[endLevel]) * 100,
       )
 
-      const mapExp = mapId > 0 ? EXP_BY_POI_DB[mapId] || 100 : this.state.mapExp
-      const mapPercent = expPercent[rank]
-
       const levels =
         id > 0
           ? filter(remodelLvs[ship.api_ship_id], lv => lv > ship.api_lv)
           : [99, MAX_LEVEL]
-
-      const world = maps[mapId] || {}
 
       return (
         <div>
@@ -249,21 +234,7 @@ const ExpCalc = compose(
             </ExpProgress>
           </div>
           <div>
-            <ResultSelection
-              onMapSelect={this.handleMapSelect}
-              text={
-                mapId > 0
-                  ? `${world.api_maparea_id}-${world.api_no} ${world.api_name}`
-                  : `${t('Custom')}: ${mapExp}`
-              }
-              onRankChange={this.handleRankChange}
-              rank={rank}
-            />
-            <ResultTable
-              mapExp={mapExp}
-              mapPercent={mapPercent}
-              totalExp={totalExp}
-            />
+            <Result totalExp={totalExp} />
           </div>
         </div>
       )

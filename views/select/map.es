@@ -66,8 +66,9 @@ const MapDropdown = compose(
     static propTypes = {
       maps: PropTypes.objectOf(PropTypes.object).isRequired,
       onSelect: PropTypes.func.isRequired,
-      text: PropTypes.string.isRequired,
       t: PropTypes.func.isRequired,
+      mapId: PropTypes.number.isRequired,
+      mapExp: PropTypes.number.isRequired,
     }
 
     state = {
@@ -81,8 +82,16 @@ const MapDropdown = compose(
     handleSetCustomExp = () => this.props.onSelect(0, this.state.exp)
 
     render() {
-      const { maps, text, t } = this.props
+      const { maps, t, mapId, mapExp } = this.props
       const { exp } = this.state
+
+      const current = maps[mapId] || {}
+
+      const text =
+        mapId > 0
+          ? `${current.api_maparea_id}-${current.api_no} ${current.api_name}`
+          : `${t('Custom')}: ${mapExp}`
+
       return (
         <Popover position={Position.BOTTOM} minimal>
           <Button minimal>
@@ -105,14 +114,14 @@ const MapDropdown = compose(
               </ControlGroup>
             </FormGroup>
             <ButtonGroup minimal>
-              {map(frequentMaps, mapId => (
+              {map(frequentMaps, id => (
                 <Button
                   intent={Intent.PRIMARY}
-                  key={mapId}
-                  onClick={this.handleSelect(mapId)}
+                  key={id}
+                  onClick={this.handleSelect(id)}
                   className={Classes.POPOVER_DISMISS}
                 >
-                  {Math.floor(mapId / 10)}-{mapId % 10}
+                  {Math.floor(id / 10)}-{id % 10}
                 </Button>
               ))}
             </ButtonGroup>
