@@ -94,7 +94,7 @@ const ExpTable = connect(state => ({
           config.set('plugin.expCalc.enablePersonalStat', !enablePernsonalStat)
         }
       >
-        {t('Use personal statistics data (if samples are more than 50)')}
+        {t('Use personal statistics data (if samples are more than 30)')}
       </Switch>
       <Table interactive>
         <thead>

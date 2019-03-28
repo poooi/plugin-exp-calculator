@@ -69,6 +69,7 @@ const ResultSelection = ({ totalExp }) => {
         mapExp={mapId > 0 ? EXP_BY_POI_DB[mapId] || 100 : mapExp}
         mapPercent={mapPercent}
         totalExp={totalExp}
+        mapId={mapId}
       />
     </>
   )
