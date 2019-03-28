@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import styled from 'styled-components'
-import { HTMLTable, EditableText } from '@blueprintjs/core'
+import { HTMLTable, EditableText, Switch } from '@blueprintjs/core'
 import { connect } from 'react-redux'
 import { map, get } from 'lodash'
 import { useTranslation } from 'react-i18next'
@@ -11,6 +11,33 @@ import { EXP_BY_POI_DB } from '../constants'
 
 const PluginContainer = styled.div`
   padding: 1ex 1em;
+`
+
+const Table = styled(HTMLTable)`
+  margin: 0 auto;
+
+  thead th {
+    color: #fff;
+    position: sticky;
+    top: -4px;
+
+    :nth-child(1) {
+      background: ${props => props.theme.BLUE5};
+    }
+
+    :nth-child(2) {
+      background: ${props => props.theme.BLUE4};
+    }
+
+    :nth-child(3),
+    :nth-child(4) {
+      background: ${props => props.theme.BLUE3};
+    }
+
+    :nth-child(5) {
+      background: ${props => props.theme.BLUE2};
+    }
+  }
 `
 
 const CustomExpInput = connect((state, { mapId }) => ({
@@ -51,40 +78,55 @@ const CustomExpInput = connect((state, { mapId }) => ({
 const ExpTable = connect(state => ({
   maps: mapDataSelctor(state),
   stats: get(extensionSelectorFactory('poi-plugin-exp-calc')(state), 'stats'),
-}))(({ maps, stats }) => {
+  enablePernsonalStat: get(
+    state.config,
+    'plugin.expCalc.enablePersonalStat',
+    true,
+  ),
+}))(({ maps, stats, enablePernsonalStat }) => {
   const { t } = useTranslation('poi-plugin-exp-calc')
 
   return (
-    <HTMLTable interactive>
-      <thead>
-        <tr>
-          <th>{t('Map')}</th>
-          <th>{t('Poi DB')}</th>
-          <th>{t('Stat')}</th>
-          <th>{t('Samples')}</th>
-          <th>{t('Custom')}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {map(maps, world => {
-          const mapId = `${world.api_maparea_id}${world.api_no}`
+    <div>
+      <Switch
+        checked={enablePernsonalStat}
+        onChange={() =>
+          config.set('plugin.expCalc.enablePersonalStat', !enablePernsonalStat)
+        }
+      >
+        {t('Use personal statistics data (if samples are more than 50)')}
+      </Switch>
+      <Table interactive>
+        <thead>
+          <tr>
+            <th>{t('Map')}</th>
+            <th>{t('Poi DB')}</th>
+            <th>{t('Stat')}</th>
+            <th>{t('Samples')}</th>
+            <th>{t('Custom')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {map(maps, world => {
+            const mapId = `${world.api_maparea_id}${world.api_no}`
 
-          return (
-            <tr key={world.api_id}>
-              <td>
-                {world.api_maparea_id}-{world.api_no} {world.api_name}
-              </td>
-              <td>{EXP_BY_POI_DB[mapId]}</td>
-              <td>{Math.floor(stats[mapId]?.average || 0)}</td>
-              <td>{stats[mapId]?.count || 0}</td>
-              <td>
-                <CustomExpInput mapId={mapId} />
-              </td>
-            </tr>
-          )
-        })}
-      </tbody>
-    </HTMLTable>
+            return (
+              <tr key={world.api_id}>
+                <td>
+                  {world.api_maparea_id}-{world.api_no} {world.api_name}
+                </td>
+                <td>{EXP_BY_POI_DB[mapId]}</td>
+                <td>{Math.floor(stats[mapId]?.average || 0)}</td>
+                <td>{stats[mapId]?.count || 0}</td>
+                <td>
+                  <CustomExpInput mapId={mapId} />
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </Table>
+    </div>
   )
 })
 
