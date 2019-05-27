@@ -52,6 +52,8 @@ const ResultTable = connect((state, { mapId }) => ({
         finalMapExp = personalStat.average
         signal = 'Personal'
       }
+    } else {
+      signal = 'Fixed'
     }
 
     const baseExp = finalMapExp * mapPercent
