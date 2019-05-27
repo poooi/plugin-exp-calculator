@@ -38,5 +38,13 @@
   "Starting Level": "レベル",
   "Confirm": "確認",
   "Clear": "引き払う",
-  "Search": "検索"
+  "Search": "検索",
+  "View Data": "查看數據",
+  "Data": "データ",
+  "Samples": "サンプル",
+  "Stat": "統計",
+  "Click to edit": "クリックして編集",
+  "Fixed": "固定",
+  "Personal": "個人",
+  "Use personal statistics data (if samples are more than 30)": "個人統計データを使用する（サンプルが 30 を超える場合）"
 }

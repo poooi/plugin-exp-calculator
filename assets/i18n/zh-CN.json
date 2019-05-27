@@ -37,5 +37,13 @@
   "Starting Level": "起始等级",
   "Confirm": "确认",
   "Clear": "清空",
-  "Search": "搜索"
+  "Search": "搜索",
+  "View Data": "查看数据",
+  "Data": "数据",
+  "Samples": "样本数",
+  "Stat": "统计值",
+  "Click to edit": "点击以更改",
+  "Fixed": "固定值",
+  "Personal": "个人值",
+  "Use personal statistics data (if samples are more than 30)": "使用个人统计数据（当样本数量大于 30 时）"
 }
