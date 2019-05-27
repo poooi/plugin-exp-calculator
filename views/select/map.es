@@ -94,7 +94,7 @@ const MapDropdown = compose(
 
       return (
         <Popover position={Position.BOTTOM} minimal>
-          <Button minimal>
+          <Button minimal intent={Intent.PRIMARY}>
             <FA name="map" /> {text}
           </Button>
           <div>

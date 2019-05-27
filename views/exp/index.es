@@ -217,10 +217,11 @@ const ExpCalc = compose(
                   levels={levels}
                 />
                 <Button
-                  intent={lockGoal ? Intent.PRIMARY : Intent.NONE}
+                  intent={lockGoal ? Intent.SUCCESS : Intent.PRIMARY}
                   onClick={this.handleLockChange}
+                  minimal
                 >
-                  <FA name="lock" />
+                  <FA name={lockGoal ? 'lock' : 'unlock'} />
                 </Button>
               </div>
             </LevelSection>

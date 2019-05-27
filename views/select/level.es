@@ -8,6 +8,7 @@ import {
   Button,
   ButtonGroup,
   Classes,
+  Intent,
 } from '@blueprintjs/core'
 
 class LevelDropdown extends PureComponent {
@@ -22,7 +23,7 @@ class LevelDropdown extends PureComponent {
     const { levels } = this.props
     return (
       <Popover minimal position={Position.BOTTOM}>
-        <Button>
+        <Button minimal intent={Intent.PRIMARY}>
           <FA name="star" />
         </Button>
         <div>

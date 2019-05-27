@@ -10,16 +10,29 @@ import { mapDataSelctor } from '../selectors'
 import { EXP_BY_POI_DB } from '../constants'
 
 const PluginContainer = styled.div`
-  padding: 1ex 1em;
+  max-height: 80vh;
+  overflow: scroll;
+
+  ::-webkit-scrollbar {
+    height: 16px;
+    width: 16px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: ${props => props.theme.BLUE1};
+    height: 16px;
+    width: 16px;
+  }
 `
 
 const Table = styled(HTMLTable)`
   margin: 0 auto;
+  white-space: nowrap;
 
   thead th {
     color: #fff;
     position: sticky;
-    top: -4px;
+    top: 0;
 
     :nth-child(1) {
       background: ${props => props.theme.BLUE5};
