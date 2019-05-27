@@ -212,7 +212,7 @@ export const EXP_BY_POI_DB = {
   72: 213,
 }
 
-export const frequentMaps = [15, 23, 32, 43, 51, 53, 54]
+export const frequentMaps = [15, 21, 22, 42, 52, 53, 71]
 
 // ship types dated 20170106, beginning with id=1
 // const shipTypes = ["海防艦", "駆逐艦", "軽巡洋艦", "重雷装巡洋艦",
