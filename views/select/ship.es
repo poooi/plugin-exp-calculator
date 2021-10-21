@@ -110,7 +110,6 @@ const Menu = compose(
 
       const options = {
         keys: ['api_name', 'api_yomi', 'romaji'],
-        id: 'api_id',
         shouldSort: true,
       }
       this.fuse = new Fuse(values(props.ships), options)
@@ -168,9 +167,7 @@ const Menu = compose(
       const { query, startLevel, nextExp } = this.state
       const { ships, fleetMap, t } = this.props
 
-      const filtered = _(this.fuse.search(query))
-        .map(Number)
-        .value()
+      const filtered = _(this.fuse.search(query)).map(ship => ship.item.api_id)
       return (
         <Wrapper>
           <InputGroup
