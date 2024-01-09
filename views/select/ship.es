@@ -273,11 +273,10 @@ const Menu = compose(
 
 // separate menu from popover component to prevent unnecessary updates
 const ShipDropdown = ({ text, ...props }) => (
-  <Popover position={Position.BOTTOM} minimal>
+  <Popover position={Position.BOTTOM} minimal content={<Menu {...props} />}>
     <Button minimal intent={Intent.PRIMARY}>
       <FA name="list" /> {text}
     </Button>
-    <Menu {...props} />
   </Popover>
 )
 

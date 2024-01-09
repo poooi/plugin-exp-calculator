@@ -93,56 +93,61 @@ const MapDropdown = compose(
           : `${t('Custom')}: ${mapExp}`
 
       return (
-        <Popover position={Position.BOTTOM} minimal>
+        <Popover
+          position={Position.BOTTOM}
+          minimal
+          content={
+            <div>
+              <FormGroup inline label={t('Custom Exp')}>
+                <ControlGroup fill>
+                  <NumericInput
+                    value={exp}
+                    onValueChange={this.handleCustomExpChange}
+                  />
+                  <Button
+                    onClick={this.handleSetCustomExp}
+                    intent={Intent.PRIMARY}
+                    className={Classes.POPOVER_DISMISS}
+                  >
+                    {t('Confirm')}
+                  </Button>
+                </ControlGroup>
+              </FormGroup>
+              <ButtonGroup minimal>
+                {map(frequentMaps, id => (
+                  <Button
+                    intent={Intent.PRIMARY}
+                    key={id}
+                    onClick={this.handleSelect(id)}
+                    className={Classes.POPOVER_DISMISS}
+                  >
+                    {Math.floor(id / 10)}-{id % 10}
+                  </Button>
+                ))}
+              </ButtonGroup>
+              <MapList>
+                {map(maps, world => (
+                  <MapItem
+                    role="button"
+                    tabIndex="0"
+                    key={world.api_id}
+                    onClick={this.handleSelect(world.api_id)}
+                    className={cls(Classes.POPOVER_DISMISS, Classes.MENU_ITEM)}
+                  >
+                    <MapId>
+                      {world.api_maparea_id}-{world.api_no}
+                    </MapId>
+                    <MapName>{world.api_name}</MapName>
+                    {world.api_no > 4 && <Tag intent={Intent.PRIMARY}>EO</Tag>}
+                  </MapItem>
+                ))}
+              </MapList>
+            </div>
+          }
+        >
           <Button minimal intent={Intent.PRIMARY}>
             <FA name="map" /> {text}
           </Button>
-          <div>
-            <FormGroup inline label={t('Custom Exp')}>
-              <ControlGroup fill>
-                <NumericInput
-                  value={exp}
-                  onValueChange={this.handleCustomExpChange}
-                />
-                <Button
-                  onClick={this.handleSetCustomExp}
-                  intent={Intent.PRIMARY}
-                  className={Classes.POPOVER_DISMISS}
-                >
-                  {t('Confirm')}
-                </Button>
-              </ControlGroup>
-            </FormGroup>
-            <ButtonGroup minimal>
-              {map(frequentMaps, id => (
-                <Button
-                  intent={Intent.PRIMARY}
-                  key={id}
-                  onClick={this.handleSelect(id)}
-                  className={Classes.POPOVER_DISMISS}
-                >
-                  {Math.floor(id / 10)}-{id % 10}
-                </Button>
-              ))}
-            </ButtonGroup>
-            <MapList>
-              {map(maps, world => (
-                <MapItem
-                  role="button"
-                  tabIndex="0"
-                  key={world.api_id}
-                  onClick={this.handleSelect(world.api_id)}
-                  className={cls(Classes.POPOVER_DISMISS, Classes.MENU_ITEM)}
-                >
-                  <MapId>
-                    {world.api_maparea_id}-{world.api_no}
-                  </MapId>
-                  <MapName>{world.api_name}</MapName>
-                  {world.api_no > 4 && <Tag intent={Intent.PRIMARY}>EO</Tag>}
-                </MapItem>
-              ))}
-            </MapList>
-          </div>
         </Popover>
       )
     }

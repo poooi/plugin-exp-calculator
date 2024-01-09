@@ -22,25 +22,30 @@ class LevelDropdown extends PureComponent {
   render() {
     const { levels } = this.props
     return (
-      <Popover minimal position={Position.BOTTOM}>
+      <Popover
+        minimal
+        position={Position.BOTTOM}
+        content={
+          <div>
+            <ButtonGroup minimal />
+            {_(levels)
+              .map(level => (
+                <Button
+                  minimal
+                  key={level}
+                  onClick={this.handleSelect(level)}
+                  className={Classes.POPOVER_DISMISS}
+                >
+                  {level}
+                </Button>
+              ))
+              .value()}
+          </div>
+        }
+      >
         <Button minimal intent={Intent.PRIMARY}>
           <FA name="star" />
         </Button>
-        <div>
-          <ButtonGroup minimal />
-          {_(levels)
-            .map(level => (
-              <Button
-                minimal
-                key={level}
-                onClick={this.handleSelect(level)}
-                className={Classes.POPOVER_DISMISS}
-              >
-                {level}
-              </Button>
-            ))
-            .value()}
-        </div>
       </Popover>
     )
   }
