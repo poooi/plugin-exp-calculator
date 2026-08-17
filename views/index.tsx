@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react'
-import { Dialog } from 'views/components/etc/overlay'
-import styled from 'styled-components'
-import { observe } from 'redux-observers'
-import { store } from 'views/create-store'
 import { Button, Classes, Intent } from '@blueprintjs/core'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { observe } from 'redux-observers'
+import styled from 'styled-components'
+import { Dialog } from 'views/components/etc/overlay'
+import { store } from 'views/create-store'
 
 import { dataObserver } from '../reducer'
-import ShipExp from './exp'
+import { PLUGIN_KEY } from '../state'
 import Data from './data'
+import ShipExp from './exp'
 
 const PluginContainer = styled.div`
   padding: 1ex 1em;
@@ -20,17 +21,13 @@ const DataDialog = styled(Dialog)`
   max-height: 90vh;
 `
 
-let unsubscribe
-
 const ExpCalc = () => {
   const [isOpen, setIsOpen] = useState(false)
-  useEffect(() => {
-    unsubscribe = observe(store, [dataObserver])
 
-    return () => unsubscribe()
-  }, [])
+  // persist this plugin's slice of the store back to disk on every change
+  useEffect(() => observe(store, [dataObserver]), [])
 
-  const { t } = useTranslation('poi-plugin-exp-calc')
+  const { t } = useTranslation(PLUGIN_KEY)
 
   return (
     <div>
@@ -41,6 +38,8 @@ const ExpCalc = () => {
         </Button>
         <DataDialog
           isOpen={isOpen}
+          // Blueprint's own focus-trap prop, not the DOM `autofocus` attribute
+          // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
           canOutsideClickClose
           onClose={() => setIsOpen(false)}

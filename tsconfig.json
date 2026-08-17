@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "baseUrl": "."
+  },
+  "include": [
+    "*.ts",
+    "*.tsx",
+    "views/**/*.ts",
+    "views/**/*.tsx",
+    "shims/**/*.d.ts"
+  ],
+  "exclude": ["node_modules"]
+}

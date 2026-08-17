@@ -1,4 +1,4 @@
-export const exp = {
+export const exp: Record<number, number> = {
   1: 0,
   2: 100,
   3: 300,
@@ -186,7 +186,7 @@ export const exp = {
   185: 16000000,
 }
 
-export const EXP_BY_POI_DB = {
+export const EXP_BY_POI_DB: Record<number, number> = {
   11: 33,
   12: 64,
   13: 77,
@@ -222,7 +222,7 @@ export const EXP_BY_POI_DB = {
   72: 213,
 }
 
-export const frequentMaps = [15, 21, 22, 42, 52, 53, 71]
+export const frequentMaps: number[] = [15, 21, 22, 42, 52, 53, 71]
 
 // ship types dated 20170106, beginning with id=1
 // const shipTypes = ["海防艦", "駆逐艦", "軽巡洋艦", "重雷装巡洋艦",
@@ -231,7 +231,12 @@ export const frequentMaps = [15, 21, 22, 42, 52, 53, 71]
 // "工作艦", "潜水母艦", "練習巡洋艦", "補給艦"]
 // attention, shipCat uses api_id
 
-export const shipCat = [
+export interface ShipCategory {
+  name: string
+  id: number[]
+}
+
+export const shipCat: ShipCategory[] = [
   {
     name: 'BB',
     id: [8, 9, 10, 12],
@@ -268,16 +273,25 @@ export const shipCat = [
 
 export const MAX_LEVEL = Object.keys(exp).length
 
+/** Training cruiser ship type, whose presence in a fleet grants bonus exp. */
+export const TRAINING_CRUISER_STYPE = 21
+
 // battle result
 export const expLevel = ['S', 'A', 'B', 'C', 'D']
 
 // exp effect for battle results
 export const expPercent = [1.2, 1.0, 1.0, 0.8, 0.7]
 
-// bonus for training crusier as flagship
-export const bonusExpScaleFlagship = [[5, 8, 11, 15, 20], [10, 13, 16, 20, 25]]
+// bonus for training cruiser as flagship
+export const bonusExpScaleFlagship = [
+  [5, 8, 11, 15, 20],
+  [10, 13, 16, 20, 25],
+]
 
-// bonus for training crusier as flagship
-export const bonusExpScaleNonFlagship = [[3, 5, 7, 10, 15], [4, 6, 8, 12, 17.5]]
+// bonus for training cruiser as non-flagship
+export const bonusExpScaleNonFlagship = [
+  [3, 5, 7, 10, 15],
+  [4, 6, 8, 12, 17.5],
+]
 
 export const expClass = ['Basic', 'Flagship', 'MVP', 'MVP and flagship']

@@ -1,12 +1,10 @@
-import React, { useState } from 'react'
-import PropTypes from 'prop-types'
-import styled from 'styled-components'
-import { range } from 'lodash'
+import { useState } from 'react'
 import FA from 'react-fontawesome'
+import styled from 'styled-components'
 
+import { EXP_BY_POI_DB, expLevel, expPercent } from '../../constants'
 import MapSelect from '../select/map'
 import ResultTable from './table'
-import { expLevel, EXP_BY_POI_DB, expPercent } from '../../constants'
 
 const Selection = styled.div`
   display: flex;
@@ -14,22 +12,26 @@ const Selection = styled.div`
   align-items: center;
 `
 
-const SelectionItem = styled.div`
+const SelectionItem = styled.div<{ $checked: boolean }>`
   font-size: 150%;
   width: 30px;
   height: 30px;
   text-align: center;
   line-height: 30px;
   transition: 0.3s;
-  font-weight: ${props => props.checked && 500};
-  background: ${props => props.checked && props.theme.BLUE5};
+  font-weight: ${(props) => props.$checked && 500};
+  background: ${(props) => props.$checked && props.theme.BLUE5};
 `
 
 const Divider = styled.div`
   margin: 0 1em;
 `
 
-const ResultSelection = ({ totalExp }) => {
+interface ResultSelectionProps {
+  totalExp: number
+}
+
+const ResultSelection = ({ totalExp }: ResultSelectionProps) => {
   const [mapId, setMapId] = useState(0)
   const [mapExp, setMapExp] = useState(100)
   const [rank, setRank] = useState(0) // S victory
@@ -52,16 +54,15 @@ const ResultSelection = ({ totalExp }) => {
         <Divider>
           <FA name="times" />
         </Divider>
-        {range(expLevel.length).map(idx => (
+        {expLevel.map((level, idx) => (
           <SelectionItem
-            checked={rank === idx}
+            $checked={rank === idx}
             role="button"
-            tabIndex="0"
-            value={idx}
-            key={idx}
+            tabIndex={0}
+            key={level}
             onClick={() => setRank(idx)}
           >
-            {expLevel[idx]}
+            {level}
           </SelectionItem>
         ))}
       </Selection>
@@ -73,10 +74,6 @@ const ResultSelection = ({ totalExp }) => {
       />
     </>
   )
-}
-
-ResultSelection.propTypes = {
-  totalExp: PropTypes.number.isRequired,
 }
 
 export default ResultSelection

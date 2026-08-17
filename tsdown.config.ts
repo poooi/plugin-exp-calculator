@@ -1,0 +1,43 @@
+import { defineConfig } from 'tsdown'
+
+export default defineConfig({
+  entry: { index: 'index-src.ts' },
+  outDir: '.',
+  outExtensions: () => ({ js: '.js' }),
+  format: ['cjs'],
+  external: [
+    // Bundling Blueprint freezes its `bpN-` class namespace at build time,
+    // which then disagrees with the stylesheet poi loads. poi prepends its own
+    // node_modules for anything required from outside it (lib/module-path),
+    // so leaving this external makes the plugin follow poi's Blueprint major.
+    '@blueprintjs/core',
+    'react',
+    'react/jsx-runtime',
+    'react-dom',
+    'react-redux',
+    'redux-observers',
+    'react-fontawesome',
+    'styled-components',
+    'reselect',
+    'fast-memoize',
+    'fuse.js',
+    'wanakana',
+    'i18next',
+    'react-i18next',
+    'views/create-store',
+    'views/components/etc/overlay',
+    'views/env-parts/i18next',
+    'views/utils/selectors',
+    'electron',
+    'fs',
+    'fs/promises',
+    'path',
+  ],
+  dts: false,
+  clean: false,
+  sourcemap: true,
+  treeshake: true,
+  minify: true,
+  shims: false,
+  target: false,
+})
