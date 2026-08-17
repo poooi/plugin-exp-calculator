@@ -193,7 +193,11 @@ const Menu = ({ onSelect }: Pick<ShipDropdownProps, 'onSelect'>) => {
                     ),
                   [
                     (ship) => matchedIds?.indexOf(ship.api_id) ?? 0,
-                    (ship) => (type === 'fleet' ? fleetMap[ship.api_id] : 0),
+                    // the fleet tab lists ships in fleet order, flagship first
+                    (ship) =>
+                      type === 'fleet' ? fleetMap[ship.api_id].fleetId : 0,
+                    (ship) =>
+                      type === 'fleet' ? fleetMap[ship.api_id].index : 0,
                     (ship) => -ship.api_lv,
                     (ship) => -(ship.api_exp?.[0] ?? 0),
                   ],
@@ -208,7 +212,9 @@ const Menu = ({ onSelect }: Pick<ShipDropdownProps, 'onSelect'>) => {
                       {t(ship.api_name || '', { ns: 'resources' })}
                     </ShipName>
                     {ship.api_id in fleetMap && (
-                      <Tag intent={Intent.PRIMARY}>{fleetMap[ship.api_id]}</Tag>
+                      <Tag intent={Intent.PRIMARY}>
+                        {fleetMap[ship.api_id].fleetId}
+                      </Tag>
                     )}
                   </ShipItem>
                 ))}

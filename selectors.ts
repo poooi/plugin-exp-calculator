@@ -112,15 +112,22 @@ export const mapDataSelector = createSelector(
 
 const fleetsSelector = (state: PoiState) => state.info.fleets
 
-/** Maps a ship's api_id to the fleet it currently sits in. */
+export interface FleetPosition {
+  fleetId: number
+  /** Slot within the fleet, flagship being 0. */
+  index: number
+}
+
+/** Maps a ship's api_id to where it currently sits in the player's fleets. */
 export const shipFleetMapSelector = createSelector(
   [fleetsSelector],
-  (fleets): Record<number, number> =>
+  (fleets): Record<number, FleetPosition> =>
     Object.fromEntries(
-      (fleets ?? [])
-        .filter(Boolean)
-        .flatMap((fleet) =>
-          fleet.api_ship.filter((id) => id > 0).map((id) => [id, fleet.api_id]),
-        ),
+      (fleets ?? []).filter(Boolean).flatMap((fleet) =>
+        fleet.api_ship
+          // index before filtering, or empty slots would shift the rest up
+          .map((id, index) => [id, { fleetId: fleet.api_id, index }] as const)
+          .filter(([id]) => id > 0),
+      ),
     ),
 )
