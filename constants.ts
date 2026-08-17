@@ -184,6 +184,9 @@ export const exp: Record<number, number> = {
   183: 14200000,
   184: 15000000,
   185: 16000000,
+  186: 17200000,
+  187: 18600000,
+  188: 20200000,
 }
 
 export const EXP_BY_POI_DB: Record<number, number> = {
